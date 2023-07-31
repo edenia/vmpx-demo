@@ -12,3 +12,6 @@ tmp/
 !.yarn/plugins
 !*/.yarn/plugins
 .pnp.*
+
+# contracts
+build

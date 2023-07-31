@@ -6,8 +6,7 @@
 // network config, the action type and logic will be different
 
 export default {
-  type: `eosio.token:transfer,act.data.to=eosio.evm`,
-  notified_account: `eosio.evm`,
+  type: `vmpx:retire`,
   apply: async (action: any) => {
     // if (!isAddress(action.data.memo)) {
     //   return
@@ -27,7 +26,8 @@ export default {
       //   type: transferModel.interfaces.Type.incoming
       // })
 
-      console.log(`Returning funds: ${action}`)
+      console.log(`Returning funds`)
+      console.dir(action, { depth: null })
     } catch (error: any) {
       console.error(`error to sync ${action.action}: ${error.message}`)
     }

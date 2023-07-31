@@ -1,3 +1,3 @@
-import tokenTransferUpdater from './token-transfer.updater'
+import tokenRetireUpdater from './vmpx-retire.updater'
 
-export default [tokenTransferUpdater]
+export default [tokenRetireUpdater]

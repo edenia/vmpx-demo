@@ -65,7 +65,7 @@
                 },
                 {
                     "name": "quantity",
-                    "type": "name"
+                    "type": "asset"
                 },
                 {
                     "name": "eth_address",

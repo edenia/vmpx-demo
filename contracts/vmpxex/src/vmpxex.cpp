@@ -40,19 +40,21 @@ namespace exchange {
                             const eosio::asset &quantity ) {
     require_auth( get_self() );
 
-    eosio::action( eosio::permission_level{ get_self(), "active"_n },
+    // TODO: load address from account (address -> account)
+
+    eosio::action( eosio::permission_level{ vmpx_contract, "transferer"_n },
                    vmpx_contract,
                    "issue"_n,
-                   std::make_tuple( get_self(),
+                   std::make_tuple( vmpx_contract,
                                     quantity,
                                     std::string( "issue from vmpx bridge" ) ) )
         .send();
 
     eosio::action(
-        eosio::permission_level{ get_self(), "active"_n },
+        eosio::permission_level{ vmpx_contract, "transferer"_n },
         vmpx_contract,
         "transfer"_n,
-        std::make_tuple( get_self(),
+        std::make_tuple( vmpx_contract,
                          to,
                          quantity,
                          std::string( "transfer from vmpx bridge" ) ) )
@@ -60,7 +62,7 @@ namespace exchange {
   }
 
   ACTION vmpxex::withdraw( const eosio::name &account,
-                           const eosio::name &quantity,
+                           const eosio::asset &quantity,
                            const std::string &eth_address ) {
     // TODO: validate eth address is correct
     require_auth( account );
@@ -75,9 +77,9 @@ namespace exchange {
       eth_address_to_withdraw = account_itr->eth_address;
     }
 
-    eosio::action( eosio::permission_level{ get_self(), "active"_n },
+    eosio::action( eosio::permission_level{ vmpx_contract, "transferer"_n },
                    vmpx_contract,
-                   "retire"_n,
+                   "burn"_n,
                    std::make_tuple( quantity,
                                     std::string( account.to_string() + ":" +
                                                  eth_address_to_withdraw ) ) )

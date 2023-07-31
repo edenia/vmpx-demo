@@ -21,7 +21,7 @@ namespace exchange {
     ACTION unlinkaddr( const eosio::name &account );
     ACTION sendfunds( const eosio::name &to, const eosio::asset &quantity );
     ACTION withdraw( const eosio::name &account,
-                     const eosio::name &quantity,
+                     const eosio::asset &quantity,
                      const std::string &eth_address );
 
     //   using hi_action = action_wrapper< "hi"_n, &vmpxex::hi >;

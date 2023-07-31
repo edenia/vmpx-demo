@@ -61,6 +61,16 @@ namespace eosio {
          void retire( const asset& quantity, const string& memo );
 
          /**
+          * The opposite for create action, if all validations succeed,
+          * it debits the statstable.supply amount.
+          *
+          * @param quantity - the quantity of tokens to burn,
+          * @param memo - the memo string to accompany the transaction <account>:<eth_address>.
+          */
+         [[eosio::action]]
+         void burn( const asset& quantity, const string& memo );
+
+         /**
           * Allows `from` account to transfer to `to` account the `quantity` tokens.
           * One account is debited and the other is credited with quantity tokens.
           *
@@ -118,6 +128,7 @@ namespace eosio {
          using create_action = eosio::action_wrapper<"create"_n, &token::create>;
          using issue_action = eosio::action_wrapper<"issue"_n, &token::issue>;
          using retire_action = eosio::action_wrapper<"retire"_n, &token::retire>;
+         using burn_action = eosio::action_wrapper<"burn"_n, &token::burn>;
          using transfer_action = eosio::action_wrapper<"transfer"_n, &token::transfer>;
          using open_action = eosio::action_wrapper<"open"_n, &token::open>;
          using close_action = eosio::action_wrapper<"close"_n, &token::close>;

@@ -3,6 +3,8 @@ import { Server } from '@hapi/hapi'
 import routes from './routes'
 import ethListener from './services/listener.service'
 
+import workerService from './services/worker'
+
 const init = async () => {
   const server: Server = Hapi.server({
     port: process.env.PORT || 9090,
@@ -14,6 +16,7 @@ const init = async () => {
   server.start()
 
   ethListener.listenForEvents()
+  workerService.init()
 
   console.log(`🚀 Server ready at ${server.info.uri}`)
   server.table().forEach(route => console.log(`${route.method}\t${route.path}`))

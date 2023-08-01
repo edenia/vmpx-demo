@@ -1,3 +1,5 @@
 export * as serverConfig from './server.config'
 export * as hasuraConfig from './hasura.config'
 export * as hyperionConfig from './hyperion.config'
+export * as eosConfig from './eos.config'
+export * as ethConfig from './eth.config'

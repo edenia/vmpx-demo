@@ -21,12 +21,14 @@
     "@hapi/boom": "^10.0.0",
     "@hapi/hapi": "^20.2.2",
     "axios": "^0.27.2",
+    "eosjs": "^22.1.0",
+    "eosjs-api": "^7.0.4",
     "ethers": "5.7",
     "graphql": "^16.7.1",
     "graphql-request": "^5.0.0",
     "joi": "^17.6.4",
     "moment": "^2.29.4",
-    "node-fetch": "^3.2.10"
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "@types/hapi__hapi": "^20.0.13",

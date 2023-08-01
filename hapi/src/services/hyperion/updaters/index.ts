@@ -1,3 +1,3 @@
-import tokenRetireUpdater from './vmpx-retire.updater'
+import tokenBurnUpdater from './vmpx-burn.updater'
 
-export default [tokenRetireUpdater]
+export default [tokenBurnUpdater]

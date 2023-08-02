@@ -8,7 +8,7 @@ run:
 	make -B postgres
 	make -B hapi
 	make -B hasura
-	make -B -j 2 hapi-logs hasura-cli
+	make -B -j 3 hapi-logs hasura-cli webapp
 
 postgres:
 	@docker-compose stop postgres
@@ -48,6 +48,15 @@ hasura-cli:
 hasura-plant:
 	$(eval -include .env)
 	@cd hasura && hasura seeds apply --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET) --database-name default && echo "success!" || echo "failure!";
+
+webapp:
+	$(eval -include .env)
+	@until \
+		curl -s -o /dev/null -w 'hasura status %{http_code}\n' http://localhost:8080/healthz; \
+		do echo "$(BLUE)webapp |$(RESET) waiting for hasura service"; \
+		sleep 5; done;
+	@cd webapp && yarn && yarn start:local | cat
+	@echo "done webapp"
 
 stop:
 	@docker-compose stop

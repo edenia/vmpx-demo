@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { wax } from '../utils'
+// import { wax } from '../utils'
 
 const SharedStateContext = React.createContext()
 const initialValue = {
@@ -46,15 +46,16 @@ export const SharedStateProvider = ({ children, ...props }) => {
 
   useEffect(() => {
     const load = async () => {
-      await wax.isAutoLoginAvailable()
+      // await wax.isAutoLoginAvailable()
 
-      if (!wax.userAccount) {
-        return
-      }
+      // if (!wax.userAccount) {
+      //   return
+      // }
 
       dispatch({
         type: 'set',
-        payload: { user: { accountName: wax.userAccount } }
+        payload: {}
+        // payload: { user: { accountName: wax.userAccount } }
       })
     }
 
@@ -84,12 +85,14 @@ export const useSharedState = () => {
   const showMessage = payload => dispatch({ type: 'showMessage', payload })
   const hideMessage = () => dispatch({ type: 'hideMessage' })
   const login = async () => {
-    const accountName = await wax.login()
-    dispatch({ type: 'set', payload: { user: { accountName } } })
+    // const accountName = await wax.login()
+    // dispatch({ type: 'set', payload: { user: { accountName } } })
+
+    dispatch({ type: 'set', payload: { user: { accountName: 'abc' } } })
   }
   const logout = () => {
     dispatch({ type: 'set', payload: { user: null } })
-    delete wax.userAccount
+    // delete wax.userAccount
   }
 
   return [state, { setState, showMessage, hideMessage, login, logout }]

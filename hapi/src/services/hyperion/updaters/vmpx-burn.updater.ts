@@ -21,7 +21,7 @@ const sendFunds = async (ethAddress: string, quantity: string) => {
   if (!nonce) {
     nonce = await providerRpc.getTransactionCount(wallet.address, 'latest')
   }
-  // const amount =
+
   const gasLimit = await vmpxContract.estimateGas.transfer(
     ethAddress,
     quantity,

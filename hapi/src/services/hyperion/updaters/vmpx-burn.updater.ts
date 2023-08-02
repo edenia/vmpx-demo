@@ -17,16 +17,20 @@ const vmpxContract = new ethers.Contract(
 // TODO: convert it into a class
 let nonce = 0
 
-const sendFunds = async (ethAddress: string) => {
-  const gasPrice = await providerRpc.getGasPrice()
-  const toAddress = ethAddress
+const sendFunds = async (ethAddress: string, quantity: string) => {
   if (!nonce) {
     nonce = await providerRpc.getTransactionCount(wallet.address, 'latest')
   }
-  const amount = ethers.utils.parseUnits('0.1', 18)
-
-  const tx = await vmpxContract.transfer(toAddress, amount, {
-    gasLimit: gasPrice.mul(2),
+  // const amount =
+  const gasLimit = await vmpxContract.estimateGas.transfer(
+    ethAddress,
+    quantity,
+    {
+      nonce
+    }
+  )
+  const tx = await vmpxContract.transfer(ethAddress, quantity, {
+    gasLimit: gasLimit.mul(2),
     nonce
   })
 
@@ -45,14 +49,21 @@ export default {
 
       console.log(`\nReturning funds to Ethereum`)
 
+      console.log('Paying transaction')
+      console.log({ ...action.data, transaction_id: action.transaction_id })
+
       const destinataryAddress = action.data.memo.split(':')[1]
+      const quantity = action.data.quantity.split(' ')[0]
 
       if (!destinataryAddress) {
         console.log('No destinatary address found')
         return
       }
 
-      await sendFunds(destinataryAddress)
+      await sendFunds(
+        destinataryAddress,
+        ethers.utils.parseUnits(quantity, 18).toString()
+      )
     } catch (error: any) {
       console.error(`error to sync ${action.action}: ${error.message}`)
     }

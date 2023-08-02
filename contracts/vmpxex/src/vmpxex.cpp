@@ -36,9 +36,18 @@ namespace exchange {
     account_tb.erase( account_itr );
   }
 
-  ACTION vmpxex::sendfunds( const eosio::name  &to,
+  ACTION vmpxex::sendfunds( const std::string  &sender,
                             const eosio::asset &quantity ) {
     require_auth( get_self() );
+
+    auto eth_address_index = account_tb.get_index< "byethaddr"_n >();
+    auto eth_address_itr = eth_address_index.find(
+        eosio::sha256( sender.c_str(), sender.size() ) );
+
+    eosio::check( eth_address_itr != eth_address_index.end(),
+                  "eth address has no Libre account linked" );
+
+    eosio::name send_to = eth_address_itr->account;
 
     // TODO: load address from account (address -> account)
 
@@ -55,15 +64,15 @@ namespace exchange {
         vmpx_contract,
         "transfer"_n,
         std::make_tuple( vmpx_contract,
-                         to,
+                         send_to,
                          quantity,
                          std::string( "transfer from vmpx bridge" ) ) )
         .send();
   }
 
-  ACTION vmpxex::withdraw( const eosio::name &account,
+  ACTION vmpxex::withdraw( const eosio::name  &account,
                            const eosio::asset &quantity,
-                           const std::string &eth_address ) {
+                           const std::string  &eth_address ) {
     // TODO: validate eth address is correct
     require_auth( account );
 

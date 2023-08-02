@@ -36,8 +36,8 @@
             "base": "",
             "fields": [
                 {
-                    "name": "to",
-                    "type": "name"
+                    "name": "sender",
+                    "type": "string"
                 },
                 {
                     "name": "quantity",

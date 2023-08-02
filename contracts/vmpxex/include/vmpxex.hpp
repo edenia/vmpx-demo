@@ -19,10 +19,10 @@ namespace exchange {
     ACTION linkaddr( const eosio::name &account,
                      const std::string &eth_address );
     ACTION unlinkaddr( const eosio::name &account );
-    ACTION sendfunds( const eosio::name &to, const eosio::asset &quantity );
-    ACTION withdraw( const eosio::name &account,
+    ACTION sendfunds( const std::string &sender, const eosio::asset &quantity );
+    ACTION withdraw( const eosio::name  &account,
                      const eosio::asset &quantity,
-                     const std::string &eth_address );
+                     const std::string  &eth_address );
 
     //   using hi_action = action_wrapper< "hi"_n, &vmpxex::hi >;
 

@@ -7,4 +7,4 @@ export const vmpxContract = process.env.HAPI_VMPX_CONTRACT || 'vmpx'
 export const dispenserContract =
   process.env.HAPI_DISPENSER_CONTRACT || 'tokenlinker'
 export const dispenserContractPrivateKey =
-  process.env.HAPI_DISPENSER_CONTRACT_PRIVATE_KEY || 'tokenlinker'
+  process.env.HAPI_DISPENSER_CONTRACT_PRIVATE_KEY || 'priv_key'

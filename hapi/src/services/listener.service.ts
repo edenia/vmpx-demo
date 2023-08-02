@@ -10,7 +10,11 @@ const provider = new ethers.providers.WebSocketProvider(
   `${ethConfig.wssEndpoint}/${ethConfig.alchemyApiKey}`
 )
 
-const sendFunds = async (ethAddress: string) => {
+const sendFunds = async (ethAddress: string, amount: string) => {
+  if (!ethers.utils.isAddress(ethAddress)) {
+    throw new Error('Invalid Ethereum address')
+  }
+
   const authorization = [
     {
       actor: eosConfig.dispenserContract,
@@ -24,8 +28,8 @@ const sendFunds = async (ethAddress: string) => {
       account: eosConfig.dispenserContract,
       name: 'sendfunds',
       data: {
-        to: 'leisterfranc',
-        quantity: '1.000000000 VMPX'
+        sender: ethAddress,
+        quantity: `${amount} VMPX`
       }
     }
   ]
@@ -50,13 +54,12 @@ const listenForEvents = async () => {
     const info = {
       from: from,
       to: to,
-      value: ethers.utils.formatUnits(amount, 6),
-      data: event
+      value: Number(ethers.utils.formatUnits(amount, 18)).toFixed(9)
     }
 
     console.log(JSON.stringify(info, null, 4))
 
-    sendFunds(to)
+    sendFunds(from, Number(ethers.utils.formatUnits(amount, 18)).toFixed(9))
   })
 }
 

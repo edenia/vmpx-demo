@@ -32,26 +32,21 @@ const getLastSyncedAt = async () => {
 }
 
 const getGap = (lastSyncedAt: string) => {
-  if (moment().diff(moment(lastSyncedAt), 'days') > 0) {
-    return {
-      amount: 1,
-      unit: 'day'
-    }
-  }
+  // TODO: fix bug in calculating the gap
 
-  if (moment().diff(moment(lastSyncedAt), 'hours') > 0) {
-    return {
-      amount: 1,
-      unit: 'hour'
-    }
-  }
+  // if (moment().diff(moment(lastSyncedAt), 'minutes') > 0) {
+  //   return {
+  //     amount: 1,
+  //     unit: 'minute'
+  //   }
+  // }
 
   if (
     moment().diff(moment(lastSyncedAt), 'seconds') >=
     TIME_BEFORE_IRREVERSIBILITY * 2
   ) {
     return {
-      amount: TIME_BEFORE_IRREVERSIBILITY,
+      amount: TIME_BEFORE_IRREVERSIBILITY * 2,
       unit: 'seconds'
     }
   }

@@ -32,31 +32,12 @@ const getLastSyncedAt = async () => {
 }
 
 const getGap = (lastSyncedAt: string) => {
-  // TODO: fix bug in calculating the gap
-
-  // if (moment().diff(moment(lastSyncedAt), 'minutes') > 0) {
-  //   return {
-  //     amount: 1,
-  //     unit: 'minute'
-  //   }
-  // }
-
   if (
     moment().diff(moment(lastSyncedAt), 'seconds') >=
-    TIME_BEFORE_IRREVERSIBILITY * 2
+    TIME_BEFORE_IRREVERSIBILITY
   ) {
     return {
-      amount: TIME_BEFORE_IRREVERSIBILITY * 2,
-      unit: 'seconds'
-    }
-  }
-
-  if (
-    moment().diff(moment(lastSyncedAt), 'seconds') >=
-    TIME_BEFORE_IRREVERSIBILITY + 10
-  ) {
-    return {
-      amount: 10,
+      amount: TIME_BEFORE_IRREVERSIBILITY,
       unit: 'seconds'
     }
   }
@@ -117,6 +98,7 @@ const runUpdaters = async (actions: any[]) => {
 }
 
 const sync = async (): Promise<void> => {
+  console.log('\nHyperion syncing...')
   await coreUtil.hasura.hasuraAssembled()
   const lastSyncedAt = await getLastSyncedAt()
   const gap = getGap(lastSyncedAt)
@@ -125,11 +107,17 @@ const sync = async (): Promise<void> => {
     .add(gap.amount, gap.unit as DurationInputArg2)
     .toISOString()
   const diff = moment().diff(moment(before), 'seconds')
+
   let skip = 0
   let hasMore = true
   let actions = []
 
   if (diff < TIME_BEFORE_IRREVERSIBILITY) {
+    console.log(
+      `Waiting for irreversibility: ${
+        TIME_BEFORE_IRREVERSIBILITY - diff
+      } seconds left`
+    )
     await timeUtil.sleep(TIME_BEFORE_IRREVERSIBILITY - diff)
 
     return sync()

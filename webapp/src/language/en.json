@@ -6,13 +6,13 @@
     "darkMode": "Dark Mode"
   },
   "routes": {
-    "/>title": "WAX Boilerplate",
+    "/>title": "VMPX DEMO",
     "/>sidebar": "Home",
     "/>heading": "Welcome",
-    "/about>title": "About | WAX Boilerplate",
+    "/about>title": "About | VMPX DEMO",
     "/about>sidebar": "About",
     "/about>heading": "About",
-    "/help>title": "Help | WAX Boilerplate",
+    "/help>title": "Help | VMPX DEMO",
     "/help>sidebar": "Help",
     "/help>heading": "Help",
     "docs": "Docs",

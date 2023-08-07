@@ -1,0 +1,165 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT ",
+    "version": "eosio::abi/1.2",
+    "types": [],
+    "structs": [
+        {
+            "name": "account",
+            "base": "",
+            "fields": [
+                {
+                    "name": "balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "closefeetable",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pair_token",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "closevote",
+            "base": "",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "pair_token",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "feeaccount",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pair_token",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "fee_index_voted",
+                    "type": "int32"
+                }
+            ]
+        },
+        {
+            "name": "feetable",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pair_token",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "votes",
+                    "type": "int64[]"
+                }
+            ]
+        },
+        {
+            "name": "openfeetable",
+            "base": "",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "pair_token",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "updatefee",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pair_token",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "votefee",
+            "base": "",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "pair_token",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "fee_voted",
+                    "type": "int32"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "closefeetable",
+            "type": "closefeetable",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "closevote",
+            "type": "closevote",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "openfeetable",
+            "type": "openfeetable",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "updatefee",
+            "type": "updatefee",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "votefee",
+            "type": "votefee",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "accounts",
+            "type": "account",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "feeaccount",
+            "type": "feeaccount",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "feetable",
+            "type": "feetable",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "kv_tables": {},
+    "ricardian_clauses": [],
+    "variants": [],
+    "action_results": []
+}

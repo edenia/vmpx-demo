@@ -8,3 +8,4 @@ endif()
 
 add_subdirectory(vmpxex)
 add_subdirectory(eosio.token)
+add_subdirectory(swap.libre)

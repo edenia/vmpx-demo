@@ -1,7 +1,7 @@
 project(token)
 
 set(EOSIO_WASM_OLD_BEHAVIOR "Off")
-find_package(blanc)
+find_package(cdt)
 
 add_contract(eosio.token eosio.token ${CMAKE_CURRENT_SOURCE_DIR}/eosio.token.cpp)
 

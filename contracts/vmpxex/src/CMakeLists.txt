@@ -1,7 +1,7 @@
 project(vmpxex)
 
 set(EOSIO_WASM_OLD_BEHAVIOR "Off")
-find_package(blanc)
+find_package(cdt)
 
 add_contract( vmpxex vmpxex vmpxex.cpp )
 target_include_directories( vmpxex PUBLIC ${CMAKE_SOURCE_DIR}/../include )

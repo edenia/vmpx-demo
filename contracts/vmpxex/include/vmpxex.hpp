@@ -3,7 +3,7 @@
 #include <eosio/eosio.hpp>
 
 namespace exchange {
-  inline constexpr eosio::name vmpx_contract = "vmpx"_n;
+  inline constexpr eosio::name evmpx_contract = "evmpx"_n;
 
   CONTRACT vmpxex : public eosio::contract {
 

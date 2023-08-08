@@ -51,19 +51,19 @@ namespace exchange {
 
     // TODO: load address from account (address -> account)
 
-    eosio::action( eosio::permission_level{ vmpx_contract, "transferer"_n },
-                   vmpx_contract,
+    eosio::action( eosio::permission_level{ evmpx_contract, "transferer"_n },
+                   evmpx_contract,
                    "issue"_n,
-                   std::make_tuple( vmpx_contract,
+                   std::make_tuple( evmpx_contract,
                                     quantity,
                                     std::string( "issue from vmpx bridge" ) ) )
         .send();
 
     eosio::action(
-        eosio::permission_level{ vmpx_contract, "transferer"_n },
-        vmpx_contract,
+        eosio::permission_level{ evmpx_contract, "transferer"_n },
+        evmpx_contract,
         "transfer"_n,
-        std::make_tuple( vmpx_contract,
+        std::make_tuple( evmpx_contract,
                          send_to,
                          quantity,
                          std::string( "transfer from vmpx bridge" ) ) )
@@ -86,8 +86,8 @@ namespace exchange {
       eth_address_to_withdraw = account_itr->eth_address;
     }
 
-    eosio::action( eosio::permission_level{ vmpx_contract, "transferer"_n },
-                   vmpx_contract,
+    eosio::action( eosio::permission_level{ evmpx_contract, "transferer"_n },
+                   evmpx_contract,
                    "burn"_n,
                    std::make_tuple( quantity,
                                     std::string( account.to_string() + ":" +

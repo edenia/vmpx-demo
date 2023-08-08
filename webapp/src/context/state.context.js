@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
+import { loginLibre } from './LibreClient'
+
 // import { wax } from '../utils'
 
 const SharedStateContext = React.createContext()
 const initialValue = {
   useDarkMode: false,
   user: null,
+  ethAccountAddress: null,
   connectMeta: false,
   connectLibre: false
 }
@@ -85,10 +88,11 @@ export const useSharedState = () => {
   const showMessage = payload => dispatch({ type: 'showMessage', payload })
   const hideMessage = () => dispatch({ type: 'hideMessage' })
   const login = async () => {
-    // const accountName = await wax.login()
-    // dispatch({ type: 'set', payload: { user: { accountName } } })
+    const { user, error } = await loginLibre()
+    console.log({ user })
+    dispatch({ type: 'set', payload: { user } })
 
-    dispatch({ type: 'set', payload: { user: { accountName: 'abc' } } })
+    return { user, error }
   }
   const logout = () => {
     dispatch({ type: 'set', payload: { user: null } })

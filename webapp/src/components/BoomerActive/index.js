@@ -72,8 +72,8 @@ const BoomerActive = () => {
           ))}
         </Box>
         <Box>
-          <Typography variant="body1">{state.user}</Typography>
-          <Typography variant="body1">0x5622...hg6</Typography>
+          <Typography variant="body1">{state.user.actor}</Typography>
+          <Typography variant="body1">{state.ethAccountAddress}</Typography>
         </Box>
       </Box>
       <Box

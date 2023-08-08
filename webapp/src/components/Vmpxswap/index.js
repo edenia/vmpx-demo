@@ -6,7 +6,7 @@ import { ethers } from 'ethers'
 import { useSharedState } from '../../context/state.context'
 
 const Vmpxswap = () => {
-  const [, { setState }] = useSharedState()
+  const [state, { setState, login }] = useSharedState()
 
   const [accountAddress, setAccountAddress] = useState('')
 
@@ -22,6 +22,7 @@ const Vmpxswap = () => {
       const provider = new ethers.BrowserProvider(ethereum)
       const signer = await provider.getSigner()
       const address = await signer.getAddress()
+      setState({ param: 'ethAccountAddress', ethAccountAddress: address })
 
       setAccountAddress(address)
     } catch (error) {
@@ -47,9 +48,8 @@ const Vmpxswap = () => {
     }
   }
 
-  const connectLibre = () => {
-    setState({ param: 'connectLibre', connectLibre: true })
-    setState({ param: 'user', user: 'Boomer' })
+  const connectLibre = async () => {
+    await login()
   }
 
   useEffect(() => {
@@ -57,11 +57,12 @@ const Vmpxswap = () => {
   }, [])
 
   useEffect(() => {
-    if (accountAddress) {
+    if (accountAddress && state?.user?.actor) {
       setState({ param: 'connectMeta', connectMeta: true })
-      setState({ param: 'user', user: 'Boomer' })
+      setState({ param: 'connectLibre', connectLibre: true })
+      // setState({ param: 'user', user: 'Boomer' })
     }
-  }, [accountAddress])
+  }, [accountAddress, state?.user?.actor])
 
   return (
     <Box
@@ -90,7 +91,7 @@ const Vmpxswap = () => {
         </Button>
         <br />
         <Button variant="outlined" onClick={() => connectLibre()}>
-          Connect Libre
+          {state?.user?.actor || 'Connect Libre'}
         </Button>
       </Box>
     </Box>

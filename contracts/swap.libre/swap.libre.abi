@@ -50,16 +50,6 @@
             ]
         },
         {
-            "name": "clearall",
-            "base": "",
-            "fields": [
-                {
-                    "name": "max_steps",
-                    "type": "uint32"
-                }
-            ]
-        },
-        {
             "name": "close",
             "base": "",
             "fields": [
@@ -349,11 +339,6 @@
         {
             "name": "changefee",
             "type": "changefee",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "clearall",
-            "type": "clearall",
             "ricardian_contract": ""
         },
         {

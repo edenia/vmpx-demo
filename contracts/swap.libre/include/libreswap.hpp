@@ -12,11 +12,11 @@ namespace libreswaps {
 
   class [[eosio::contract( "swap.libre" )]] libreswap : public contract {
   public:
-    const name FEE_CONTRACT = "sfeetest"_n;
-    const int64_t  MAX = eosio::asset::max_amount;
-    const int64_t  INIT_MAX = 1000000000000000; // 10^15
-    const int      ADD_LIQUIDITY_FEE = 1;
-    const int      DEFAULT_FEE = 10;
+    const name    FEE_CONTRACT = "sfeetest"_n;
+    const int64_t MAX = eosio::asset::max_amount;
+    const int64_t INIT_MAX = 1000000000000000; // 10^15
+    const int     ADD_LIQUIDITY_FEE = 1;
+    const int     DEFAULT_FEE = 10;
 
     using contract::contract;
     [[eosio::action]] void inittoken( name           user,
@@ -56,9 +56,8 @@ namespace libreswaps {
     open( const name &owner, const symbol &symbol, const name &ram_payer );
     [[eosio::action]] void close( const name &owner, const symbol &symbol );
     [[eosio::action]] void
-                           indexpair( name   user,
-                                      symbol swap_symbpol ); // This action is only temporarily useful
-    [[eosio::action]] void clearall( uint32_t max_steps );
+    indexpair( name   user,
+               symbol swap_symbpol ); // This action is only temporarily useful
 
   private:
     struct [[eosio::table]] account {

@@ -140,19 +140,28 @@ namespace libreswaps {
     auto P1 = token->pool1.quantity.amount;
     auto P2 = token->pool2.quantity.amount;
 
-    int  fee = is_buying ? ADD_LIQUIDITY_FEE : 0;
-    auto to_pay1 = extended_asset{ asset{ compute( to_add.amount, P1, A, fee ),
-                                          token->pool1.quantity.symbol },
-                                   token->pool1.contract };
-    auto to_pay2 = extended_asset{ asset{ compute( to_add.amount, P2, A, fee ),
-                                          token->pool2.quantity.symbol },
-                                   token->pool2.contract };
+    int fee = is_buying ? ADD_LIQUIDITY_FEE : 0;
+    // auto to_pay1 = extended_asset{ asset{ compute( to_add.amount, P1, A, fee ),
+    //                                       token->pool1.quantity.symbol },
+    //                                token->pool1.contract };
+    // auto to_pay2 = extended_asset{ asset{ compute( to_add.amount, P2, A, fee ),
+    //                                       token->pool2.quantity.symbol },
+    //                                token->pool2.contract };
+    auto to_pay1 = extended_asset{
+        asset{ max_asset1.amount, token->pool1.quantity.symbol },
+        token->pool1.contract };
+    auto to_pay2 = extended_asset{
+        asset{ max_asset2.amount, token->pool2.quantity.symbol },
+        token->pool2.contract };
     check( ( to_pay1.quantity.symbol == max_asset1.symbol ) &&
                ( to_pay2.quantity.symbol == max_asset2.symbol ),
            "incorrect symbol" );
-    check( ( to_pay1.quantity.amount <= max_asset1.amount ) &&
-               ( to_pay2.quantity.amount <= max_asset2.amount ),
-           "available is less than expected" );
+    // check( ( to_pay1.quantity.amount <= max_asset1.amount ) &&
+    //            ( to_pay2.quantity.amount <= max_asset2.amount ),
+    //        "available is less than expected" );
+    check( ( to_pay1.quantity.amount == to_add.amount ) &&
+               ( to_pay2.quantity.amount == to_add.amount ),
+           "amounts must be equal" );
 
     add_signed_ext_balance( user, -to_pay1 );
     add_signed_ext_balance( user, -to_pay2 );
@@ -210,8 +219,9 @@ namespace libreswaps {
       P_in = token->pool2.quantity.amount;
       P_out = token->pool1.quantity.amount;
     }
-    auto    A_in = ext_asset_in.quantity.amount;
-    int64_t A_out = compute( -A_in, P_out, P_in + A_in, token->fee );
+    auto A_in = ext_asset_in.quantity.amount;
+    // int64_t A_out = compute( -A_in, P_out, P_in + A_in, token->fee );
+    int64_t A_out = -A_in * ( 1 - ( token->fee / 100.0 ) );
     check( min_expected.amount <= -A_out, "available is less than expected" );
     extended_asset ext_asset1, ext_asset2, ext_asset_out;
     if ( in_first ) {
@@ -230,7 +240,9 @@ namespace libreswaps {
     return ext_asset_out;
   }
 
-  // BEVMPX,14.8500 EVMPX,trade 15.0000 BVMPX
+  // incoming: 2.000000000 BVMPX
+  // BEVMPX,2.000000000 VMPX,trade
+  // result = 2.000000000 VMPX * .99 = 1.980000000 VMPX
   void libreswap::memoexchange( name           user,
                                 extended_asset ext_asset_in,
                                 string_view    details ) {
@@ -288,7 +300,8 @@ namespace libreswaps {
     const auto &token = statstable.find( new_symbol.code().raw() );
     check( token == statstable.end(), "token symbol already exists" );
     check( initial_fee == DEFAULT_FEE, "initial_fee must be 10" );
-    check( fee_contract == FEE_CONTRACT, "fee_contract must be " + FEE_CONTRACT.to_string() );
+    check( fee_contract == FEE_CONTRACT,
+           "fee_contract must be " + FEE_CONTRACT.to_string() );
 
     statstable.emplace( user, [&]( auto &a ) {
       a.supply = new_token;
@@ -374,9 +387,5 @@ namespace libreswaps {
                "To redeem, you must redeem ALL LP tokens" );
       }
     } );
-  }
-
-  void libreswap::libreswap::clearall( uint32_t max_steps ) {
-    // code
   }
 } // namespace libreswaps

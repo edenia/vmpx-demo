@@ -47,18 +47,3 @@ namespace exchange {
     account_table account_tb;
   };
 } // namespace exchange
-
-// 1. create a linkaddress action to link every eth address to a Libre account (1:1 relation)
-// - this action can only be called with the permission of the caller
-// - this action can only be called once per eth address
-// 2. create a unlinkaddress action to unlink an eth address from a Libre account (1:1 relation)
-// - this action can only be called with the permission of the called
-// 3. create a withdraw action to return the vmpx tokens to the eth address.
-// - funds can be withdrawn to any eth address, but if no address is specified
-//   the funds will be withdrawn to the linked eth address.
-// - the format to withdraw action will needs to receive a valid eth address
-
-// Requirements
-// 1. create eosio.code permission for this contract
-// 2. give permission from [vmpx contract name] to this contract to be able to issue and transfer tokens on behalf of the [vmpx contract name]
-// 3. give permission from [vmpx contract name] to this contract to be able to burn tokens

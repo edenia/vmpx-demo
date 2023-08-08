@@ -110,7 +110,6 @@ namespace libreswaps {
 
   // computes x * y / z plus the fee
   int64_t libreswap::compute( int64_t x, int64_t y, int64_t z, int fee ) {
-    // compute( -A_in, P_out, P_in + A_in, token->fee )
     check( ( x != 0 ) && ( y > 0 ) && ( z > 0 ), "invalid parameters" );
     int128_t prod = int128_t( x ) * int128_t( y );
     int128_t tmp = 0;
@@ -289,7 +288,7 @@ namespace libreswaps {
     const auto &token = statstable.find( new_symbol.code().raw() );
     check( token == statstable.end(), "token symbol already exists" );
     check( initial_fee == DEFAULT_FEE, "initial_fee must be 10" );
-    check( fee_contract == "sfee.libre"_n, "fee_contract must be sfee.libre" );
+    check( fee_contract == FEE_CONTRACT, "fee_contract must be " + FEE_CONTRACT.to_string() );
 
     statstable.emplace( user, [&]( auto &a ) {
       a.supply = new_token;

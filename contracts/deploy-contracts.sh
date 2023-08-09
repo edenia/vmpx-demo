@@ -20,10 +20,10 @@ deploy_swap_contract() {
     echo "Deploying swap contract..."
 
     echo "1. Deploying Swap contract"
-    cleos.sh set contract swaptest ./swap.libre swap.libre.wasm swap.libre.abi -p swaptest@active
+    cleos.sh set contract swapvmpx ./swap.libre swap.libre.wasm swap.libre.abi -p swapvmpx@active
 
     echo "2. Deploying SFee contract"
-    cleos.sh set contract sfeetest ./sfee.libre sfee.libre.wasm sfee.libre.abi -p sfeetest@active
+    cleos.sh set contract sfeevmpx ./sfee.libre sfee.libre.wasm sfee.libre.abi -p sfeevmpx@active
 }
 
 deploy_token_contracts

@@ -52,7 +52,7 @@ namespace libreswaps {
 
     if ( from == get_self() )
       return;
-    check( to == get_self(), "This transfer is not for swap.libre" );
+    check( to == get_self(), "This transfer is not for swapvmpx" );
     check( quantity.amount >= 0, "quantity must be positive" );
 
     auto        incoming = extended_asset{ quantity, get_first_receiver() };

@@ -24,8 +24,6 @@ namespace exchange {
                      const eosio::asset &quantity,
                      const std::string  &eth_address );
 
-    //   using hi_action = action_wrapper< "hi"_n, &vmpxex::hi >;
-
     TABLE account {
       eosio::name        account;
       std::string        eth_address;

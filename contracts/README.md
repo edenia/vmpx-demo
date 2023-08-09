@@ -5,9 +5,9 @@
 ```sh
 create_accounts() {
     # swap contracts
-    cleos.sh create account eosio swaptest EOS55J1v4pUbPGt6kh8dv4bZ9U2NBjv82KrmEBS1n7kQF9hzZ8LYZ
+    cleos.sh create account eosio swapvmpx EOS55J1v4pUbPGt6kh8dv4bZ9U2NBjv82KrmEBS1n7kQF9hzZ8LYZ
 
-    cleos.sh create account eosio sfeetest EOS6aiUJFbYGPztL73hr8ebCt7Nnt52LcH4hbhj98ui9QJPX4upcs
+    cleos.sh create account eosio sfeevmpx EOS6aiUJFbYGPztL73hr8ebCt7Nnt52LcH4hbhj98ui9QJPX4upcs
 
     # token contracts
     cleos.sh create account eosio evmpx EOS6mueis2odquS6h9N5nfTXLYrRRnGwGjMVQfysadKBo2NzXJqqa
@@ -19,8 +19,8 @@ create_accounts() {
 }
 
 give_contract_resources() {
-    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "swaptest", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
-    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "sfeetest", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
+    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "swapvmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
+    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "sfeevmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
     cleos push action eosio setalimits '{"authorizer": "eosio", "account": "evmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
     cleos push action eosio setalimits '{"authorizer": "eosio", "account": "bvmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
     cleos push action eosio setalimits '{"authorizer": "eosio", "account": "tokenlinker", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
@@ -37,7 +37,7 @@ setup_permission() {
     cleos.sh set account permission tokenlinker active --add-code -p tokenlinker@active
 
     # set eosio.code permission for tokenlinker
-    cleos.sh set account permission --add-code swaptest active -p swaptest
+    cleos.sh set account permission --add-code swapvmpx active -p swapvmpx
 }
 
 setup_token_contract() {
@@ -64,8 +64,8 @@ setup_swap_contract() {
     CLEOS="cleos.sh"
     YOUR_ACCOUNT_ALICE="alice"
     YOUR_ACCOUNT_BOB="bob"
-    SWAPCONTRACT="swaptest"
-    FEECONTRACT="sfeetest"
+    SWAPCONTRACT="swapvmpx"
+    FEECONTRACT="sfeevmpx"
     B_SYMBOL="BVMPX"
     B_CONTRACT="bvmpx"
     B_PRECISION="9"
@@ -116,6 +116,7 @@ trade() {
 }
 
 remove_liquidity() {
+    # BOB - Remove liquidity
     $CLEOS push action $SWAPCONTRACT remliquidity '["'"$YOUR_ACCOUNT_BOB"'", "1.000000000 '$BE_SYMBOL'", "1.000000000 '"$B_SYMBOL"'", "1.000000000 '"$E_SYMBOL"'"]' -p $YOUR_ACCOUNT_BOB
 }
 ```

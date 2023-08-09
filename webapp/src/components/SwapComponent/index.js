@@ -34,6 +34,9 @@ const SwapComponent = () => {
   }
 
   const handleSetevmpx = value => {
+    if (value.split('.')[1] && value.split('.')[1].length > 9)
+      value = String(Number(value).toFixed(9))
+
     if (firstToken.symbol === 'eVMPX') {
       setFirstToken({ ...firstToken, amount: value })
       setSecondToken({ ...secondToken, amount: value * fee })
@@ -44,6 +47,9 @@ const SwapComponent = () => {
   }
 
   const handleSetbvmpx = value => {
+    if (value.split('.')[1] && value.split('.')[1].length > 9)
+      value = String(Number(value).toFixed(9))
+
     if (secondToken.symbol === 'bVMPX') {
       setSecondToken({ ...secondToken, amount: value })
       setFirstToken({ ...firstToken, amount: value / fee })
@@ -115,7 +121,7 @@ const SwapComponent = () => {
     setBalances(response)
     setFee(1 - feeResponse.fee / 100)
     console.log({ response, feeResponse, fee })
-  }, [])
+  }, [state.user.actor])
 
   return (
     <Box
@@ -130,12 +136,12 @@ const SwapComponent = () => {
         <Box>
           <Typography variant="body1">Balances:</Typography>
           {balances.map(item => (
-            <Box display="flex" key={item.symbol}>
+            <Box display="flex" key={item?.symbol}>
               <Typography variant="body2" minWidth={110} align="left">
-                {getAmount(item.balance.quantity)}
+                {getAmount(item?.balance?.quantity)}
               </Typography>
               <Typography variant="body2" align="left">
-                {getSymbol(item.balance.quantity)}
+                {getSymbol(item?.balance?.quantity)}
               </Typography>
             </Box>
           ))}

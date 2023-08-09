@@ -1,9 +1,7 @@
 import EosApi from 'eosjs-api'
 
-import { walletConfig } from '../config'
-
 export const eosApi = EosApi({
-  httpEndpoint: walletConfig.rpcEndpoint,
+  httpEndpoint: 'https://testnet.libre.org',
   verbose: false,
   fetchConfiguration: {}
 })

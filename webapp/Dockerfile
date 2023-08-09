@@ -19,6 +19,7 @@ ENV NODE_PATH ./src
 ENV REACT_APP_TAG $react_app_tag
 ENV REACT_APP_NAME $react_app_name
 ENV REACT_APP_TITLE $react_app_title
+ENV REACT_APP_CONTRACT_ADDRESS_ETH $react_app_contract_address_eth
 ENV REACT_APP_LOGO $react_app_logo
 ENV REACT_APP_FOOTER_LINKS $react_app_footer_links
 ENV REACT_APP_WAX_APP_NAME $react_app_wax_app_name

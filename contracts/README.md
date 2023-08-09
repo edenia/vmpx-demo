@@ -19,11 +19,11 @@ create_accounts() {
 }
 
 give_contract_resources() {
-    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "swapvmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
-    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "sfeevmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
-    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "evmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
-    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "bvmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
-    cleos push action eosio setalimits '{"authorizer": "eosio", "account": "tokenlinker", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
+    cleos.sh push action eosio setalimits '{"authorizer": "eosio", "account": "swapvmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
+    cleos.sh push action eosio setalimits '{"authorizer": "eosio", "account": "sfeevmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
+    cleos.sh push action eosio setalimits '{"authorizer": "eosio", "account": "evmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
+    cleos.sh push action eosio setalimits '{"authorizer": "eosio", "account": "bvmpx", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
+    cleos.sh push action eosio setalimits '{"authorizer": "eosio", "account": "tokenlinker", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
 }
 
 setup_permission() {
@@ -49,7 +49,6 @@ setup_token_contract() {
 issue_and_transfer_tokens() {
     # issue tokens
     cleos.sh push action evmpx issue '["evmpx", "500.000000000 EVMPX", "issue tokens for testing"]' -p evmpx
-
     cleos.sh push action bvmpx issue '["bvmpx", "500.000000000 BVMPX", "issue tokens for testing"]' -p bvmpx
 
     # transfer tokens

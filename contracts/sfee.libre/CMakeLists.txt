@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(token)
+project(swapfee)
 include(ExternalProject)
 
 # if no cdt root is given use default path
@@ -8,9 +8,9 @@ if(CDT_ROOT STREQUAL "" OR NOT CDT_ROOT)
 endif()
 
 ExternalProject_Add(
-   token_project
-   SOURCE_DIR ${CMAKE_SOURCE_DIR}/eosio.token/src
-   BINARY_DIR ${CMAKE_BINARY_DIR}/eosio.token
+   swapfee_project
+   SOURCE_DIR ${CMAKE_SOURCE_DIR}/sfee.libre/src
+   BINARY_DIR ${CMAKE_BINARY_DIR}/sfee.libre
    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake
    UPDATE_COMMAND ""
    PATCH_COMMAND ""

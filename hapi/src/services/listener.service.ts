@@ -27,7 +27,7 @@ const sendFunds = async (ethAddress: string, amount: string) => {
       name: 'sendfunds',
       data: {
         sender: ethAddress,
-        quantity: `${amount} VMPX`
+        quantity: `${amount} EVMPX`
       }
     }
   ]

@@ -22,6 +22,7 @@ const SwapComponent = () => {
   const [fee, setFee] = useState()
   const [balances, setBalances] = useState([])
   const [amountReceiveEth, setAmountReceiveEth] = useState(0)
+  const [amountSendEth, setAmountSendEth] = useState(0)
   const [firstToken, setFirstToken] = useState({ amount: 0, symbol: 'eVMPX' })
   const [secondToken, setSecondToken] = useState({ amount: 0, symbol: 'bVMPX' })
 
@@ -254,6 +255,7 @@ const SwapComponent = () => {
           <OutlinedInput
             className={classes.textFieldStyles}
             id="outlined-adornment-weight"
+            value={amountSendEth}
             type="number"
             onChange={e => {
               let value = e.target.value
@@ -262,7 +264,7 @@ const SwapComponent = () => {
                 value = 0
               }
 
-              handleSetbvmpx(value)
+              setAmountSendEth(value)
             }}
             endAdornment={<InputAdornment position="end">eVMPX</InputAdornment>}
           />

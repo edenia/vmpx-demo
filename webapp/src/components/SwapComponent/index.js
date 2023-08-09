@@ -21,8 +21,8 @@ const SwapComponent = () => {
   const [state] = useSharedState()
   const [fee, setFee] = useState()
   const [balances, setBalances] = useState([])
-  const [amountReceiveEth, setAmountReceiveEth] = useState(0)
   const [amountSendEth, setAmountSendEth] = useState(0)
+  const [amountReceiveEth, setAmountReceiveEth] = useState(0)
   const [firstToken, setFirstToken] = useState({ amount: 0, symbol: 'eVMPX' })
   const [secondToken, setSecondToken] = useState({ amount: 0, symbol: 'bVMPX' })
 
@@ -40,10 +40,24 @@ const SwapComponent = () => {
 
     if (firstToken.symbol === 'eVMPX') {
       setFirstToken({ ...firstToken, amount: value })
-      setSecondToken({ ...secondToken, amount: value * fee })
+      setSecondToken({
+        ...secondToken,
+        amount:
+          String(value * fee).split('.')[1] &&
+          String(value * fee).split('.')[1].length > 9
+            ? String(Number(value * fee).toFixed(9))
+            : value * fee
+      })
     } else {
       setFirstToken({ ...firstToken, amount: value })
-      setSecondToken({ ...secondToken, amount: value * fee })
+      setSecondToken({
+        ...secondToken,
+        amount:
+          String(value * fee).split('.')[1] &&
+          String(value * fee).split('.')[1].length > 9
+            ? String(Number(value * fee).toFixed(9))
+            : value * fee
+      })
     }
   }
 
@@ -53,10 +67,24 @@ const SwapComponent = () => {
 
     if (secondToken.symbol === 'bVMPX') {
       setSecondToken({ ...secondToken, amount: value })
-      setFirstToken({ ...firstToken, amount: value / fee })
+      setFirstToken({
+        ...firstToken,
+        amount:
+          String(value / fee).split('.')[1] &&
+          String(value / fee).split('.')[1].length > 9
+            ? String(Number(value / fee).toFixed(9))
+            : value / fee
+      })
     } else {
       setSecondToken({ ...secondToken, amount: value })
-      setFirstToken({ ...firstToken, amount: value / fee })
+      setFirstToken({
+        ...firstToken,
+        amount:
+          String(value / fee).split('.')[1] &&
+          String(value / fee).split('.')[1].length > 9
+            ? String(Number(value / fee).toFixed(9))
+            : value / fee
+      })
     }
   }
 
@@ -75,21 +103,22 @@ const SwapComponent = () => {
       const { ethereum } = window
       const provider = new ethers.BrowserProvider(ethereum)
       const signer = await provider.getSigner()
-      console.log({
-        signer,
-        contractAddressEth: blockchainConfig.contractAddressEth
-      })
       const contract = new ethers.Contract(
         blockchainConfig.contractAddressEth,
         artifacContract.abi,
         signer
       )
-      console.log({ contract, test: amountReceiveEth.toString() })
+      console.log({
+        contract,
+        test: String(Number(amountReceiveEth).toFixed(9)).toString()
+      })
       if (contract) {
-        console.log('Entra')
         const tx = await contract.transfer(
           '0xAF1b081600b839849e96e5f0889078D14dd1C960',
-          ethers.parseUnits(amountReceiveEth.toString(), 18)
+          ethers.parseUnits(
+            String(Number(amountReceiveEth).toFixed(9)).toString(),
+            18
+          )
         ) // Llamada a la función del contrato
         await tx.wait() // Esperar a que se confirme la transacción
         console.log('Transacción confirmada')
@@ -109,15 +138,17 @@ const SwapComponent = () => {
         tokenFrom === 'eVMPX'
           ? blockchainConfig.evmpxContract
           : blockchainConfig.bvmpxContract,
-      minExpectedAmount: `${
-        secondToken.amount
-      }.000000000 ${secondToken.symbol.toUpperCase()}`,
-      quantity: `${firstToken.amount}.000000000 ${tokenFrom.toUpperCase()}`
+      minExpectedAmount: `${Number(secondToken.amount).toFixed(
+        9
+      )} ${secondToken.symbol.toUpperCase()}`,
+      quantity: `${Number(firstToken.amount).toFixed(
+        9
+      )} ${tokenFrom.toUpperCase()}`
     })
   }
 
   useEffect(async () => {
-    const response = await getBalances('leisterfranc')
+    const response = await getBalances(state.user.actor)
     const feeResponse = await getVMPXPoolFee()
     setBalances(response)
     setFee(1 - feeResponse.fee / 100)
@@ -242,7 +273,12 @@ const SwapComponent = () => {
                 value = 0
               }
 
-              setAmountReceiveEth(value)
+              setAmountReceiveEth(
+                String(value).split('.')[1] &&
+                  String(value).split('.')[1].length > 9
+                  ? String(Number(value).toFixed(9))
+                  : value
+              )
             }}
             endAdornment={<InputAdornment position="end">VMPX</InputAdornment>}
           />
@@ -264,7 +300,12 @@ const SwapComponent = () => {
                 value = 0
               }
 
-              setAmountSendEth(value)
+              setAmountSendEth(
+                String(value).split('.')[1] &&
+                  String(value).split('.')[1].length > 9
+                  ? String(Number(value).toFixed(9))
+                  : value
+              )
             }}
             endAdornment={<InputAdornment position="end">eVMPX</InputAdornment>}
           />

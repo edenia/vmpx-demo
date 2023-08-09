@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ethers, Contract } from 'ethers'
+import { ethers } from 'ethers'
 import Box from '@mui/material/Box'
 import { makeStyles } from '@mui/styles'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -7,9 +7,10 @@ import { Button, Typography, OutlinedInput } from '@mui/material'
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined'
 
 import { useSharedState } from '../../context/state.context'
+import { getBalances, getVMPXPoolFee } from '../../utils'
+import { trade } from '../../context/LibreClient'
+import { artifacContract } from '../../artifact'
 import { blockchainConfig } from '../../config'
-import { abiContract } from '../../artifact'
-import { getBalances } from '../../utils'
 
 import styles from './styles'
 
@@ -18,6 +19,7 @@ const useStyles = makeStyles(styles)
 const SwapComponent = () => {
   const classes = useStyles()
   const [state] = useSharedState()
+  const [fee, setFee] = useState()
   const [balances, setBalances] = useState([])
   const [amountReceiveEth, setAmountReceiveEth] = useState(0)
   const [firstToken, setFirstToken] = useState({ amount: 0, symbol: 'eVMPX' })
@@ -34,20 +36,20 @@ const SwapComponent = () => {
   const handleSetevmpx = value => {
     if (firstToken.symbol === 'eVMPX') {
       setFirstToken({ ...firstToken, amount: value })
-      setSecondToken({ ...secondToken, amount: value * 2 })
+      setSecondToken({ ...secondToken, amount: value * fee })
     } else {
       setFirstToken({ ...firstToken, amount: value })
-      setSecondToken({ ...secondToken, amount: value / 2 })
+      setSecondToken({ ...secondToken, amount: value * fee })
     }
   }
 
   const handleSetbvmpx = value => {
     if (secondToken.symbol === 'bVMPX') {
       setSecondToken({ ...secondToken, amount: value })
-      setFirstToken({ ...firstToken, amount: value / 2 })
+      setFirstToken({ ...firstToken, amount: value / fee })
     } else {
       setSecondToken({ ...secondToken, amount: value })
-      setFirstToken({ ...firstToken, amount: value * 2 })
+      setFirstToken({ ...firstToken, amount: value / fee })
     }
   }
 
@@ -65,15 +67,15 @@ const SwapComponent = () => {
     try {
       const { ethereum } = window
       const provider = new ethers.BrowserProvider(ethereum)
-      // const signer = await provider.getSigner()
+      const signer = await provider.getSigner()
       console.log({
-        provider,
+        signer,
         contractAddressEth: blockchainConfig.contractAddressEth
       })
-      const contract = new Contract(
+      const contract = new ethers.Contract(
         blockchainConfig.contractAddressEth,
-        [abiContract],
-        provider
+        artifacContract.abi,
+        signer
       )
       console.log({ contract, test: amountReceiveEth.toString() })
       if (contract) {
@@ -90,36 +92,29 @@ const SwapComponent = () => {
     }
   }
 
-  // const handleSendTransaction = async () => {
-  //   if (!state.ethAccountAddress) return
+  const handleTrate = () => {
+    const tokenFrom = firstToken.symbol
 
-  //   const { ethereum } = window
-
-  //   if (!ethereum) {
-  //     console.log('Make sure you have MetaMask installed!')
-  //     return
-  //   }
-
-  //   const accounts = await ethereum.request({
-  //     method: 'eth_requestAccounts'
-  //   })
-  //   console.log({ accounts })
-  //   const provider = new ethers.BrowserProvider(ethereum)
-  //   const signer = await provider.getSigner()
-
-  //   const transaction = {
-  //     to: '0xAF1b081600b839849e96e5f0889078D14dd1C960',
-  //     value: ethers.parseEther(amountReceiveEth.toString())
-  //   }
-
-  //   const txResponse = await signer.sendTransaction(transaction)
-  //   console.log('Transaction hash:', txResponse.hash)
-  // }
+    trade({
+      account: state.user.actor,
+      session: state.user.session,
+      contractAccount:
+        tokenFrom === 'eVMPX'
+          ? blockchainConfig.evmpxContract
+          : blockchainConfig.bvmpxContract,
+      minExpectedAmount: `${
+        secondToken.amount
+      }.000000000 ${secondToken.symbol.toUpperCase()}`,
+      quantity: `${firstToken.amount}.000000000 ${tokenFrom.toUpperCase()}`
+    })
+  }
 
   useEffect(async () => {
     const response = await getBalances('leisterfranc')
+    const feeResponse = await getVMPXPoolFee()
     setBalances(response)
-    console.log({ response })
+    setFee(1 - feeResponse.fee / 100)
+    console.log({ response, feeResponse, fee })
   }, [])
 
   return (
@@ -146,14 +141,15 @@ const SwapComponent = () => {
           ))}
         </Box>
         <Box>
-          <Typography variant="body1">{state.user.actor}</Typography>
+          {console.log({ user: state?.user, fee })}
+          <Typography variant="body1">{state?.user?.actor}</Typography>
           <Typography variant="body1">
             {`${state?.ethAccountAddress?.substring(
               0,
               5
             )}...${state?.ethAccountAddress?.substring(
-              state.ethAccountAddress.length - 5,
-              state.ethAccountAddress.length
+              state?.ethAccountAddress?.length - 5,
+              state?.ethAccountAddress?.length
             )}`}
           </Typography>
         </Box>
@@ -215,13 +211,15 @@ const SwapComponent = () => {
               }}
               endAdornment={
                 <InputAdornment position="end">
-                  {secondToken.symbol}
+                  {secondToken?.symbol}
                 </InputAdornment>
               }
             />
           </Box>
         </Box>
-        <Button variant="outlined">Swap</Button>
+        <Button variant="outlined" onClick={handleTrate}>
+          Swap
+        </Button>
       </Box>
       <Box mt={8} display="flex" justifyContent="space-between">
         <Box display="flex" flexDirection="column" mr={14}>
@@ -250,7 +248,6 @@ const SwapComponent = () => {
           <OutlinedInput
             className={classes.textFieldStyles}
             id="outlined-adornment-weight"
-            value={secondToken.amount}
             type="number"
             onChange={e => {
               let value = e.target.value

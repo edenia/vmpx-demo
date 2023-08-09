@@ -1,4 +1,5 @@
 import { eosApi } from './eosapi'
+import { swapVmpxContract, vmpxContract } from '../config/blockchain.config'
 
 export const getBalances = async account => {
   console.log(account)
@@ -13,4 +14,15 @@ export const getBalances = async account => {
   })
 
   return rows
+}
+
+export const getVMPXPoolFee = async () => {
+  const { rows } = await eosApi.getTableRows({
+    code: swapVmpxContract,
+    scope: vmpxContract,
+    table: 'stat',
+    json: true
+  })
+  console.log({ rows })
+  return rows[0]
 }

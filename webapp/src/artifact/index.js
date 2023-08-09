@@ -1,3 +1,3 @@
-import abiContract from './contract.artifact.json'
+import artifacContract from './contract.artifact.json'
 
-export { abiContract }
+export { artifacContract }

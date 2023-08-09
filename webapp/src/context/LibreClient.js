@@ -2,6 +2,8 @@ import LibreLinkBrowserTransport from '@libre-chain/libre-link-browser-transport
 import LibreLink from '@libre-chain/libre-link'
 import moment from 'moment'
 
+import { swapVmpxContract, vmpxContract } from '../config/blockchain.config'
+
 export const loginLibre = async () => {
   try {
     const link = new LibreLink({
@@ -33,7 +35,8 @@ export const loginLibre = async () => {
     return {
       user: {
         actor: identity.session.auth.actor.toString(),
-        permission: identity.session.auth.permission.toString()
+        permission: identity.session.auth.permission.toString(),
+        session: identity.session
       },
       error: ''
     }
@@ -116,5 +119,53 @@ export const getUsername = async ({ username, rpc }) => {
   } catch (err) {
     console.warn(err)
     return null
+  }
+}
+
+export const trade = async ({
+  minExpectedAmount,
+  contractAccount,
+  quantity,
+  account,
+  session
+}) => {
+  console.log({
+    minExpectedAmount,
+    contractAccount,
+    quantity,
+    account,
+    session
+  })
+
+  const authorization = [
+    {
+      actor: account,
+      permission: 'active'
+    }
+  ]
+
+  const actions = [
+    {
+      authorization,
+      account: contractAccount, // 'bvmpx' | 'evmpx',  bvmpx if trade is from BVMPX to EVMPX and evmpx if trade is from EVMPX to BVMPX
+      name: 'transfer',
+      data: {
+        from: account, // alice is signing this action
+        to: swapVmpxContract, // this contract is only for Libre Testnet
+        quantity: quantity, // '1.000000000 BVMPX' | '1.000000000 EVMPX',
+        memo: `exchange:${vmpxContract},${minExpectedAmount}, Trading ${
+          quantity.split(' ')[1]
+        } for ${minExpectedAmount.split(' ')[1]}`
+        // 'exchange:BEVMPX, 9.000000000 EVMPX, Trading BVMPX for EVMPX' |
+        // 'exchange:BEVMPX, 9.000000000 BVMPX, Trading EVMPX for BVMPX' depending on the trade type whether it is from EVMPX to BVMPX or BVMPX to EVMPX, the format is: 'LPTOKEN,min_expected_asset,optional memo'
+      }
+    }
+  ]
+
+  const result = await session.transact({ actions }, { broadcast: true })
+
+  return {
+    success: true,
+    transactionId: result.processed.id
   }
 }

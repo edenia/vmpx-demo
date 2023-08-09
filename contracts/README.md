@@ -40,6 +40,8 @@ setup_permission() {
     cleos.sh set account permission --add-code swapvmpx active -p swapvmpx
 }
 
+# make sure you to call the deploy-contracts.sh script
+
 setup_token_contract() {
     # create tokens
     cleos.sh push action evmpx create '["evmpx", "108624000.000000000 EVMPX"]' -p evmpx   # eVMPX

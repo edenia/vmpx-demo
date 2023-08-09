@@ -1,0 +1,8 @@
+#pragma once
+
+#include <eosio/name.hpp>
+
+namespace exchange
+{
+   inline constexpr eosio::name evmpx_contract = "${VMPX_EVMPX_ACCOUNT}"_n;
+}  // namespace eden

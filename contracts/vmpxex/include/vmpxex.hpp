@@ -1,10 +1,9 @@
 #include <eosio/asset.hpp>
 #include <eosio/crypto.hpp>
 #include <eosio/eosio.hpp>
+#include <config.hpp>
 
 namespace exchange {
-  inline constexpr eosio::name evmpx_contract = "evmpx"_n;
-
   CONTRACT vmpxex : public eosio::contract {
 
   public:

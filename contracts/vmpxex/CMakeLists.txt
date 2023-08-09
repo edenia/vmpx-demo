@@ -11,7 +11,9 @@ ExternalProject_Add(
    vmpxex_project
    SOURCE_DIR ${CMAKE_SOURCE_DIR}/vmpxex/src
    BINARY_DIR ${CMAKE_BINARY_DIR}/vmpxex
-   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake
+   CMAKE_ARGS
+      -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake
+      -DVMPX_EVMPX_ACCOUNT:STRING=${VMPX_EVMPX_ACCOUNT}
    UPDATE_COMMAND ""
    PATCH_COMMAND ""
    TEST_COMMAND ""

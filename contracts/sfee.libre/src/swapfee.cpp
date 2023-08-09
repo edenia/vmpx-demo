@@ -21,7 +21,7 @@ void swapfee::updatefee(symbol_code pair_token)
 {
     int new_fee = median(pair_token);
     action(permission_level{get_self(), "active"_n},
-           "swapvmpx"_n, "changefee"_n,
+           swap_contract, "changefee"_n,
            make_tuple(pair_token, new_fee))
         .send();
 }
@@ -44,7 +44,7 @@ void swapfee::ontransfer(const name &from, const name &to, const asset &quantity
 
 asset swapfee::bring_balance(name user, symbol_code pair_token)
 {
-    accounts table("swapvmpx"_n, user.value);
+    accounts table(swap_contract, user.value);
     const auto &user_balance = table.find(pair_token.raw());
     check(user_balance != table.end(), "pair_token balance does not exist");
     return user_balance->balance;

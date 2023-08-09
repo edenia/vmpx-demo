@@ -7,6 +7,8 @@
 #include <cmath>
 #include <numeric>
 
+#include <config.hpp>
+
 using namespace eosio;
 using namespace std;
 

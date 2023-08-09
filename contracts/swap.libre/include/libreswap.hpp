@@ -5,6 +5,8 @@
 #include <eosio/eosio.hpp>
 #include <eosio/system.hpp>
 
+#include <config.hpp>
+
 using namespace eosio;
 using namespace std;
 
@@ -12,7 +14,6 @@ namespace libreswaps {
 
   class [[eosio::contract( "swap.libre" )]] libreswap : public contract {
   public:
-    const name    FEE_CONTRACT = "sfeevmpx"_n;
     const int64_t MAX = eosio::asset::max_amount;
     const int64_t INIT_MAX = 1000000000000000; // 10^15
     const int     ADD_LIQUIDITY_FEE = 1;

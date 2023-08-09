@@ -1,0 +1,8 @@
+#pragma once
+
+#include <eosio/name.hpp>
+
+namespace libreswaps
+{
+   inline constexpr eosio::name sfee_contract = "${VMPX_SFEE_ACCOUNT}"_n;
+}  // namespace eden

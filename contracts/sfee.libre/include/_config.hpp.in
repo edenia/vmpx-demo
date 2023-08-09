@@ -1,0 +1,5 @@
+#pragma once
+
+#include <eosio/name.hpp>
+
+inline static constexpr eosio::name swap_contract = "${VMPX_SWAP_ACCOUNT}"_n;

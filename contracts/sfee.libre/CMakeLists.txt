@@ -11,7 +11,9 @@ ExternalProject_Add(
    swapfee_project
    SOURCE_DIR ${CMAKE_SOURCE_DIR}/sfee.libre/src
    BINARY_DIR ${CMAKE_BINARY_DIR}/sfee.libre
-   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake
+   CMAKE_ARGS
+      -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake
+      -DVMPX_SWAP_ACCOUNT:STRING=${VMPX_SWAP_ACCOUNT}
    UPDATE_COMMAND ""
    PATCH_COMMAND ""
    TEST_COMMAND ""

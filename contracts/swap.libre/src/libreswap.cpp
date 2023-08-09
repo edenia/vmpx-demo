@@ -52,7 +52,7 @@ namespace libreswaps {
 
     if ( from == get_self() )
       return;
-    check( to == get_self(), "This transfer is not for swapvmpx" );
+    check( to == get_self(), "This transfer is not for swapvmpx" + get_self().to_string() );
     check( quantity.amount >= 0, "quantity must be positive" );
 
     auto        incoming = extended_asset{ quantity, get_first_receiver() };
@@ -300,8 +300,8 @@ namespace libreswaps {
     const auto &token = statstable.find( new_symbol.code().raw() );
     check( token == statstable.end(), "token symbol already exists" );
     check( initial_fee == DEFAULT_FEE, "initial_fee must be 10" );
-    check( fee_contract == FEE_CONTRACT,
-           "fee_contract must be " + FEE_CONTRACT.to_string() );
+    check( fee_contract == sfee_contract,
+           "fee_contract must be " + sfee_contract.to_string() );
 
     statstable.emplace( user, [&]( auto &a ) {
       a.supply = new_token;

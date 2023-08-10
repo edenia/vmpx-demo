@@ -25,6 +25,17 @@ build-docker: ./Dockerfile
 	  --build-arg react_app_version="$(REACT_APP_VERSION)" \
 		--build-arg react_app_name="$(REACT_APP_NAME)" \
 		--build-arg react_app_title="$(REACT_APP_TITLE)" \
+		--build-arg react_app_contract_address_eth="$(REACT_APP_CONTRACT_ADDRESS_ETH)" \
+		--build-arg react_app_token_linker_contract="$(REACT_APP_TOKEN_LINKER_CONTRACT)" \
+		--build-arg react_app_swap_vmpx_contract="$(REACT_APP_SWAP_VMPX_CONTRACT)" \
+		--build-arg react_app_vmpx_pool_symbol="$(REACT_APP_VMPX_POOL_SYMBOL)" \
+		--build-arg react_app_bvmpx_contract="$(REACT_APP_BVMPX_CONTRACT)" \
+		--build-arg react_app_libre_chain_id="$(REACT_APP_LIBRE_CHAIN_ID)" \
+		--build-arg react_app_libre_api_host="$(REACT_APP_LIBRE_API_HOST)" \
+		--build-arg react_app_eth_block_explorer="$(REACT_APP_ETH_BLOCK_EXPLORER)" \
+		--build-arg react_app_libre_block_explorer="$(REACT_APP_LIBRE_BLOCK_EXPLORER)" \
+		--build-arg react_app_evmpx_contract="$(REACT_APP_EVMPX_CONTRACT)" \
+		--build-arg react_app_target_eth_wallet_address="$(REACT_APP_TARGET_ETH_WALLET_ADDRESS)" \
 		--build-arg react_app_logo="$(REACT_APP_LOGO)" \
 		--build-arg react_app_footer_links="$(REACT_APP_FOOTER_LINKS)" \
 		--build-arg react_app_wax_app_name="$(REACT_APP_WAX_APP_NAME)" \

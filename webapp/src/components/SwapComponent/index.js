@@ -182,7 +182,7 @@ const SwapComponent = () => {
         <Box>
           <Typography variant="body1">Balances:</Typography>
           {balances.map(item => (
-            <Box display="flex" key={item?.symbol}>
+            <Box display="flex" key={item?.balance}>
               <Typography variant="body2" minWidth={110} align="left">
                 {formatAmountSymbol(item?.balance)}
               </Typography>

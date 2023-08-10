@@ -3,11 +3,12 @@ import { ethers } from 'ethers'
 import Box from '@mui/material/Box'
 import { makeStyles } from '@mui/styles'
 import InputAdornment from '@mui/material/InputAdornment'
-import { Button, Typography, OutlinedInput } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
+import { Button, Typography, OutlinedInput, Link } from '@mui/material'
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined'
 
-import { useSharedState } from '../../context/state.context'
 import { getBalance, getVMPXPoolFee, sleep } from '../../utils'
+import { useSharedState } from '../../context/state.context'
 import { trade, pegoutEth } from '../../context/LibreClient'
 import { artifacContract } from '../../artifact'
 import { blockchainConfig } from '../../config'
@@ -18,10 +19,14 @@ const useStyles = makeStyles(styles)
 
 const SwapComponent = () => {
   const classes = useStyles()
-  const [state] = useSharedState()
   const [fee, setFee] = useState()
-  const [balances, setBalances] = useState([])
+  const [balances, setBalances] = useState([
+    { balance: '0 EVMPX' },
+    { balance: '0 BVMPX' }
+  ])
+  const [state, { showMessage }] = useSharedState()
   const [amountSendEth, setAmountSendEth] = useState(0)
+  const [loadingRecieve, setLoadingRecieve] = useState(false)
   const [amountReceiveEth, setAmountReceiveEth] = useState(0)
   const [firstToken, setFirstToken] = useState({ amount: 0, symbol: 'eVMPX' })
   const [secondToken, setSecondToken] = useState({ amount: 0, symbol: 'bVMPX' })
@@ -35,7 +40,7 @@ const SwapComponent = () => {
   }
 
   const handleSetevmpx = value => {
-    if (value.split('.')[1] && value.split('.')[1].length > 9)
+    if (value?.split('.')[1] && value?.split('.')[1].length > 9)
       value = String(Number(value).toFixed(9))
 
     if (firstToken.symbol === 'eVMPX') {
@@ -43,8 +48,8 @@ const SwapComponent = () => {
       setSecondToken({
         ...secondToken,
         amount:
-          String(value * fee).split('.')[1] &&
-          String(value * fee).split('.')[1].length > 9
+          String(value * fee)?.split('.')[1] &&
+          String(value * fee)?.split('.')[1].length > 9
             ? String(Number(value * fee).toFixed(9))
             : value * fee
       })
@@ -53,8 +58,8 @@ const SwapComponent = () => {
       setSecondToken({
         ...secondToken,
         amount:
-          String(value * fee).split('.')[1] &&
-          String(value * fee).split('.')[1].length > 9
+          String(value * fee)?.split('.')[1] &&
+          String(value * fee)?.split('.')[1].length > 9
             ? String(Number(value * fee).toFixed(9))
             : value * fee
       })
@@ -62,7 +67,7 @@ const SwapComponent = () => {
   }
 
   const handleSetbvmpx = value => {
-    if (value.split('.')[1] && value.split('.')[1].length > 9)
+    if (value?.split('.')[1] && value?.split('.')[1].length > 9)
       value = String(Number(value).toFixed(9))
 
     if (secondToken.symbol === 'bVMPX') {
@@ -70,8 +75,8 @@ const SwapComponent = () => {
       setFirstToken({
         ...firstToken,
         amount:
-          String(value / fee).split('.')[1] &&
-          String(value / fee).split('.')[1].length > 9
+          String(value / fee)?.split('.')[1] &&
+          String(value / fee)?.split('.')[1].length > 9
             ? String(Number(value / fee).toFixed(9))
             : value / fee
       })
@@ -80,8 +85,8 @@ const SwapComponent = () => {
       setFirstToken({
         ...firstToken,
         amount:
-          String(value / fee).split('.')[1] &&
-          String(value / fee).split('.')[1].length > 9
+          String(value / fee)?.split('.')[1] &&
+          String(value / fee)?.split('.')[1].length > 9
             ? String(Number(value / fee).toFixed(9))
             : value / fee
       })
@@ -111,56 +116,137 @@ const SwapComponent = () => {
             18
           )
         )
-        await tx.wait()
-        console.log('Transacción confirmada')
+
+        setLoadingRecieve(true)
+
+        const response = await tx.wait()
+
+        setLoadingRecieve(false)
+        showMessage({
+          type: 'success',
+          content: (
+            <Typography>
+              Success transaction{' '}
+              <Link
+                target="_blank"
+                underline="none"
+                href={`${blockchainConfig.ethBlockExplorer}${response.hash}`}
+              >
+                {response.hash}
+              </Link>
+            </Typography>
+          )
+        })
       }
+
+      await sleep(2000) // wait for 3 seconds
+      clearFields()
+      await loadBalances()
     } catch (error) {
-      console.error('Error Test: ', error)
+      showMessage({ type: 'error', content: error })
+      console.error('Error: ', error)
     }
   }
 
   const sendTokensToEth = async () => {
-    if (amountSendEth <= 0) {
-      console.warn('Amount must be greater than 0')
+    try {
+      if (amountSendEth <= 0) {
+        showMessage({
+          type: 'warning',
+          content: 'Amount must be greater than 0'
+        })
 
-      return
+        return
+      }
+
+      const response = await pegoutEth({
+        account: state.user.actor,
+        session: state.user.session,
+        quantity: `${Number(amountSendEth).toFixed(9)} EVMPX`
+      })
+
+      await sleep(1000) // wait for 3 seconds
+      showMessage({
+        type: 'success',
+        content: (
+          <Typography>
+            Success transaction{' '}
+            <Link
+              target="_blank"
+              underline="none"
+              href={`${blockchainConfig.libreBlockEplorer}${response.transactionId}`}
+            >
+              {response.transactionId}
+            </Link>
+          </Typography>
+        )
+      })
+      clearFields()
+      await loadBalances()
+    } catch (error) {
+      showMessage({ type: 'error', content: error })
     }
-
-    console.log('Preparing to pegout')
-    await pegoutEth({
-      account: state.user.actor,
-      session: state.user.session,
-      quantity: `${Number(amountSendEth).toFixed(9)} EVMPX`
-    })
   }
 
   const handleTrate = async () => {
-    const tokenFrom = firstToken.symbol
+    try {
+      const tokenFrom = firstToken.symbol
+      const response = await trade({
+        account: state.user.actor,
+        session: state.user.session,
+        contractAccount:
+          tokenFrom === 'eVMPX'
+            ? blockchainConfig.evmpxContract
+            : blockchainConfig.bvmpxContract,
+        minExpectedAmount: `${Number(secondToken.amount).toFixed(
+          9
+        )} ${secondToken.symbol.toUpperCase()}`,
+        quantity: `${Number(firstToken.amount).toFixed(
+          9
+        )} ${tokenFrom.toUpperCase()}`
+      })
 
-    await trade({
-      account: state.user.actor,
-      session: state.user.session,
-      contractAccount:
-        tokenFrom === 'eVMPX'
-          ? blockchainConfig.evmpxContract
-          : blockchainConfig.bvmpxContract,
-      minExpectedAmount: `${Number(secondToken.amount).toFixed(
-        9
-      )} ${secondToken.symbol.toUpperCase()}`,
-      quantity: `${Number(firstToken.amount).toFixed(
-        9
-      )} ${tokenFrom.toUpperCase()}`
-    })
-
-    await sleep(2000) // wait for 3 seconds
-    await loadBalances()
+      await sleep(1000) // wait for 3 seconds
+      showMessage({
+        type: 'success',
+        content: (
+          <Typography>
+            Success transaction{' '}
+            <Link
+              target="_blank"
+              underline="none"
+              href={`${blockchainConfig.libreBlockEplorer}${response.transactionId}`}
+            >
+              {response.transactionId}
+            </Link>
+          </Typography>
+        )
+      })
+      clearFields()
+      await loadBalances()
+    } catch (error) {
+      showMessage({ type: 'error', content: error })
+    }
   }
 
   const loadBalances = async () => {
     const evmpxBalance = await getBalance(state.user.actor, 'EVMPX')
     const bvmpxBalance = await getBalance(state.user.actor, 'BVMPX')
 
-    setBalances([...evmpxBalance, ...bvmpxBalance])
+    if (evmpxBalance.length === 0 && bvmpxBalance.length === 0) return
+
+    if (evmpxBalance.length > 0 && bvmpxBalance.length > 0)
+      setBalances([...evmpxBalance, ...bvmpxBalance])
+    else if (bvmpxBalance.length > 0)
+      setBalances([...bvmpxBalance, { balance: '0 EVMPX' }])
+    else setBalances([...evmpxBalance, { balance: '0 BVMPX' }])
+  }
+
+  const clearFields = () => {
+    setAmountSendEth(0)
+    setAmountReceiveEth(0)
+    setFirstToken({ amount: 0, symbol: 'eVMPX' })
+    setSecondToken({ amount: 0, symbol: 'bVMPX' })
   }
 
   useEffect(async () => {
@@ -196,7 +282,7 @@ const SwapComponent = () => {
               0,
               5
             )}...${state?.ethAccountAddress?.substring(
-              state?.ethAccountAddress?.length - 5,
+              state?.ethAccountAddress?.length - 4,
               state?.ethAccountAddress?.length
             )}`}
           </Typography>
@@ -270,7 +356,7 @@ const SwapComponent = () => {
         </Button>
       </Box>
       <Box mt={8} display="flex" justifyContent="space-between">
-        <Box display="flex" flexDirection="column" mr={14}>
+        <Box display="flex" flexDirection="column" mr={12}>
           <OutlinedInput
             className={classes.textFieldStyles}
             id="outlined-adornment-weight"
@@ -292,8 +378,12 @@ const SwapComponent = () => {
             }}
             endAdornment={<InputAdornment position="end">VMPX</InputAdornment>}
           />
-          <Button onClick={sendTransaction} variant="outlined">
-            Receive from ETH
+          <Button
+            variant="outlined"
+            onClick={sendTransaction}
+            className={classes.buttonStyle}
+          >
+            Receive from ETH {loadingRecieve && <CircularProgress size={18} />}
           </Button>
         </Box>
         <br />

@@ -1,12 +1,11 @@
-// import LibreLinkBrowserTransport from '@libre-chain/libre-link-browser-transport'
-// import LibreLink from '@libre-chain/libre-link'
 import AnchorLink from 'anchor-link'
 import AnchorLinkBrowserTransport from 'anchor-link-browser-transport'
-// import moment from 'moment'
 
 import {
-  swapVmpxContract,
   vmpxContract,
+  libreChainId,
+  libreApiHost,
+  swapVmpxContract,
   tokenLikerContract
 } from '../config/blockchain.config'
 
@@ -14,9 +13,8 @@ const link = new AnchorLink({
   transport: new AnchorLinkBrowserTransport(),
   chains: [
     {
-      chainId:
-        'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee',
-      nodeUrl: 'https://api.testnet.libre.cryptobloks.io'
+      chainId: libreChainId,
+      nodeUrl: libreApiHost
     }
   ],
   scheme: 'libre'
@@ -24,9 +22,7 @@ const link = new AnchorLink({
 
 export const loginLibre = async () => {
   try {
-    const identity = await link.login(
-      String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME)
-    )
+    const identity = await link.login(String(process.env.REACT_APP_NAME))
 
     return {
       user: {
@@ -45,17 +41,16 @@ export const loginLibre = async () => {
 }
 
 export const logout = async session => {
-  console.log({ session })
   await link.removeSession(
-    String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME),
+    String(process.env.REACT_APP_NAME),
     session.auth,
-    'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee'
+    libreChainId
   )
 }
 
 export const restoreSession = async () => {
   const restoredSession = await link.restoreSession(
-    String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME)
+    String(process.env.REACT_APP_NAME)
   )
 
   return restoredSession
@@ -97,17 +92,15 @@ export const trade = async ({
   const actions = [
     {
       authorization,
-      account: contractAccount, // 'bvmpx' | 'evmpx',  bvmpx if trade is from BVMPX to EVMPX and evmpx if trade is from EVMPX to BVMPX
+      account: contractAccount,
       name: 'transfer',
       data: {
-        from: account, // alice is signing this action
-        to: swapVmpxContract, // this contract is only for Libre Testnet
-        quantity: quantity, // '1.000000000 BVMPX' | '1.000000000 EVMPX',
+        from: account,
+        to: swapVmpxContract,
+        quantity: quantity,
         memo: `exchange:${vmpxContract},${minExpectedAmount}, Trading ${
           quantity.split(' ')[1]
         } for ${minExpectedAmount.split(' ')[1]}`
-        // 'exchange:BEVMPX, 9.000000000 EVMPX, Trading BVMPX for EVMPX' |
-        // 'exchange:BEVMPX, 9.000000000 BVMPX, Trading EVMPX for BVMPX' depending on the trade type whether it is from EVMPX to BVMPX or BVMPX to EVMPX, the format is: 'LPTOKEN,min_expected_asset,optional memo'
       }
     }
   ]
@@ -136,7 +129,6 @@ export const linkAccounts = async ({ session, libreAccount, address }) => {
       data: {
         account: libreAccount,
         eth_address: address
-        // eth_address: DEFAULT, handled by the Smart Contract
       }
     }
   ]
@@ -165,7 +157,7 @@ export const pegoutEth = async ({ session, account, quantity }) => {
       data: {
         account,
         quantity,
-        eth_address: '' // DEFAULT, handled by the Smart Contract
+        eth_address: '' // empty field = DEFAULT, handled by the Smart Contract
       }
     }
   ]

@@ -84,7 +84,7 @@ export const useSharedState = () => {
   const hideMessage = () => dispatch({ type: 'hideMessage' })
   const login = async () => {
     const { user, error } = await loginLibre()
-    console.log({ user })
+
     dispatch({ type: 'set', payload: { user } })
 
     return { user, error }

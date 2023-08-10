@@ -7,7 +7,7 @@ import Vmpxswap from '../../components/Vmpxswap'
 
 const Home = () => {
   const [state] = useSharedState()
-  console.log({ state })
+
   return (
     <Box display="flex" justifyContent="center">
       {!state?.connectMeta || !state?.connectLibre || !state?.accountMatch ? (

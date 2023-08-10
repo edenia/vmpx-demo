@@ -11,7 +11,7 @@ import {
 } from '../../context/LibreClient'
 
 const Vmpxswap = () => {
-  const [state, { setState, login, logout }] = useSharedState()
+  const [state, { setState, login, logout, showMessage }] = useSharedState()
 
   const [accountAddress, setAccountAddress] = useState('')
   const [areAccountsLinked, setAccountsLinked] = useState(true)
@@ -21,7 +21,11 @@ const Vmpxswap = () => {
       const { ethereum } = window
 
       if (!ethereum) {
-        console.log('Make sure you have MetaMask installed!')
+        showMessage({
+          type: 'warning',
+          content: 'Make sure you have MetaMask installed!'
+        })
+
         return
       }
 
@@ -32,6 +36,10 @@ const Vmpxswap = () => {
 
       setAccountAddress(address)
     } catch (error) {
+      showMessage({
+        type: 'error',
+        content: error
+      })
       console.log(error)
     }
   }
@@ -41,19 +49,28 @@ const Vmpxswap = () => {
       const { ethereum } = window
 
       if (!ethereum) {
-        window.alert('Get MetaMask!')
+        showMessage({
+          type: 'warning',
+          content: 'Make sure you have MetaMask installed!'
+        })
+
         return
       }
 
-      console.log('conecting from metamask...')
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts'
       })
 
-      console.log(`connected to address: ${accounts[0]}`)
-
+      showMessage({
+        type: 'success',
+        content: `Connected to address: ${accounts[0]}`
+      })
       setAccountAddress(accounts[0])
     } catch (error) {
+      showMessage({
+        type: 'error',
+        content: error
+      })
       console.log(error)
     }
   }
@@ -83,6 +100,10 @@ const Vmpxswap = () => {
       libreAccount: state?.user?.actor,
       address: accountAddress
     })
+    showMessage({
+      type: 'success',
+      content: 'Accounts linked'
+    })
     await sleep(2000) // wait for 2 seconds
     await checkMatch(state?.user?.actor, accountAddress)
   }
@@ -95,14 +116,7 @@ const Vmpxswap = () => {
     if (accountAddress && state?.user?.actor) {
       setState({ param: 'connectMeta', connectMeta: true })
       setState({ param: 'connectLibre', connectLibre: true })
-
       checkMatch(state?.user?.actor, accountAddress)
-
-      // if (state?.user?.actor && !state?.accountMatch) {
-      //   setAccountsLinked(true)
-      //   setState({ param: 'accountMatch', accountMatch: true })
-      // }
-      // setState({ param: 'user', user: 'Boomer' })
     }
   }, [accountAddress, state?.user?.actor])
 

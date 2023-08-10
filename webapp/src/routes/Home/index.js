@@ -10,7 +10,7 @@ const Home = () => {
   console.log({ state })
   return (
     <Box display="flex" justifyContent="center">
-      {!state?.connectMeta || !state?.connectLibre ? (
+      {!state?.connectMeta || !state?.connectLibre || !state?.accountMatch ? (
         <Vmpxswap />
       ) : (
         <SwapComponent />

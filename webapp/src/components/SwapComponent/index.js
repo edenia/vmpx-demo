@@ -8,7 +8,7 @@ import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined'
 
 import { useSharedState } from '../../context/state.context'
 import { getBalances, getVMPXPoolFee } from '../../utils'
-import { trade } from '../../context/LibreClient'
+import { trade, pegoutEth } from '../../context/LibreClient'
 import { artifacContract } from '../../artifact'
 import { blockchainConfig } from '../../config'
 
@@ -88,14 +88,8 @@ const SwapComponent = () => {
     }
   }
 
-  const getSymbol = value => {
-    return value.includes('USDL') ? 'eVMPX' : 'bVMPX'
-  }
-
-  const getAmount = value => {
-    return value.includes('USDL')
-      ? value.replace('USDL', '')
-      : value.replace('BTCL', '')
+  const formatAmountSymbol = value => {
+    return value.replace('EVMPX', 'eVMPX').replace('BVMPX', 'bVMPX')
   }
 
   const sendTransaction = async () => {
@@ -114,18 +108,33 @@ const SwapComponent = () => {
       })
       if (contract) {
         const tx = await contract.transfer(
-          '0xAF1b081600b839849e96e5f0889078D14dd1C960',
+          blockchainConfig.targetWalletAddress,
           ethers.parseUnits(
             String(Number(amountReceiveEth).toFixed(9)).toString(),
             18
           )
-        ) // Llamada a la función del contrato
-        await tx.wait() // Esperar a que se confirme la transacción
+        )
+        await tx.wait()
         console.log('Transacción confirmada')
       }
     } catch (error) {
       console.error('Error Test: ', error)
     }
+  }
+
+  const sendTokensToEth = async () => {
+    if (amountSendEth <= 0) {
+      console.warn('Amount must be greater than 0')
+
+      return
+    }
+
+    console.log('Preparing to pegout')
+    await pegoutEth({
+      account: state.user.actor,
+      session: state.user.session,
+      quantity: `${Number(amountSendEth).toFixed(9)} EVMPX`
+    })
   }
 
   const handleTrate = () => {
@@ -170,10 +179,7 @@ const SwapComponent = () => {
           {balances.map(item => (
             <Box display="flex" key={item?.symbol}>
               <Typography variant="body2" minWidth={110} align="left">
-                {getAmount(item?.balance?.quantity)}
-              </Typography>
-              <Typography variant="body2" align="left">
-                {getSymbol(item?.balance?.quantity)}
+                {formatAmountSymbol(item?.balance?.quantity)}
               </Typography>
             </Box>
           ))}
@@ -309,7 +315,9 @@ const SwapComponent = () => {
             }}
             endAdornment={<InputAdornment position="end">eVMPX</InputAdornment>}
           />
-          <Button variant="outlined">Send to ETH</Button>
+          <Button onClick={sendTokensToEth} variant="outlined">
+            Send to ETH
+          </Button>
         </Box>
       </Box>
     </Box>

@@ -1,18 +1,35 @@
-import LibreLinkBrowserTransport from '@libre-chain/libre-link-browser-transport'
-import LibreLink from '@libre-chain/libre-link'
+// import LibreLinkBrowserTransport from '@libre-chain/libre-link-browser-transport'
+// import LibreLink from '@libre-chain/libre-link'
+import AnchorLink from 'anchor-link'
+import AnchorLinkBrowserTransport from 'anchor-link-browser-transport'
 import moment from 'moment'
 
-import { swapVmpxContract, vmpxContract } from '../config/blockchain.config'
+import {
+  swapVmpxContract,
+  vmpxContract,
+  tokenLikerContract
+} from '../config/blockchain.config'
 
 export const loginLibre = async () => {
   try {
-    const link = new LibreLink({
-      transport: new LibreLinkBrowserTransport(),
+    // const link = new LibreLink({
+    //   transport: new LibreLinkBrowserTransport(),
+    //   chains: [
+    //     {
+    //       chainId:
+    //         'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee',
+    //       nodeUrl: 'https://testnet.libre.org'
+    //     }
+    //   ],
+    //   scheme: 'libre'
+    // })
+    const link = new AnchorLink({
+      transport: new AnchorLinkBrowserTransport(),
       chains: [
         {
           chainId:
             'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee',
-          nodeUrl: 'https://testnet.libre.org'
+          nodeUrl: 'https://api.testnet.libre.cryptobloks.io'
         }
       ],
       scheme: 'libre'
@@ -76,8 +93,8 @@ export const restoreSession = async (hyperionUrl, chainId, link, session) => {
           error: ''
         }
       }
-      link = new LibreLink({
-        transport: new LibreLinkBrowserTransport(),
+      link = new AnchorLink({
+        transport: new AnchorLinkBrowserTransport(),
         chains: [
           {
             chainId: String(chainId),
@@ -86,6 +103,16 @@ export const restoreSession = async (hyperionUrl, chainId, link, session) => {
         ],
         scheme: 'libre'
       })
+      // link = new LibreLink({
+      //   transport: new LibreLinkBrowserTransport(),
+      //   chains: [
+      //     {
+      //       chainId: String(chainId),
+      //       nodeUrl: String(hyperionUrl)
+      //     }
+      //   ],
+      //   scheme: 'libre'
+      // })
 
       session = await link.restoreSession(
         String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME),
@@ -129,14 +156,6 @@ export const trade = async ({
   account,
   session
 }) => {
-  console.log({
-    minExpectedAmount,
-    contractAccount,
-    quantity,
-    account,
-    session
-  })
-
   const authorization = [
     {
       actor: account,
@@ -158,6 +177,64 @@ export const trade = async ({
         } for ${minExpectedAmount.split(' ')[1]}`
         // 'exchange:BEVMPX, 9.000000000 EVMPX, Trading BVMPX for EVMPX' |
         // 'exchange:BEVMPX, 9.000000000 BVMPX, Trading EVMPX for BVMPX' depending on the trade type whether it is from EVMPX to BVMPX or BVMPX to EVMPX, the format is: 'LPTOKEN,min_expected_asset,optional memo'
+      }
+    }
+  ]
+
+  const result = await session.transact({ actions }, { broadcast: true })
+
+  return {
+    success: true,
+    transactionId: result.processed.id
+  }
+}
+
+export const linkAccounts = async ({ session, libreAccount, address }) => {
+  const authorization = [
+    {
+      actor: libreAccount,
+      permission: 'active'
+    }
+  ]
+
+  const actions = [
+    {
+      authorization,
+      account: tokenLikerContract,
+      name: 'linkaddr',
+      data: {
+        account: libreAccount,
+        eth_address: address
+        // eth_address: DEFAULT, handled by the Smart Contract
+      }
+    }
+  ]
+
+  const result = await session.transact({ actions }, { broadcast: true })
+
+  return {
+    success: true,
+    transactionId: result.processed.id
+  }
+}
+
+export const pegoutEth = async ({ session, account, quantity }) => {
+  const authorization = [
+    {
+      actor: account,
+      permission: 'active'
+    }
+  ]
+
+  const actions = [
+    {
+      authorization,
+      account: tokenLikerContract,
+      name: 'withdraw',
+      data: {
+        account,
+        quantity,
+        eth_address: '' // DEFAULT, handled by the Smart Contract
       }
     }
   ]

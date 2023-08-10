@@ -4,11 +4,14 @@ import { Button, Typography } from '@mui/material'
 import { ethers } from 'ethers'
 
 import { useSharedState } from '../../context/state.context'
+import { getEthAddressByAccount } from '../../utils'
+import { linkAccounts } from '../../context/LibreClient'
 
 const Vmpxswap = () => {
   const [state, { setState, login }] = useSharedState()
 
   const [accountAddress, setAccountAddress] = useState('')
+  const [areAccountsLinked, setAccountsLinked] = useState(false)
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -52,6 +55,19 @@ const Vmpxswap = () => {
     await login()
   }
 
+  const checkMatch = async () => {
+    const { account: libreAccount, eth_address: ethAddress } =
+      await getEthAddressByAccount(state?.user?.actor)
+
+    const areLinked =
+      libreAccount === state?.user?.actor && ethAddress === accountAddress
+
+    console.log({ areLinked })
+
+    setAccountsLinked(areLinked)
+    setState({ param: 'accountMatch', accountMatch: areLinked })
+  }
+
   useEffect(() => {
     checkIfWalletIsConnected()
   }, [])
@@ -60,6 +76,13 @@ const Vmpxswap = () => {
     if (accountAddress && state?.user?.actor) {
       setState({ param: 'connectMeta', connectMeta: true })
       setState({ param: 'connectLibre', connectLibre: true })
+
+      checkMatch()
+
+      // if (state?.user?.actor && !state?.accountMatch) {
+      //   setAccountsLinked(true)
+      //   setState({ param: 'accountMatch', accountMatch: true })
+      // }
       // setState({ param: 'user', user: 'Boomer' })
     }
   }, [accountAddress, state?.user?.actor])
@@ -94,6 +117,38 @@ const Vmpxswap = () => {
           {state?.user?.actor || 'Connect Libre'}
         </Button>
       </Box>
+
+      {accountAddress && state?.user?.actor && !areAccountsLinked ? (
+        <Box
+          mt={6}
+          display="flex"
+          flexDirection="column"
+          paddingX={accountAddress ? 4 : 18}
+        >
+          <Typography
+            mt={6}
+            textAlign="center"
+            variant="body1"
+            style={{ color: 'red' }}
+          >
+            Libre account and Ethereum account are not linked
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() =>
+              linkAccounts({
+                session: state?.user?.session,
+                libreAccount: state?.user?.actor,
+                address: accountAddress
+              })
+            }
+          >
+            {'Link accounts'}
+          </Button>
+        </Box>
+      ) : (
+        <> </>
+      )}
     </Box>
   )
 }

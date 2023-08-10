@@ -11,7 +11,8 @@ const initialValue = {
   user: null,
   ethAccountAddress: null,
   connectMeta: false,
-  connectLibre: false
+  connectLibre: false,
+  accountMatch: false
 }
 
 const sharedStateReducer = (state, action) => {

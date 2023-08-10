@@ -2,7 +2,7 @@
 // import LibreLink from '@libre-chain/libre-link'
 import AnchorLink from 'anchor-link'
 import AnchorLinkBrowserTransport from 'anchor-link-browser-transport'
-import moment from 'moment'
+// import moment from 'moment'
 
 import {
   swapVmpxContract,
@@ -10,43 +10,22 @@ import {
   tokenLikerContract
 } from '../config/blockchain.config'
 
+const link = new AnchorLink({
+  transport: new AnchorLinkBrowserTransport(),
+  chains: [
+    {
+      chainId:
+        'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee',
+      nodeUrl: 'https://api.testnet.libre.cryptobloks.io'
+    }
+  ],
+  scheme: 'libre'
+})
+
 export const loginLibre = async () => {
   try {
-    // const link = new LibreLink({
-    //   transport: new LibreLinkBrowserTransport(),
-    //   chains: [
-    //     {
-    //       chainId:
-    //         'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee',
-    //       nodeUrl: 'https://testnet.libre.org'
-    //     }
-    //   ],
-    //   scheme: 'libre'
-    // })
-    const link = new AnchorLink({
-      transport: new AnchorLinkBrowserTransport(),
-      chains: [
-        {
-          chainId:
-            'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee',
-          nodeUrl: 'https://api.testnet.libre.cryptobloks.io'
-        }
-      ],
-      scheme: 'libre'
-    })
-
     const identity = await link.login(
       String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME)
-    )
-    // let session = identity.session
-    localStorage.setItem(
-      'dapp-user-auth',
-      JSON.stringify({
-        actor: identity.session.auth.actor.toString(),
-        permission: identity.session.auth.permission.toString(),
-        expiration: moment().add(20, 'minutes'),
-        type: 'libre'
-      })
     )
 
     return {
@@ -65,78 +44,30 @@ export const loginLibre = async () => {
   }
 }
 
-const logout = async (link, session, chainId) => {
-  if (!link || !session) return localStorage.removeItem('dapp-user-auth')
+export const logout = async session => {
+  console.log({ session })
   await link.removeSession(
     String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME),
     session.auth,
-    chainId
+    'b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee'
   )
-  session = null
-  localStorage.removeItem('dapp-user-auth')
 }
 
-export const restoreSession = async (hyperionUrl, chainId, link, session) => {
-  try {
-    if (!link)
-      throw new Error('An error has occurred while restoring a session')
+export const restoreSession = async () => {
+  const restoredSession = await link.restoreSession(
+    String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME)
+  )
 
-    let userAuth = localStorage.getItem('dapp-user-auth')
-
-    if (userAuth) {
-      userAuth = JSON.parse(userAuth)
-      // LOGOUT USER IF CONNECTION HAS EXPIRED
-      if (moment().isAfter(userAuth.expiration)) {
-        await logout()
-        return {
-          user: null,
-          error: ''
-        }
+  return restoredSession
+    ? {
+        user: {
+          actor: restoredSession.auth.actor.toString(),
+          permission: restoredSession.auth.permission.toString(),
+          session: restoredSession
+        },
+        error: ''
       }
-      link = new AnchorLink({
-        transport: new AnchorLinkBrowserTransport(),
-        chains: [
-          {
-            chainId: String(chainId),
-            nodeUrl: String(hyperionUrl)
-          }
-        ],
-        scheme: 'libre'
-      })
-      // link = new LibreLink({
-      //   transport: new LibreLinkBrowserTransport(),
-      //   chains: [
-      //     {
-      //       chainId: String(chainId),
-      //       nodeUrl: String(hyperionUrl)
-      //     }
-      //   ],
-      //   scheme: 'libre'
-      // })
-
-      session = await link.restoreSession(
-        String(process.env.NEXT_PUBLIC_LIBRE_APP_NAME),
-        userAuth,
-        chainId
-      )
-    }
-
-    if (!session)
-      throw new Error('An error has occurred while restoring a session')
-
-    return {
-      user: {
-        actor: session.auth.actor.toString(),
-        permission: session.auth.permission.toString()
-      },
-      error: ''
-    }
-  } catch (e) {
-    return {
-      user: null,
-      error: e.message || 'An error has occurred while restoring a session'
-    }
-  }
+    : {}
 }
 
 export const getUsername = async ({ username, rpc }) => {

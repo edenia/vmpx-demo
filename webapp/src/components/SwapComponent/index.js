@@ -7,7 +7,7 @@ import { Button, Typography, OutlinedInput } from '@mui/material'
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined'
 
 import { useSharedState } from '../../context/state.context'
-import { getBalances, getVMPXPoolFee } from '../../utils'
+import { getBalance, getVMPXPoolFee, sleep } from '../../utils'
 import { trade, pegoutEth } from '../../context/LibreClient'
 import { artifacContract } from '../../artifact'
 import { blockchainConfig } from '../../config'
@@ -102,10 +102,7 @@ const SwapComponent = () => {
         artifacContract.abi,
         signer
       )
-      console.log({
-        contract,
-        test: String(Number(amountReceiveEth).toFixed(9)).toString()
-      })
+
       if (contract) {
         const tx = await contract.transfer(
           blockchainConfig.targetWalletAddress,
@@ -137,10 +134,10 @@ const SwapComponent = () => {
     })
   }
 
-  const handleTrate = () => {
+  const handleTrate = async () => {
     const tokenFrom = firstToken.symbol
 
-    trade({
+    await trade({
       account: state.user.actor,
       session: state.user.session,
       contractAccount:
@@ -154,14 +151,22 @@ const SwapComponent = () => {
         9
       )} ${tokenFrom.toUpperCase()}`
     })
+
+    await sleep(2000) // wait for 3 seconds
+    await loadBalances()
+  }
+
+  const loadBalances = async () => {
+    const evmpxBalance = await getBalance(state.user.actor, 'EVMPX')
+    const bvmpxBalance = await getBalance(state.user.actor, 'BVMPX')
+
+    setBalances([...evmpxBalance, ...bvmpxBalance])
   }
 
   useEffect(async () => {
-    const response = await getBalances(state.user.actor)
     const feeResponse = await getVMPXPoolFee()
-    setBalances(response)
+    await loadBalances()
     setFee(1 - feeResponse.fee / 100)
-    console.log({ response, feeResponse, fee })
   }, [state.user.actor])
 
   return (
@@ -179,13 +184,12 @@ const SwapComponent = () => {
           {balances.map(item => (
             <Box display="flex" key={item?.symbol}>
               <Typography variant="body2" minWidth={110} align="left">
-                {formatAmountSymbol(item?.balance?.quantity)}
+                {formatAmountSymbol(item?.balance)}
               </Typography>
             </Box>
           ))}
         </Box>
         <Box>
-          {console.log({ user: state?.user, fee })}
           <Typography variant="body1">{state?.user?.actor}</Typography>
           <Typography variant="body1">
             {`${state?.ethAccountAddress?.substring(

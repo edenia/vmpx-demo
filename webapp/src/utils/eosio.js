@@ -2,16 +2,18 @@ import { eosApi } from './eosapi'
 import {
   swapVmpxContract,
   vmpxContract,
-  tokenLikerContract
+  tokenLikerContract,
+  evmpxContract,
+  bvmpxContract
 } from '../config/blockchain.config'
 
-export const getBalances = async account => {
+export const getBalance = async (account, token) => {
   const { rows } = await eosApi.getTableRows({
-    code: swapVmpxContract,
+    code: token === 'EVMPX' ? evmpxContract : bvmpxContract,
     scope: account,
-    table: 'swapacnts',
+    table: 'accounts',
     json: true,
-    limit: 2
+    limit: 1
   })
 
   return rows
@@ -28,7 +30,7 @@ export const getVMPXPoolFee = async () => {
   return rows[0]
 }
 
-export const getEthAddressByAccount = async ({ account }) => {
+export const getEthAddressByAccount = async account => {
   const { rows } = await eosApi.getTableRows({
     code: tokenLikerContract,
     scope: tokenLikerContract,
@@ -39,9 +41,5 @@ export const getEthAddressByAccount = async ({ account }) => {
     limit: 1
   })
 
-  if (!rows.length) {
-    throw new Error('Account does not have any eth address linked')
-  }
-
-  return rows[0]
+  return rows[0] || {}
 }

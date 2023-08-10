@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { loginLibre } from './LibreClient'
+import { loginLibre, restoreSession } from './LibreClient'
 
 // import { wax } from '../utils'
 
@@ -50,17 +50,11 @@ export const SharedStateProvider = ({ children, ...props }) => {
 
   useEffect(() => {
     const load = async () => {
-      // await wax.isAutoLoginAvailable()
+      const { user } = await restoreSession()
 
-      // if (!wax.userAccount) {
-      //   return
-      // }
-
-      dispatch({
-        type: 'set',
-        payload: {}
-        // payload: { user: { accountName: wax.userAccount } }
-      })
+      if (user) {
+        dispatch({ type: 'set', payload: { user } })
+      }
     }
 
     load()
@@ -97,7 +91,6 @@ export const useSharedState = () => {
   }
   const logout = () => {
     dispatch({ type: 'set', payload: { user: null } })
-    // delete wax.userAccount
   }
 
   return [state, { setState, showMessage, hideMessage, login, logout }]

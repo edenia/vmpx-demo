@@ -4,14 +4,17 @@ import { Button, Typography } from '@mui/material'
 import { ethers } from 'ethers'
 
 import { useSharedState } from '../../context/state.context'
-import { getEthAddressByAccount } from '../../utils'
-import { linkAccounts } from '../../context/LibreClient'
+import { getEthAddressByAccount, sleep } from '../../utils'
+import {
+  linkAccounts as createLinkTrx,
+  logout as walletLogout
+} from '../../context/LibreClient'
 
 const Vmpxswap = () => {
-  const [state, { setState, login }] = useSharedState()
+  const [state, { setState, login, logout }] = useSharedState()
 
   const [accountAddress, setAccountAddress] = useState('')
-  const [areAccountsLinked, setAccountsLinked] = useState(false)
+  const [areAccountsLinked, setAccountsLinked] = useState(true)
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -36,14 +39,18 @@ const Vmpxswap = () => {
   const connectMetaMask = async () => {
     try {
       const { ethereum } = window
+
       if (!ethereum) {
         window.alert('Get MetaMask!')
         return
       }
 
+      console.log('conecting from metamask...')
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts'
       })
+
+      console.log(`connected to address: ${accounts[0]}`)
 
       setAccountAddress(accounts[0])
     } catch (error) {
@@ -52,20 +59,32 @@ const Vmpxswap = () => {
   }
 
   const connectLibre = async () => {
-    await login()
+    if (!state?.user) {
+      await login()
+    } else {
+      await walletLogout(state.user.session)
+      logout()
+    }
   }
 
-  const checkMatch = async () => {
-    const { account: libreAccount, eth_address: ethAddress } =
-      await getEthAddressByAccount(state?.user?.actor)
+  const checkMatch = async (account, addressEth) => {
+    const { account: accLibre, eth_address: accAddress } =
+      await getEthAddressByAccount(account)
 
-    const areLinked =
-      libreAccount === state?.user?.actor && ethAddress === accountAddress
-
-    console.log({ areLinked })
+    const areLinked = accLibre === account && accAddress === addressEth
 
     setAccountsLinked(areLinked)
     setState({ param: 'accountMatch', accountMatch: areLinked })
+  }
+
+  const linkAccounts = async () => {
+    await createLinkTrx({
+      session: state?.user?.session,
+      libreAccount: state?.user?.actor,
+      address: accountAddress
+    })
+    await sleep(2000) // wait for 2 seconds
+    await checkMatch(state?.user?.actor, accountAddress)
   }
 
   useEffect(() => {
@@ -77,7 +96,7 @@ const Vmpxswap = () => {
       setState({ param: 'connectMeta', connectMeta: true })
       setState({ param: 'connectLibre', connectLibre: true })
 
-      checkMatch()
+      checkMatch(state?.user?.actor, accountAddress)
 
       // if (state?.user?.actor && !state?.accountMatch) {
       //   setAccountsLinked(true)
@@ -133,16 +152,7 @@ const Vmpxswap = () => {
           >
             Libre account and Ethereum account are not linked
           </Typography>
-          <Button
-            variant="outlined"
-            onClick={() =>
-              linkAccounts({
-                session: state?.user?.session,
-                libreAccount: state?.user?.actor,
-                address: accountAddress
-              })
-            }
-          >
+          <Button variant="outlined" onClick={linkAccounts}>
             {'Link accounts'}
           </Button>
         </Box>

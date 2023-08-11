@@ -50,6 +50,7 @@ services:
       - ./hasura/metadata:/metadata
       - ./hasura/seeds:/seeds
     environment:
+      HASURA_GRAPHQL_SERVER_PORT: ${HASURA_GRAPHQL_SERVER_PORT}
       HASURA_GRAPHQL_DATABASE_URL: "${HASURA_GRAPHQL_DATABASE_URL}"
       HASURA_GRAPHQL_MIGRATIONS_DIR: /migrations
       HASURA_GRAPHQL_METADATA_DIR: /metadata

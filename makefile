@@ -40,10 +40,10 @@ hasura:
 hasura-cli:
 	$(eval -include .env)
 	@until \
-		curl -s -o /dev/null -w 'hasura status %{http_code}\n' http://localhost:8080/healthz; \
+		curl -s -o /dev/null -w 'hasura status %{http_code}\n' http://localhost:8081/healthz; \
 		do echo "$(BLUE)hasura |$(RESET) waiting for hasura service"; \
 		sleep 5; done;
-	@cd hasura && hasura console --endpoint http://localhost:8080 --skip-update-check --no-browser --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET);
+	@cd hasura && hasura console --endpoint http://localhost:8081 --skip-update-check --no-browser --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET);
 
 hasura-plant:
 	$(eval -include .env)
@@ -52,7 +52,7 @@ hasura-plant:
 webapp:
 	$(eval -include .env)
 	@until \
-		curl -s -o /dev/null -w 'hasura status %{http_code}\n' http://localhost:8080/healthz; \
+		curl -s -o /dev/null -w 'hasura status %{http_code}\n' http://localhost:8081/healthz; \
 		do echo "$(BLUE)webapp |$(RESET) waiting for hasura service"; \
 		sleep 5; done;
 	@cd webapp && yarn && yarn start:local | cat

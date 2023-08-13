@@ -3,11 +3,12 @@
 VERSION ?= $(shell git rev-parse --short HEAD)
 CURRENT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 
-IMAGE_NAME_HAPI=backend-boilerplate-hapi
-IMAGE_NAME_HASURA=backend-boilerplate-hasura
+IMAGE_NAME_HAPI=backend-vmpx-demo-hapi
+IMAGE_NAME_HASURA=backend-vmpx-demo-hasura
+IMAGE_NAME_WEBAPP=webapp-vmpx-demo
 
-DOCKER_REGISTRY=leisterfrancisco
-SUBDIRS = hapi hasura
+DOCKER_REGISTRY=edenia
+SUBDIRS = hapi hasura webapp
 
 MAKE_ENV += DOCKER_REGISTRY VERSION IMAGE_NAME_HAPI IMAGE_NAME_HASURA
 

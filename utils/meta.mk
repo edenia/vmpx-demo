@@ -7,7 +7,7 @@ IMAGE_NAME_HAPI=backend-vmpx-demo-hapi
 IMAGE_NAME_HASURA=backend-vmpx-demo-hasura
 IMAGE_NAME_WEBAPP=webapp-vmpx-demo
 
-DOCKER_REGISTRY=edenia
+DOCKER_REGISTRY=librechain
 SUBDIRS = hapi hasura webapp
 
 MAKE_ENV += DOCKER_REGISTRY VERSION IMAGE_NAME_HAPI IMAGE_NAME_HASURA

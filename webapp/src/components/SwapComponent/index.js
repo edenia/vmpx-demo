@@ -376,7 +376,7 @@ const SwapComponent = () => {
                   : value
               )
             }}
-            endAdornment={<InputAdornment position="end">VMPX</InputAdornment>}
+            endAdornment={<InputAdornment position="end">eVMPX</InputAdornment>}
           />
           <Button
             variant="outlined"

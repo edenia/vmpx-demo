@@ -29,6 +29,8 @@ services:
       HAPI_NETWORK_CHAIN_ID: "${HAPI_NETWORK_CHAIN_ID}"
       HAPI_HASURA_URL: "${HAPI_HASURA_URL}"
       HAPI_HASURA_ADMIN_SECRET: "${HAPI_HASURA_ADMIN_SECRET}"
+      HAPI_HYPERION_API: "${HAPI_HYPERION_API}"
+      HAPI_HYPERION_START_AT: "${HAPI_HYPERION_START_AT}"
       HAPI_VMPX_CONTRACT: "${HAPI_VMPX_CONTRACT}"
       HAPI_DISPENSER_CONTRACT: "${HAPI_DISPENSER_CONTRACT}"
       HAPI_DISPENSER_CONTRACT_PRIVATE_KEY: "${HAPI_DISPENSER_CONTRACT_PRIVATE_KEY}"
@@ -42,7 +44,7 @@ services:
     container_name: "hasura"
     image: hasura/graphql-engine:v2.30.1.cli-migrations-v3
     ports:
-      - "8080:8080"
+      - "8081:8081"
     depends_on:
       - postgres
     volumes:
@@ -50,6 +52,7 @@ services:
       - ./hasura/metadata:/metadata
       - ./hasura/seeds:/seeds
     environment:
+      HASURA_GRAPHQL_SERVER_PORT: ${HASURA_GRAPHQL_SERVER_PORT}
       HASURA_GRAPHQL_DATABASE_URL: "${HASURA_GRAPHQL_DATABASE_URL}"
       HASURA_GRAPHQL_MIGRATIONS_DIR: /migrations
       HASURA_GRAPHQL_METADATA_DIR: /metadata

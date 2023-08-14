@@ -17,7 +17,7 @@ interface GetActionsResponse {
   actions: any[]
 }
 
-const TIME_BEFORE_IRREVERSIBILITY = 164
+const TIME_TO_FETCH = 10
 
 const getLastSyncedAt = async () => {
   const state = await hyperionStateModel.queries.getState()
@@ -32,12 +32,9 @@ const getLastSyncedAt = async () => {
 }
 
 const getGap = (lastSyncedAt: string) => {
-  if (
-    moment().diff(moment(lastSyncedAt), 'seconds') >=
-    TIME_BEFORE_IRREVERSIBILITY
-  ) {
+  if (moment().diff(moment(lastSyncedAt), 'seconds') >= TIME_TO_FETCH) {
     return {
-      amount: TIME_BEFORE_IRREVERSIBILITY,
+      amount: TIME_TO_FETCH,
       unit: 'seconds'
     }
   }
@@ -61,20 +58,21 @@ const getActions = async (
         filter: updaters.map(updater => updater.type).join(','),
         sort: 'asc',
         simple: true,
-        checkLib: true
+        checkLib: false
       }
     }
   )
 
-  const notIrreversible = data.simple_actions.find(
-    (item: any) => !item.irreversible
-  )
+  // NOTE: disabled temporarily to listen for action before LIB is reached
+  // const notIrreversible = data.simple_actions.find(
+  //   (item: any) => !item.irreversible
+  // )
 
-  if (notIrreversible) {
-    await timeUtil.sleep(1)
+  // if (notIrreversible) {
+  //   await timeUtil.sleep(1)
 
-    return getActions(params)
-  }
+  //   return getActions(params)
+  // }
 
   return {
     hasMore: data.total.value > limit + params.skip || false,
@@ -98,7 +96,7 @@ const runUpdaters = async (actions: any[]) => {
 }
 
 const sync = async (): Promise<void> => {
-  console.log('\nHyperion syncing...')
+  console.log('\nHyperion: syncing actions...')
   await coreUtil.hasura.hasuraAssembled()
   const lastSyncedAt = await getLastSyncedAt()
   const gap = getGap(lastSyncedAt)
@@ -108,17 +106,15 @@ const sync = async (): Promise<void> => {
     .toISOString()
   const diff = moment().diff(moment(before), 'seconds')
 
+  console.log(`Getting batch from: ${after} to ${before}`)
+
   let skip = 0
   let hasMore = true
   let actions = []
 
-  if (diff < TIME_BEFORE_IRREVERSIBILITY) {
-    console.log(
-      `Waiting for irreversibility: ${
-        TIME_BEFORE_IRREVERSIBILITY - diff
-      } seconds left`
-    )
-    await timeUtil.sleep(TIME_BEFORE_IRREVERSIBILITY - diff)
+  if (diff < TIME_TO_FETCH) {
+    console.log(`Waiting for next check: ${TIME_TO_FETCH - diff} seconds left`)
+    await timeUtil.sleep(TIME_TO_FETCH - diff)
 
     return sync()
   }
@@ -127,6 +123,7 @@ const sync = async (): Promise<void> => {
     while (hasMore) {
       ;({ hasMore, actions } = await getActions({ after, before, skip }))
       skip += actions.length
+      console.log(`Total actions found: ${actions.length}`)
       await runUpdaters(actions)
     }
   } catch (error: any) {

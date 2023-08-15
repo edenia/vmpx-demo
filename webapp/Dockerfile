@@ -1,4 +1,4 @@
-FROM node:16.20.0  as build-stage
+FROM node:16.20.0 as build-stage
 
 ARG react_app_tag
 ARG react_app_name
@@ -54,9 +54,14 @@ ENV TOOL_NODE_FLAGS --max_old_space_size=4096
 RUN mkdir -p $WORK_DIR
 WORKDIR $WORK_DIR
 
+COPY package.json $WORK_DIR/package.json
+COPY yarn.lock $WORK_DIR/yarn.lock
+
+RUN yarn install --frozen-lockfile --production=false
+
 COPY ./ $WORK_DIR
 
-RUN yarn install && yarn build
+RUN yarn build
 
 FROM nginx:1.17.10-alpine as run-stage
 

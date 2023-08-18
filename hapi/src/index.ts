@@ -1,9 +1,9 @@
 import Hapi from '@hapi/hapi'
 import { Server } from '@hapi/hapi'
-import routes from './routes'
-import ethListener from './services/listener.service'
 
+import routes from './routes'
 import workerService from './services/worker'
+import listenerService from './services/listener'
 
 const init = async () => {
   const server: Server = Hapi.server({
@@ -15,8 +15,8 @@ const init = async () => {
 
   server.start()
 
-  ethListener.listenForEvents()
-  workerService.init()
+  await workerService.init()
+  listenerService.start()
 
   console.log(`🚀 Server ready at ${server.info.uri}`)
   server.table().forEach(route => console.log(`${route.method}\t${route.path}`))

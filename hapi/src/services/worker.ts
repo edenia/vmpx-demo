@@ -1,8 +1,13 @@
 import { timeUtil, coreUtil } from '../utils'
-import hyperionService from './hyperion'
 import { defaultModel } from '../models'
 
-const run = async (worker: defaultModel.Worker) => {
+let isInitialized = false
+
+export const run = async (worker: defaultModel.Worker) => {
+  if (!isInitialized) {
+    throw new Error('Worker service not initialized')
+  }
+
   try {
     await worker.action()
   } catch (error: any) {
@@ -20,9 +25,12 @@ const run = async (worker: defaultModel.Worker) => {
 const init = async () => {
   await coreUtil.hasura.hasuraAssembled()
 
-  run(hyperionService.syncWorker())
+  isInitialized = true
+
+  // run(hyperionService.syncWorker())
 }
 
 export default {
-  init
+  init,
+  run
 }

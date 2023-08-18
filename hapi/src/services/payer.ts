@@ -1,29 +1,39 @@
-// this file will handle the sending a trx to be signed by the signer and send it to the blockchain (ethereum or libre)
 import { ethConfig } from '../config'
 import { transactionModel } from '../models'
 import { trxAdapterUtil, eosUtil, ethUtil } from '../utils'
-// import { TransactResult } from 'eosjs/dist/eosjs-api-interfaces'
-// import { ReadOnlyTransactResult } from 'eosjs/dist/eosjs-rpc-interfaces'
+import { actionModel } from '../models'
 
 // move funds from ethereum to antelopeio
-export const pegin = async (payload: transactionModel.EthTrxPayload) => {
+export const pegin = async (
+  event: actionModel.EthEvent,
+  payload: transactionModel.EthTrxPayload
+) => {
+  console.log(`Pegging in funds for tx: ${event.transactionHash}`)
+
   const unsignedTx = await trxAdapterUtil.formatAntelopeAction(payload)
   const signedTx = await eosUtil.default.signTx(unsignedTx)
   const tx = await eosUtil.default.pushSignedTx(signedTx)
 
-  // console.log(
-  //   `Pegin: transaction hash -- ${
-  //     tx.processed?.id ??
-  //     tx.transaction_id ??
-  //     'Transaction failed to be processed'
-  //   }`
-  // )
+  if (!tx) {
+    console.log('Transaction failed to be processed')
+  }
+
+  console.log(
+    `Pegin: transaction hash -- ${
+      'transaction_id' in tx ? tx.transaction_id : tx.result
+    }`
+  )
 
   // TODO: save tx in database
 }
 
 // move funds from antelopeio to ethereum
-export const pegout = async (payload: transactionModel.EthTrxPayload) => {
+export const pegout = async (
+  action: actionModel.HyperionAction,
+  payload: transactionModel.EthTrxPayload
+) => {
+  console.log(`Pegging out funds for tx: ${action.transaction_id}`)
+
   const unsignedTx = await trxAdapterUtil.formatEthAction(payload)
   const signedTx = await ethUtil.signEthTx(unsignedTx)
   const tx = await ethConfig.providerRpc.sendTransaction(signedTx)

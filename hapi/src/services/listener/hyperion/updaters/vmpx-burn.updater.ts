@@ -1,17 +1,14 @@
-import { eosConfig } from '../../../config'
-import payerService from '../../payer'
+import { eosConfig } from '../../../../config'
+import payerService from '../../../payer'
+import { actionModel } from '../../../../models'
 
 export default {
   type: `${eosConfig.vmpxContract}:burn`,
-  apply: async (action: any) => {
+  apply: async (action: actionModel.HyperionAction) => {
     try {
       if (!action.data.memo) {
         return
       }
-      console.log(`\nReturning funds to Ethereum`)
-      console.log('Paying transaction')
-      console.log({ ...action.data, transaction_id: action.transaction_id })
-
       const destinataryAddress = action.data.memo.split(':')[1]
       const quantity = action.data.quantity.split(' ')[0]
 
@@ -20,7 +17,7 @@ export default {
         return
       }
 
-      await payerService.pegout({
+      await payerService.pegout(action, {
         ethAddress: destinataryAddress,
         quantity
       })

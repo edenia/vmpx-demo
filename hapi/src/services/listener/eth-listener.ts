@@ -1,8 +1,9 @@
 import { ethers } from 'ethers'
 
-import { ethConfig } from '../config'
-import artifact from '../artifact'
-import payerService from './payer'
+import { ethConfig } from '../../config'
+import artifact from '../../artifact'
+import payerService from '../payer'
+import { actionModel } from '../../models'
 
 const listenForEvents = async () => {
   const provider = new ethers.providers.WebSocketProvider(
@@ -16,18 +17,12 @@ const listenForEvents = async () => {
   const filter = vmpxContract.filters.Transfer(null, ethConfig.walletAddress)
 
   // Receive an event when that filter occurs
-  vmpxContract.on(filter, (from, to, amount, event) => {
-    console.log('🚀 ~ vmpxContract.on ~ Transfer')
+  vmpxContract.on(filter, (from, to, amount, event: actionModel.EthEvent) => {
+    const value = Number(ethers.utils.formatUnits(amount, 18)).toFixed(9)
 
-    const info = {
-      from: from,
-      to: to,
-      value: Number(ethers.utils.formatUnits(amount, 18)).toFixed(9)
-    }
+    console.log(JSON.stringify({ from, to, value }, null, 4))
 
-    console.log(JSON.stringify(info, null, 4))
-
-    payerService.pegin({ ethAddress: from, quantity: amount })
+    payerService.pegin(event, { ethAddress: from, quantity: amount })
   })
 }
 

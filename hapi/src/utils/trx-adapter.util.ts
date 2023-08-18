@@ -1,10 +1,8 @@
-// this file will have the logic to create the structure for a ethereum or libre action
-
 import { ethers } from 'ethers'
 
 import { transactionModel } from '../models'
 import { eosConfig, ethConfig } from '../config'
-import { eosUtil } from '../utils'
+import { eosUtil } from '.'
 
 export const formatEthAction = async (
   payload: transactionModel.EthTrxPayload

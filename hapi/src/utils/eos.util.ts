@@ -38,7 +38,32 @@ const transact = async (actions: Action[]) => {
   }
 }
 
+const serializeActions = async (actions: Action[]) => {
+  return await eosApi.serializeActions(actions)
+}
+
+const serializeTransaction = async (tx: any) => {
+  return eosApi.serializeTransaction(tx)
+}
+
+const signTx = async (unsignedTx: Uint8Array) => {
+  return await eosApi.signatureProvider.sign({
+    chainId: eosConfig.chainId,
+    requiredKeys: [eosConfig.dispenserContractPublicKey],
+    serializedTransaction: unsignedTx,
+    abis: []
+  })
+}
+
+const pushSignedTx = async (signedTx: any) => {
+  return await eosApi.pushSignedTransaction(signedTx)
+}
+
 export default {
   getAbi,
-  transact
+  transact,
+  serializeActions,
+  serializeTransaction,
+  signTx,
+  pushSignedTx
 }

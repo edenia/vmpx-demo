@@ -1,7 +1,6 @@
 import { ethConfig } from '../config'
-import { transactionModel } from '../models'
 import { trxAdapterUtil, eosUtil, ethUtil } from '../utils'
-import { actionModel } from '../models'
+import { actionModel, transactionModel } from '../models'
 
 // move funds from ethereum to antelopeio
 export const pegin = async (

@@ -27,6 +27,7 @@ const listenForEvents = async () => {
 
       const transferData = { ethAddress: from, quantity: amount }
       const queue = parserUtil.fromEthToQueue(event, transferData)
+
       await queueModel.queries.save(queue) // store to db
 
       payerService.pegin(event, transferData)

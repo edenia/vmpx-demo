@@ -3,12 +3,18 @@ import { gql } from 'graphql-request'
 import { coreUtil } from '../../utils'
 import { Queue, StatusType } from './interfaces'
 
-interface QueueStateResponse {
+interface QueueResponse {
   queue: Queue[]
 }
 
-interface QueueStateInsertOneResponse {
+interface QueueInsertOneResponse {
   insert_queue_one: {
+    tx_hash: string
+  }
+}
+
+interface QueueUpdateResponse {
+  update_queue_by_pk: {
     tx_hash: string
   }
 }
@@ -21,39 +27,41 @@ export const save = async (tx: Queue) => {
       }
     }
   `
-
-  const data =
-    await coreUtil.hasura.default.request<QueueStateInsertOneResponse>(
-      mutation,
-      {
-        payload: {
-          ...tx
-        }
+  const data = await coreUtil.hasura.default.request<QueueInsertOneResponse>(
+    mutation,
+    {
+      payload: {
+        ...tx
       }
-    )
+    }
+  )
 
   return data.insert_queue_one
 }
 
 export const update = async (tx_hash: string, newStatus: StatusType) => {
   const mutation = gql`
-    mutation ($tx_hash: string!, $payload: queue_set_input) {
+    mutation ($tx_hash: String!, $payload: queue_set_input) {
       update_queue_by_pk(pk_columns: { tx_hash: $tx_hash }, _set: $payload) {
         tx_hash
       }
     }
   `
-
-  await coreUtil.hasura.default.request(mutation, {
-    tx_hash,
-    payload: {
-      status: newStatus
+  const data = await coreUtil.hasura.default.request<QueueUpdateResponse>(
+    mutation,
+    {
+      tx_hash,
+      payload: {
+        status: newStatus
+      }
     }
-  })
+  )
+
+  return data.update_queue_by_pk
 }
 
 export const getCustom = async (query: string) => {
-  const data = await coreUtil.hasura.default.request<QueueStateResponse>(query)
+  const data = await coreUtil.hasura.default.request<QueueResponse>(query)
 
   return data.queue
 }

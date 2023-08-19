@@ -19,7 +19,7 @@ export const fromEthToQueue = (
     tx_hash: event.transactionHash,
     operation: queueModel.interfaces.Operation.pegin,
     fromto: payload.ethAddress,
-    quantity: payload.quantity,
+    quantity: payload.quantity.toString(),
     status
   } as queueModel.interfaces.Queue)
 

@@ -37,4 +37,38 @@ export const fromLibreToQueue = (
     status
   } as queueModel.interfaces.Queue)
 
+export const fromQueueToEth = (queue: queueModel.interfaces.Queue) => ({
+  event: {
+    transactionHash: queue.tx_hash,
+    blockNumber: -1,
+    blockHash: '',
+    transactionIndex: -1,
+    address: ''
+  } as actionModel.EthEvent,
+  payload: {
+    ethAddress: queue.fromto,
+    quantity: queue.quantity
+  }
+})
+
+export const fromQueueToLibre = (queue: queueModel.interfaces.Queue) => ({
+  action: {
+    transaction_id: queue.tx_hash,
+    block: -1,
+    timestamp: '',
+    contract: '',
+    action: '',
+    actors: '',
+    notified: '',
+    data: {
+      quantity: queue.quantity,
+      memo: ''
+    }
+  } as actionModel.HyperionAction,
+  payload: {
+    ethAddress: queue.fromto,
+    quantity: queue.quantity
+  }
+})
+
 export default {}

@@ -26,8 +26,6 @@ const init = async () => {
   await coreUtil.hasura.hasuraAssembled()
 
   isInitialized = true
-
-  // run(hyperionService.syncWorker())
 }
 
 export default {

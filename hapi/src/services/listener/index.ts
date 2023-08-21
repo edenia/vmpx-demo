@@ -1,10 +1,14 @@
 import hyperionService from './hyperion'
 import workerService from '../worker'
-import ethListener from './eth-listener'
+import ethListenerService from './eth-listener'
+import payerService from '../payer'
+// import catcherService from '../catcher'
 
 const start = async () => {
   workerService.run(hyperionService.syncWorker())
-  ethListener.listenForEvents()
+  workerService.run(payerService.workerFetcher())
+  // workerService.run(catcherService.catchWorker())
+  ethListenerService.listenForEvents()
 }
 
 export default { start }

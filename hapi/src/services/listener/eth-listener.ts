@@ -21,10 +21,6 @@ const listenForEvents = async () => {
   vmpxContract.on(
     filter,
     async (from, to, amount, event: actionModel.EthEvent) => {
-      const value = Number(ethers.utils.formatUnits(amount, 18)).toFixed(9)
-
-      console.log(JSON.stringify({ from, to, value }, null, 4))
-
       const transferData = { ethAddress: from, quantity: amount }
       const queue = parserUtil.fromEthToQueue(event, transferData)
 

@@ -1,5 +1,7 @@
+import { gql } from 'graphql-request'
+
 import { ethConfig } from '../config'
-import { trxAdapterUtil, eosUtil, ethUtil } from '../utils'
+import { trxAdapterUtil, eosUtil, ethUtil, parserUtil } from '../utils'
 import { actionModel, transactionModel, queueModel } from '../models'
 import updaterService from './updater'
 
@@ -83,7 +85,43 @@ export const pegout = async (
   }
 }
 
+export const fetchPendingTransactions = async () => {
+  const query = gql`
+    query {
+      queue(where: { status: { _in: [ "${queueModel.interfaces.Status.pending}", "${queueModel.interfaces.Status.failed}" ] } }) {
+        tx_hash
+        operation
+        fromto
+        quantity
+        status
+        created_at
+        updated_at
+      }
+    }
+  `
+  const txs = await queueModel.queries.getCustom(query)
+
+  console.log(`Retying ${txs.length} pending transactions`)
+
+  for (const tx of txs) {
+    if (tx.operation === queueModel.interfaces.Operation.pegin) {
+      const { event, payload } = parserUtil.fromQueueToEth(tx)
+      await pegin(event, payload)
+    } else {
+      const { action, payload } = parserUtil.fromQueueToLibre(tx)
+      await pegout(action, payload)
+    }
+  }
+}
+
+export const workerFetcher = () => ({
+  name: 'TRANSACTION FETCHER',
+  intervalSec: 60,
+  action: fetchPendingTransactions
+})
+
 export default {
   pegin,
-  pegout
+  pegout,
+  workerFetcher
 }

@@ -5,7 +5,6 @@ import { makeStyles } from '@mui/styles'
 import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
 import { Button, Typography, OutlinedInput, Link } from '@mui/material'
-import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined'
 
 import { getBalance, getVMPXPoolFee, sleep } from '../../utils'
 import { useSharedState } from '../../context/state.context'
@@ -20,16 +19,22 @@ const useStyles = makeStyles(styles)
 const SwapComponent = () => {
   const classes = useStyles()
   const [fee, setFee] = useState()
-  const [balances, setBalances] = useState([
-    { balance: '0 EVMPX' },
-    { balance: '0 BVMPX' }
-  ])
   const [state, { showMessage }] = useSharedState()
   const [amountSendEth, setAmountSendEth] = useState(0)
   const [loadingRecieve, setLoadingRecieve] = useState(false)
   const [amountReceiveEth, setAmountReceiveEth] = useState(0)
-  const [firstToken, setFirstToken] = useState({ amount: 0, symbol: 'eVMPX' })
-  const [secondToken, setSecondToken] = useState({ amount: 0, symbol: 'bVMPX' })
+  const [firstToken, setFirstToken] = useState({
+    amount: 0,
+    symbol: 'eVMPX',
+    balance: '0 EVMPX',
+    icon: '/icons/vmpx-icon.svg'
+  })
+  const [secondToken, setSecondToken] = useState({
+    amount: 0,
+    symbol: 'bVMPX',
+    balance: '0 BVMPX',
+    icon: '/icons/bitcoin-icon.svg'
+  })
 
   const handleFlip = () => {
     const tokenOne = firstToken
@@ -125,7 +130,7 @@ const SwapComponent = () => {
         showMessage({
           type: 'success',
           content: (
-            <Typography>
+            <Typography color="white">
               Success transaction{' '}
               <Link
                 target="_blank"
@@ -169,7 +174,7 @@ const SwapComponent = () => {
       showMessage({
         type: 'success',
         content: (
-          <Typography>
+          <Typography color="white">
             Success transaction{' '}
             <Link
               target="_blank"
@@ -210,7 +215,7 @@ const SwapComponent = () => {
       showMessage({
         type: 'success',
         content: (
-          <Typography>
+          <Typography color="white">
             Success transaction{' '}
             <Link
               target="_blank"
@@ -235,18 +240,38 @@ const SwapComponent = () => {
 
     if (evmpxBalance.length === 0 && bvmpxBalance.length === 0) return
 
-    if (evmpxBalance.length > 0 && bvmpxBalance.length > 0)
-      setBalances([...evmpxBalance, ...bvmpxBalance])
-    else if (bvmpxBalance.length > 0)
-      setBalances([...bvmpxBalance, { balance: '0 EVMPX' }])
-    else setBalances([...evmpxBalance, { balance: '0 BVMPX' }])
+    if (evmpxBalance.length > 0 && bvmpxBalance.length > 0) {
+      if (firstToken.symbol.includes('eVMPX')) {
+        setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
+        setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
+      } else {
+        setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
+        setSecondToken({ ...secondToken, balance: evmpxBalance.balance })
+      }
+    } else if (bvmpxBalance.length > 0) {
+      if (firstToken.symbol.includes('eVMPX')) {
+        setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
+      } else {
+        setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
+      }
+    }
+    // setBalances([...bvmpxBalance, { balance: '0 EVMPX' }])
+    else {
+      if (firstToken.symbol.includes('eVMPX')) {
+        setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
+      } else {
+        setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
+      }
+      // setBalances([...evmpxBalance, { balance: '0 BVMPX' }])}
+    }
   }
 
-  const clearFields = () => {
+  const clearFields = async () => {
     setAmountSendEth(0)
     setAmountReceiveEth(0)
     setFirstToken({ amount: 0, symbol: 'eVMPX' })
     setSecondToken({ amount: 0, symbol: 'bVMPX' })
+    await loadBalances()
   }
 
   useEffect(async () => {
@@ -257,27 +282,27 @@ const SwapComponent = () => {
 
   return (
     <Box
-      border="1px solid rgb(222, 222, 226)"
-      borderRadius={2}
-      maxWidth="552px"
-      bgcolor="white"
       width="100%"
-      padding={3}
+      height="100%"
+      display="flex"
+      alignItems="center"
+      flexDirection="column"
     >
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box
+        width="100%"
+        height="96px"
+        display="flex"
+        padding="0 104px"
+        alignItems="center"
+        bgcolor="secondary.main"
+        justifyContent="space-between"
+      >
+        <Typography variant="h5">VMPX - ETH / BTC Swap</Typography>
         <Box>
-          <Typography variant="body1">Balances:</Typography>
-          {balances.map(item => (
-            <Box display="flex" key={item?.balance}>
-              <Typography variant="body2" minWidth={110} align="left">
-                {formatAmountSymbol(item?.balance)}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-        <Box>
-          <Typography variant="body1">{state?.user?.actor}</Typography>
-          <Typography variant="body1">
+          <Typography color="white" variant="body1">
+            {state?.user?.actor}
+          </Typography>
+          <Typography color="white" variant="body1">
             {`${state?.ethAccountAddress?.substring(
               0,
               5
@@ -288,130 +313,190 @@ const SwapComponent = () => {
           </Typography>
         </Box>
       </Box>
-      <Box
-        justifyContent="center"
-        flexDirection="column"
-        display="flex"
-        paddingX={20}
-        mt={2}
-      >
+      <Box height="100%" display="flex" alignItems="center">
         <Box
-          display="flex"
-          alignItems="center"
-          flexDirection="column"
-          justifyContent="center"
+          bgcolor="secondary.main"
+          border="1px solid #000"
+          borderRadius={2}
+          maxWidth="536px"
+          width="100%"
+          height={570}
+          padding={3}
         >
-          <Box display="flex" mt={2} justifyContent="center">
-            <OutlinedInput
-              className={classes.textFieldStyles}
-              id="outlined-adornment-weight"
-              value={firstToken.amount}
-              type="number"
-              onChange={e => {
-                let value = e.target.value
-
-                if (value < 0) {
-                  value = 0
-                }
-
-                handleSetevmpx(value)
-              }}
-              endAdornment={
-                <InputAdornment position="end">
-                  {firstToken.symbol}
-                </InputAdornment>
-              }
-            />
+          <Box textAlign="center">
+            <Typography variant="h4" mb={1}>
+              Swap
+            </Typography>
+            <Typography variant="body1">
+              This app allows bridging to Libre and swappin to bVMPX
+            </Typography>
           </Box>
-          <ChangeCircleOutlinedIcon
-            fontSize="large"
-            onClick={() => handleFlip()}
-            className={classes.flipStyle}
-          />
-          <Box display="flex" mt={2} justifyContent="center">
-            <OutlinedInput
-              className={classes.textFieldStyles}
-              id="outlined-adornment-weight"
-              value={secondToken.amount}
-              type="number"
-              onChange={e => {
-                let value = e.target.value
-
-                if (value < 0) {
-                  value = 0
-                }
-
-                handleSetbvmpx(value)
-              }}
-              endAdornment={
-                <InputAdornment position="end">
-                  {secondToken?.symbol}
-                </InputAdornment>
-              }
-            />
-          </Box>
-        </Box>
-        <Button variant="outlined" onClick={handleTrate}>
-          Swap
-        </Button>
-      </Box>
-      <Box mt={8} display="flex" justifyContent="space-between">
-        <Box display="flex" flexDirection="column" mr={12}>
-          <OutlinedInput
-            className={classes.textFieldStyles}
-            id="outlined-adornment-weight"
-            value={amountReceiveEth}
-            type="number"
-            onChange={e => {
-              let value = e.target.value
-
-              if (value < 0) {
-                value = 0
-              }
-
-              setAmountReceiveEth(
-                String(value).split('.')[1] &&
-                  String(value).split('.')[1].length > 9
-                  ? String(Number(value).toFixed(9))
-                  : value
-              )
-            }}
-            endAdornment={<InputAdornment position="end">eVMPX</InputAdornment>}
-          />
-          <Button
-            variant="outlined"
-            onClick={sendTransaction}
-            className={classes.buttonStyle}
+          <Box
+            justifyContent="center"
+            flexDirection="column"
+            display="flex"
+            mt={2}
           >
-            Receive from ETH {loadingRecieve && <CircularProgress size={18} />}
-          </Button>
-        </Box>
-        <br />
-        <Box display="flex" flexDirection="column">
-          <OutlinedInput
-            className={classes.textFieldStyles}
-            id="outlined-adornment-weight"
-            value={amountSendEth}
-            type="number"
-            onChange={e => {
-              let value = e.target.value
+            <Box
+              mb={1}
+              width="100%"
+              display="flex"
+              alignItems="end"
+              justifyContent="center"
+              flexDirection="column"
+            >
+              <Box width="100%" mb={2}>
+                <Typography ml={1} variant="body1">
+                  Swap from
+                </Typography>
+                <OutlinedInput
+                  className={classes.textFieldSwapStyles}
+                  id="outlined-adornment-weight"
+                  value={firstToken.amount}
+                  type="number"
+                  onChange={e => {
+                    let value = e.target.value
 
-              if (value < 0) {
-                value = 0
-              }
+                    if (value < 0) {
+                      value = 0
+                    }
 
-              setAmountSendEth(
-                String(value).split('.')[1] &&
-                  String(value).split('.')[1].length > 9
-                  ? String(Number(value).toFixed(9))
-                  : value
-              )
-            }}
-            endAdornment={<InputAdornment position="end">eVMPX</InputAdornment>}
-          />
-          <Button onClick={sendTokensToEth} variant="outlined">
-            Send to ETH
-          </Button>
+                    handleSetevmpx(value)
+                  }}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <img src={firstToken.icon} />
+                      <Typography variant="body1" color="white" ml={1}>
+                        {firstToken.symbol}
+                      </Typography>
+                    </InputAdornment>
+                  }
+                  fullWidth
+                />
+                <Typography ml={2} variant="caption" color="#8A92B2">
+                  {`Balance: ${formatAmountSymbol(firstToken.balance)}`}
+                </Typography>
+              </Box>
+              <img
+                src="/icons/flip-icon.svg"
+                onClick={() => handleFlip()}
+                className={classes.flipStyle}
+              />
+              {/* <ChangeCircleOutlinedIcon
+                fontSize="large"
+                onClick={() => handleFlip()}
+                className={classes.flipStyle}
+              /> */}
+              <Box marginY={2} width="100%">
+                <Typography ml={1} variant="body1">
+                  Swap to
+                </Typography>
+                <OutlinedInput
+                  className={classes.textFieldSwapStyles}
+                  id="outlined-adornment-weight"
+                  value={secondToken.amount}
+                  type="number"
+                  fullWidth
+                  onChange={e => {
+                    let value = e.target.value
+
+                    if (value < 0) {
+                      value = 0
+                    }
+
+                    handleSetbvmpx(value)
+                  }}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <img src={secondToken.icon} />
+                      <Typography variant="body1" color="white" ml={1}>
+                        {secondToken?.symbol}
+                      </Typography>
+                    </InputAdornment>
+                  }
+                />
+                <Typography ml={2} variant="caption" color="#8A92B2">
+                  {`Balance: ${formatAmountSymbol(secondToken.balance)}`}
+                </Typography>
+              </Box>
+            </Box>
+            <Button
+              className={classes.buttonColor}
+              onClick={handleTrate}
+              variant="contained"
+              fullWidth
+            >
+              Swap
+            </Button>
+          </Box>
+          <Box mt={5} display="flex" justifyContent="space-between">
+            <Box display="flex" flexDirection="column" mr={5}>
+              <OutlinedInput
+                className={classes.textFieldStyles}
+                id="outlined-adornment-weight"
+                value={amountReceiveEth}
+                type="number"
+                onChange={e => {
+                  let value = e.target.value
+
+                  if (value < 0) {
+                    value = 0
+                  }
+
+                  setAmountReceiveEth(
+                    String(value).split('.')[1] &&
+                      String(value).split('.')[1].length > 9
+                      ? String(Number(value).toFixed(9))
+                      : value
+                  )
+                }}
+                endAdornment={
+                  <InputAdornment position="end">eVMPX</InputAdornment>
+                }
+              />
+              <Button
+                variant="contained"
+                onClick={sendTransaction}
+                className={classes.buttonStyle}
+              >
+                Receive from ETH{' '}
+                {loadingRecieve && <CircularProgress size={18} />}
+              </Button>
+            </Box>
+            <br />
+            <Box display="flex" flexDirection="column">
+              <OutlinedInput
+                className={classes.textFieldStyles}
+                id="outlined-adornment-weight"
+                value={amountSendEth}
+                type="number"
+                onChange={e => {
+                  let value = e.target.value
+
+                  if (value < 0) {
+                    value = 0
+                  }
+
+                  setAmountSendEth(
+                    String(value).split('.')[1] &&
+                      String(value).split('.')[1].length > 9
+                      ? String(Number(value).toFixed(9))
+                      : value
+                  )
+                }}
+                endAdornment={
+                  <InputAdornment position="end">eVMPX</InputAdornment>
+                }
+              />
+              <Button
+                variant="contained"
+                onClick={sendTokensToEth}
+                className={classes.buttonStyle}
+              >
+                Send to ETH
+              </Button>
+            </Box>
+          </Box>
         </Box>
       </Box>
     </Box>

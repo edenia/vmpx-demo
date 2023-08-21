@@ -10,18 +10,18 @@ export default (theme, drawerWidth) => ({
     }
   },
   mainContent: {
-    flex: 1,
-    display: 'flex',
+    backgroundColor: theme.palette.secondary.dark,
     flexDirection: 'column',
-    maxWidth: '100%',
     overflow: 'hidden',
-    height: '100vh'
+    maxWidth: '100%',
+    display: 'flex',
+    height: '100vh',
+    flex: 1
   },
   childContent: {
     flex: 1,
     height: '100%',
-    padding: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    overflow: 'scroll'
+    overflow: 'auto'
   }
 })

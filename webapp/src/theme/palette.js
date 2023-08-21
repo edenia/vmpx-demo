@@ -1,11 +1,18 @@
 export default {
   primary: {
-    main: 'rgb(252, 131, 89)'
+    main: '#DD742D',
+    dark: '#ED5951'
   },
   secondary: {
-    main: '#ED5951'
+    main: '#0E0D12',
+    dark: '#454545',
+    light: '#351A09'
   },
   info: {
     main: '#424242'
+  },
+  text: {
+    secondary: '#ffffff',
+    primary: '#ffffff'
   }
 }

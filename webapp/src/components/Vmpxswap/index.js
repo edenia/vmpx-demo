@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import Box from '@mui/material/Box'
 import { Button, Typography } from '@mui/material'
+import { makeStyles } from '@mui/styles'
+import Box from '@mui/material/Box'
 import { ethers } from 'ethers'
 
 import { useSharedState } from '../../context/state.context'
@@ -10,8 +11,13 @@ import {
   logout as walletLogout
 } from '../../context/LibreClient'
 
+import styles from './styles'
+
+const useStyles = makeStyles(styles)
+
 const Vmpxswap = () => {
   const [state, { setState, login, logout, showMessage }] = useSharedState()
+  const classes = useStyles()
 
   const [accountAddress, setAccountAddress] = useState('')
   const [areAccountsLinked, setAccountsLinked] = useState(true)
@@ -19,28 +25,27 @@ const Vmpxswap = () => {
   const checkIfWalletIsConnected = async () => {
     try {
       const { ethereum } = window
-
       if (!ethereum) {
         showMessage({
           type: 'warning',
           content: 'Make sure you have MetaMask installed!'
         })
-
         return
       }
-
       const provider = new ethers.BrowserProvider(ethereum)
       const signer = await provider.getSigner()
       const address = await signer.getAddress()
-      setState({ param: 'ethAccountAddress', ethAccountAddress: address })
 
+      setState({ param: 'ethAccountAddress', ethAccountAddress: address })
       setAccountAddress(address)
     } catch (error) {
-      showMessage({
-        type: 'error',
-        content: error
-      })
-      console.log(error)
+      if (error.message.includes('User rejected the request')) {
+        console.log(
+          'Por favor, aprueba la solicitud de MetaMask para continuar.'
+        )
+      } else {
+        console.error(error)
+      }
     }
   }
 
@@ -71,7 +76,7 @@ const Vmpxswap = () => {
         type: 'error',
         content: error
       })
-      console.log(error)
+      console.log({ error })
     }
   }
 
@@ -122,17 +127,17 @@ const Vmpxswap = () => {
 
   return (
     <Box
-      border="1px solid rgb(222, 222, 226)"
-      bgcolor="white"
+      bgcolor="secondary.main"
+      border="1px solid #000"
       borderRadius={2}
       maxWidth="552px"
       width="100%"
       padding={3}
     >
-      <Typography textAlign="center" variant="h5">
+      <Typography textAlign="center" variant="h5" color="white">
         VMPXswap.com
       </Typography>
-      <Typography mt={6} textAlign="center" variant="body1">
+      <Typography mt={6} textAlign="center" variant="body1" color="white">
         This app allows bridging to Libre and swappin to bVMPX (wrapped VMPX on
         bitcoin). You can use libredex.org to move bVMPX to unisat (and back).
       </Typography>
@@ -142,15 +147,22 @@ const Vmpxswap = () => {
         flexDirection="column"
         paddingX={accountAddress ? 4 : 18}
       >
-        <Button variant="outlined" onClick={() => connectMetaMask()}>
+        <Button
+          onClick={() => connectMetaMask()}
+          className={classes.buttonColor}
+          variant="contained"
+        >
           {accountAddress || 'Connect Metamask'}
         </Button>
         <br />
-        <Button variant="outlined" onClick={() => connectLibre()}>
+        <Button
+          className={classes.buttonColor}
+          onClick={() => connectLibre()}
+          variant="contained"
+        >
           {state?.user?.actor || 'Connect Libre'}
         </Button>
       </Box>
-
       {accountAddress && state?.user?.actor && !areAccountsLinked ? (
         <Box
           mt={6}
@@ -158,12 +170,7 @@ const Vmpxswap = () => {
           flexDirection="column"
           paddingX={accountAddress ? 4 : 18}
         >
-          <Typography
-            mt={6}
-            textAlign="center"
-            variant="body1"
-            style={{ color: 'red' }}
-          >
+          <Typography mt={6} textAlign="center" variant="body1" color="red">
             Libre account and Ethereum account are not linked
           </Typography>
           <Button variant="outlined" onClick={linkAccounts}>

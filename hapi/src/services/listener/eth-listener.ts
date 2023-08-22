@@ -17,13 +17,7 @@ const listenForEvents = async () => {
     artifact.contractArtifact.abi,
     provider
   )
-  const filter = {
-    address: ethConfig.walletTokenAddress,
-    topics: vmpxContract.filters.Transfer(null, ethConfig.walletAddress).topics,
-    fromBlock: 4108847, // starting block number
-    toBlock: 4108876 // ending block number
-  }
-  console.dir({ filter1: filter }, { depth: null })
+  const filter = vmpxContract.filters.Transfer(null, ethConfig.walletAddress)
 
   vmpxContract.on(
     filter,

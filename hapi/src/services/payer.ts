@@ -111,7 +111,7 @@ export const fetchPendingTransactions = async () => {
   `
   const { queue: txs } = await queueModel.queries.getCustom(query)
 
-  console.log(`Retying ${txs.length} pending transactions`)
+  console.log(`Re-trying ${txs.length} pending transactions`)
 
   for (const tx of txs) {
     if (tx.operation === queueModel.interfaces.Operation.pegin) {

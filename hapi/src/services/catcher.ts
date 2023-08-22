@@ -7,29 +7,56 @@ import { parserUtil } from '../utils'
 const BLOCKS_TO_FETCH = 10
 
 const catchOldEvents = async (fromBlock: number, toBlock: number) => {
-  const steps = Math.ceil((toBlock - fromBlock) / BLOCKS_TO_FETCH)
+  let currentBlock = fromBlock
 
-  // WORKING
+  console.log(`Catching up blocks from: ${fromBlock} to: ${toBlock}`)
+  console.log(`🔥🔥🔥 Catching gap of ${toBlock - fromBlock} blocks`)
 
-  // TODO: fix duplicated keys issue
-  const filter = {
-    ...ethConfig.vmpxContract.filters.Transfer(null, ethConfig.walletAddress),
-    fromBlock,
-    toBlock
+  const calcNextBlockBatch = (currentBlock: number, toBlock: number) =>
+    toBlock - currentBlock >= BLOCKS_TO_FETCH
+      ? BLOCKS_TO_FETCH
+      : toBlock - currentBlock
+
+  for (
+    let steps = calcNextBlockBatch(currentBlock, toBlock);
+    steps > 0;
+    steps = calcNextBlockBatch(currentBlock, toBlock)
+  ) {
+    const filter = ethConfig.vmpxContract.filters.Transfer(
+      null,
+      ethConfig.walletAddress
+    )
+
+    console.log(
+      `⛓️⛓️⛓️ Filtering events from block ${currentBlock} to ${currentBlock + steps}`
+    )
+
+    const logs = await ethConfig.vmpxContract.queryFilter(
+      filter,
+      currentBlock,
+      currentBlock + steps
+    )
+
+    console.log(`Saving ${logs.length} passed events`)
+
+    for (const log of logs) {
+      const [from, , amount] = log.args || []
+      const queue = parserUtil.fromEthToQueue(log, {
+        ethAddress: from,
+        quantity: amount
+      })
+
+      try {
+        await queueModel.queries.save(queue) // store to db
+      } catch (error) {
+        console.log(`Failed to save event: ${error}`)
+      }
+    }
+
+    currentBlock += steps + 1
   }
-  const logs = await ethConfig.vmpxContract.queryFilter(filter)
 
-  console.log(`Saving ${logs.length} passed events`)
-
-  for (const log of logs) {
-    const [from, , amount] = log.args || []
-    const queue = parserUtil.fromEthToQueue(log, {
-      ethAddress: from,
-      quantity: amount
-    })
-
-    await queueModel.queries.save(queue) // store to db
-  }
+  console.log('🧾🧾🧾 Old events were saved')
 }
 
 export const prepareListener = async (): Promise<void> => {
@@ -58,12 +85,12 @@ export const prepareListener = async (): Promise<void> => {
     return
   }
 
-  if (!block) {
+  if (!block.block_number) {
     await catchOldEvents(ethConfig.startingBlockNumber, currentBlock)
   }
 
   if (currentBlock > block.block_number) {
-    await catchOldEvents(block.block_number, currentBlock)
+    await catchOldEvents(block.block_number + 1, currentBlock)
   }
 }
 

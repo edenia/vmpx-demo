@@ -17,7 +17,7 @@ export const isTransactionPendingOrFailed = async (tx_hash: string) => {
             }
         }
     `
-  const txs = await queueModel.queries.getCustom(query)
+  const { queue: txs } = await queueModel.queries.getCustom(query)
 
   return !!txs[0]
 }

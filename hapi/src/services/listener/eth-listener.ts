@@ -7,6 +7,8 @@ import { actionModel, queueModel } from '../../models'
 import { parserUtil } from '../../utils'
 
 const listenForEvents = async () => {
+  console.log('🟢🟢🟢 Ethereum event listener is up and running')
+
   const provider = new ethers.providers.WebSocketProvider(
     `${ethConfig.wssEndpoint}/${ethConfig.alchemyApiKey}`
   )
@@ -15,9 +17,14 @@ const listenForEvents = async () => {
     artifact.contractArtifact.abi,
     provider
   )
-  const filter = vmpxContract.filters.Transfer(null, ethConfig.walletAddress)
+  const filter = {
+    address: ethConfig.walletTokenAddress,
+    topics: vmpxContract.filters.Transfer(null, ethConfig.walletAddress).topics,
+    fromBlock: 4108847, // starting block number
+    toBlock: 4108876 // ending block number
+  }
+  console.dir({ filter1: filter }, { depth: null })
 
-  // Receive an event when that filter occurs
   vmpxContract.on(
     filter,
     async (from, to, amount, event: actionModel.EthEvent) => {
@@ -30,5 +37,7 @@ const listenForEvents = async () => {
     }
   )
 }
+
+// call this event until catcher has finished the starting sync
 
 export default { listenForEvents }

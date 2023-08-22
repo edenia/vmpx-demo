@@ -10,6 +10,9 @@ export const walletTokenAddress =
   process.env.HAPI_ETH_WALLET_TOKEN_ADDRESS || '0x'
 export const walletAddress = process.env.HAPI_ETH_WALLET_ADDRESS || '0x'
 export const walletKey = process.env.HAPI_ETH_WALLET_KEY || 'priv_key'
+export const startingBlockNumber = Number(
+  process.env.HAPI_ETH_START_BLOCK_NUMBER || 17608103
+)
 
 export const providerRpc = new ethers.providers.JsonRpcProvider(
   `${httpEndpoint}/${alchemyApiKey}`

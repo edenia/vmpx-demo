@@ -20,7 +20,8 @@ export const fromEthToQueue = (
     operation: queueModel.interfaces.Operation.pegin,
     fromto: payload.ethAddress,
     quantity: payload.quantity.toString(),
-    status
+    status,
+    block_number: event.blockNumber
   } as queueModel.interfaces.Queue)
 
 export const fromLibreToQueue = (
@@ -34,13 +35,14 @@ export const fromLibreToQueue = (
     operation: queueModel.interfaces.Operation.pegout,
     fromto: payload.ethAddress,
     quantity: payload.quantity,
-    status
+    status,
+    block_number: action.block
   } as queueModel.interfaces.Queue)
 
 export const fromQueueToEth = (queue: queueModel.interfaces.Queue) => ({
   event: {
     transactionHash: queue.tx_hash,
-    blockNumber: -1,
+    blockNumber: queue.block_number,
     blockHash: '',
     transactionIndex: -1,
     address: ''
@@ -54,7 +56,7 @@ export const fromQueueToEth = (queue: queueModel.interfaces.Queue) => ({
 export const fromQueueToLibre = (queue: queueModel.interfaces.Queue) => ({
   action: {
     transaction_id: queue.tx_hash,
-    block: -1,
+    block: queue.block_number,
     timestamp: '',
     contract: '',
     action: '',

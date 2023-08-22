@@ -88,7 +88,16 @@ export const pegout = async (
 export const fetchPendingTransactions = async () => {
   const query = gql`
     query {
-      queue(where: { status: { _in: [ "${queueModel.interfaces.Status.pending}", "${queueModel.interfaces.Status.failed}" ] } }) {
+      queue(
+        where: {
+          status: {
+            _in: [
+              "${queueModel.interfaces.Status.pending}",
+              "${queueModel.interfaces.Status.failed}"
+            ]
+          }
+        }
+      ) {
         tx_hash
         operation
         fromto
@@ -96,10 +105,11 @@ export const fetchPendingTransactions = async () => {
         status
         created_at
         updated_at
+        block_number
       }
     }
   `
-  const txs = await queueModel.queries.getCustom(query)
+  const { queue: txs } = await queueModel.queries.getCustom(query)
 
   console.log(`Retying ${txs.length} pending transactions`)
 
@@ -114,11 +124,15 @@ export const fetchPendingTransactions = async () => {
   }
 }
 
-export const workerFetcher = () => ({
-  name: 'TRANSACTION FETCHER',
-  intervalSec: 60,
-  action: fetchPendingTransactions
-})
+export const workerFetcher = () => {
+  console.log('🟢🟢🟢 Fetcher is up and running')
+
+  return {
+    name: 'TRANSACTION FETCHER',
+    intervalSec: 60,
+    action: fetchPendingTransactions
+  }
+}
 
 export default {
   pegin,

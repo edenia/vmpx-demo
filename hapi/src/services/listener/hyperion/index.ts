@@ -139,6 +139,8 @@ const sync = async (): Promise<void> => {
 }
 
 const syncWorker = () => {
+  console.log('🟢🟢🟢 Hyperion action listener is up and running')
+
   return {
     name: 'SYNC ACTIONS',
     action: sync

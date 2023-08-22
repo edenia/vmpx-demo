@@ -7,6 +7,16 @@ interface QueueResponse {
   queue: Queue[]
 }
 
+export interface QueueAggregateResponse {
+  queue_aggregate: {
+    aggregate: {
+      max: {
+        block_number: number
+      }
+    }
+  }
+}
+
 interface QueueInsertOneResponse {
   insert_queue_one: {
     tx_hash: string
@@ -60,10 +70,10 @@ export const update = async (tx_hash: string, newStatus: StatusType) => {
   return data.update_queue_by_pk
 }
 
-export const getCustom = async (query: string) => {
-  const data = await coreUtil.hasura.default.request<QueueResponse>(query)
-
-  return data.queue
+export const getCustom = async <T = QueueResponse>(
+  query: string
+): Promise<T> => {
+  return await coreUtil.hasura.default.request<T>(query)
 }
 
 export default {}

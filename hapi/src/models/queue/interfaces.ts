@@ -21,4 +21,5 @@ export interface Queue {
   status: StatusType
   created_at?: Date
   updated_at?: Date
+  block_number?: number
 }

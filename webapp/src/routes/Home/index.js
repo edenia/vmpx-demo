@@ -9,12 +9,13 @@ const Home = () => {
   const [state] = useSharedState()
 
   return (
-    <Box display="flex" justifyContent="center">
-      {!state?.connectMeta || !state?.connectLibre || !state?.accountMatch ? (
-        <Vmpxswap />
-      ) : (
-        <SwapComponent />
-      )}
+    <Box
+      justifyContent="center"
+      alignItems="center"
+      display="flex"
+      height="100%"
+    >
+      {!state?.user?.actor ? <Vmpxswap /> : <SwapComponent />}
     </Box>
   )
 }

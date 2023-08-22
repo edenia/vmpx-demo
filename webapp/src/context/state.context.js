@@ -3,8 +3,6 @@ import PropTypes from 'prop-types'
 
 import { loginLibre, restoreSession } from './LibreClient'
 
-// import { wax } from '../utils'
-
 const SharedStateContext = React.createContext()
 const initialValue = {
   useDarkMode: false,

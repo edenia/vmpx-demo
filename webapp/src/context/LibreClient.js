@@ -82,34 +82,38 @@ export const trade = async ({
   account,
   session
 }) => {
-  const authorization = [
-    {
-      actor: account,
-      permission: 'active'
-    }
-  ]
-
-  const actions = [
-    {
-      authorization,
-      account: contractAccount,
-      name: 'transfer',
-      data: {
-        from: account,
-        to: swapVmpxContract,
-        quantity: quantity,
-        memo: `exchange:${vmpxContract},${minExpectedAmount}, Trading ${
-          quantity.split(' ')[1]
-        } for ${minExpectedAmount.split(' ')[1]}`
+  try {
+    const authorization = [
+      {
+        actor: account,
+        permission: 'active'
       }
+    ]
+
+    const actions = [
+      {
+        authorization,
+        account: contractAccount,
+        name: 'transfer',
+        data: {
+          from: account,
+          to: swapVmpxContract,
+          quantity: quantity,
+          memo: `exchange:${vmpxContract},${minExpectedAmount}, Trading ${
+            quantity.split(' ')[1]
+          } for ${minExpectedAmount.split(' ')[1]}`
+        }
+      }
+    ]
+
+    const result = await session.transact({ actions }, { broadcast: true })
+
+    return {
+      success: true,
+      transactionId: result.processed.id
     }
-  ]
-
-  const result = await session.transact({ actions }, { broadcast: true })
-
-  return {
-    success: true,
-    transactionId: result.processed.id
+  } catch (error) {
+    console.log({ error })
   }
 }
 

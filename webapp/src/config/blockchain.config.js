@@ -10,3 +10,6 @@ export const libreChainId = process.env.REACT_APP_LIBRE_CHAIN_ID
 export const libreApiHost = process.env.REACT_APP_LIBRE_API_HOST
 export const targetWalletAddress =
   process.env.REACT_APP_TARGET_ETH_WALLET_ADDRESS
+export const vmpxTransferLimit = parseInt(
+  process.env.REACT_APP_VMPX_TRANSFER_LIMIT
+)

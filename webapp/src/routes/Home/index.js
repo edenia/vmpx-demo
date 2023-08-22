@@ -15,11 +15,7 @@ const Home = () => {
       display="flex"
       height="100%"
     >
-      {!state?.connectMeta || !state?.connectLibre || !state?.accountMatch ? (
-        <Vmpxswap />
-      ) : (
-        <SwapComponent />
-      )}
+      {!state?.user?.actor ? <Vmpxswap /> : <SwapComponent />}
     </Box>
   )
 }

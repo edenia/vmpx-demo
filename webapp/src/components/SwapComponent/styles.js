@@ -20,5 +20,17 @@ export default theme => ({
   },
   buttonColor: {
     color: `${theme.palette.common.white} !important`
+  },
+  modalStyles: {
+    backgroundColor: theme.palette.common.white,
+    position: 'absolute !important',
+    width: 600,
+    height: 250,
+    border: '2px solid #000',
+    top: '30% !important',
+    left: '30% !important'
+  },
+  cursoStyle: {
+    cursor: 'pointer'
   }
 })

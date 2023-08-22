@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import Box from '@mui/material/Box'
+import Modal from '@mui/material/Modal'
 import { makeStyles } from '@mui/styles'
 import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
-import { Button, Typography, OutlinedInput, Link } from '@mui/material'
+import { Button, Typography, OutlinedInput, Link, Tooltip } from '@mui/material'
 
-import { getBalance, getVMPXPoolFee, sleep } from '../../utils'
 import { useSharedState } from '../../context/state.context'
-import { trade, pegoutEth } from '../../context/LibreClient'
 import { artifacContract } from '../../artifact'
 import { blockchainConfig } from '../../config'
+import {
+  trade,
+  pegoutEth,
+  logout as walletLogout,
+  linkAccounts as createLinkTrx
+} from '../../context/LibreClient'
+import {
+  sleep,
+  getBalance,
+  getVMPXPoolFee,
+  getEthAddressByAccount
+} from '../../utils'
 
 import styles from './styles'
 
@@ -19,10 +30,13 @@ const useStyles = makeStyles(styles)
 const SwapComponent = () => {
   const classes = useStyles()
   const [fee, setFee] = useState()
-  const [state, { showMessage }] = useSharedState()
+  const handleClose = () => setOpen(false)
+  const [areAccountsLinked, setAccountsLinked] = useState(true)
+  const [state, { setState, showMessage, logout }] = useSharedState()
   const [amountSendEth, setAmountSendEth] = useState(0)
   const [loadingRecieve, setLoadingRecieve] = useState(false)
   const [amountReceiveEth, setAmountReceiveEth] = useState(0)
+  const [open, setOpen] = useState(true)
   const [firstToken, setFirstToken] = useState({
     amount: 0,
     symbol: 'eVMPX',
@@ -102,8 +116,56 @@ const SwapComponent = () => {
     return value.replace('EVMPX', 'eVMPX').replace('BVMPX', 'bVMPX')
   }
 
+  const connectMetaMask = async () => {
+    try {
+      const { ethereum } = window
+
+      if (!ethereum) {
+        showMessage({
+          type: 'warning',
+          content: 'Make sure you have MetaMask installed!'
+        })
+
+        return
+      }
+
+      const accounts = await ethereum.request({
+        method: 'eth_requestAccounts'
+      })
+
+      setState({ param: 'ethAccountAddress', ethAccountAddress: accounts[0] })
+
+      return accounts[0]
+    } catch (error) {
+      if (error.message.includes('User rejected the request')) {
+        console.log(
+          'Por favor, aprueba la solicitud de MetaMask para continuar.'
+        )
+      } else {
+        console.error(error)
+      }
+    }
+  }
+
+  const checkMatch = async (account, addressEth) => {
+    const { account: accLibre, eth_address: accAddress } =
+      await getEthAddressByAccount(account)
+    const areLinked =
+      accLibre.toLowerCase() === account.toLowerCase() &&
+      accAddress.toLowerCase() === addressEth.toLowerCase()
+
+    setAccountsLinked(areLinked)
+    setState({ param: 'accountMatch', accountMatch: areLinked })
+
+    return areLinked
+  }
+
   const sendTransaction = async () => {
     try {
+      const accountAddressEth = await connectMetaMask()
+
+      if (!(await checkMatch(state?.user?.actor, accountAddressEth))) return
+
       const { ethereum } = window
       const provider = new ethers.BrowserProvider(ethereum)
       const signer = await provider.getSigner()
@@ -148,8 +210,13 @@ const SwapComponent = () => {
       clearFields()
       await loadBalances()
     } catch (error) {
-      showMessage({ type: 'error', content: error })
-      console.error('Error: ', error)
+      if (error.message.includes('User rejected the request')) {
+        console.log(
+          'Por favor, aprueba la solicitud de MetaMask para continuar.'
+        )
+      } else {
+        console.error(error)
+      }
     }
   }
 
@@ -189,6 +256,17 @@ const SwapComponent = () => {
       clearFields()
       await loadBalances()
     } catch (error) {
+      if (
+        error.message.includes(
+          'eosio_assert_message assertion failure at /v1/chain/push_transaction'
+        )
+      ) {
+        console.log(
+          'eosio_assert_message assertion failure at /v1/chain/push_transaction'
+        )
+      } else {
+        console.error(error)
+      }
       showMessage({ type: 'error', content: error })
     }
   }
@@ -212,6 +290,9 @@ const SwapComponent = () => {
       })
 
       await sleep(1000) // wait for 3 seconds
+
+      if (!response?.transactionId) return
+
       showMessage({
         type: 'success',
         content: (
@@ -220,9 +301,9 @@ const SwapComponent = () => {
             <Link
               target="_blank"
               underline="none"
-              href={`${blockchainConfig.libreBlockEplorer}${response.transactionId}`}
+              href={`${blockchainConfig.libreBlockEplorer}${response?.transactionId}`}
             >
-              {response.transactionId}
+              {response?.transactionId}
             </Link>
           </Typography>
         )
@@ -241,7 +322,7 @@ const SwapComponent = () => {
     if (evmpxBalance.length === 0 && bvmpxBalance.length === 0) return
 
     if (evmpxBalance.length > 0 && bvmpxBalance.length > 0) {
-      if (firstToken.symbol.includes('eVMPX')) {
+      if (firstToken.symbol === 'eVMPX') {
         setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
         setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
       } else {
@@ -249,7 +330,7 @@ const SwapComponent = () => {
         setSecondToken({ ...secondToken, balance: evmpxBalance.balance })
       }
     } else if (bvmpxBalance.length > 0) {
-      if (firstToken.symbol.includes('eVMPX')) {
+      if (firstToken.symbol === 'eVMPX') {
         setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
       } else {
         setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
@@ -257,7 +338,7 @@ const SwapComponent = () => {
     }
     // setBalances([...bvmpxBalance, { balance: '0 EVMPX' }])
     else {
-      if (firstToken.symbol.includes('eVMPX')) {
+      if (firstToken.symbol === 'eVMPX') {
         setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
       } else {
         setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
@@ -266,15 +347,61 @@ const SwapComponent = () => {
     }
   }
 
+  const checkIfMetaMaskIsConnected = async () => {
+    try {
+      const ethereum = window.ethereum
+
+      if (ethereum) {
+        const accounts = await window.ethereum.enable()
+        const account = accounts[0]
+
+        setState({ param: 'ethAccountAddress', ethAccountAddress: account })
+      } else {
+        showMessage({
+          type: 'warning',
+          content: 'Make sure you have MetaMask installed!'
+        })
+      }
+    } catch (error) {
+      if (error.message.includes('User rejected the request')) {
+        console.log(
+          'Por favor, aprueba la solicitud de MetaMask para continuar.'
+        )
+      } else {
+        console.error(error)
+      }
+    }
+  }
+
+  const linkAccounts = async () => {
+    await createLinkTrx({
+      session: state?.user?.session,
+      libreAccount: state?.user?.actor,
+      address: state.ethAccountAddress
+    })
+    showMessage({
+      type: 'success',
+      content: 'Accounts linked'
+    })
+    await sleep(2000) // wait for 2 seconds
+    if (await checkMatch(state?.user?.actor, state.ethAccountAddress))
+      await sendTransaction()
+  }
+
+  const logoutLibre = async () => {
+    await walletLogout(state.user.session)
+    logout()
+  }
+
   const clearFields = async () => {
     setAmountSendEth(0)
     setAmountReceiveEth(0)
-    setFirstToken({ amount: 0, symbol: 'eVMPX' })
-    setSecondToken({ amount: 0, symbol: 'bVMPX' })
-    await loadBalances()
+    setFirstToken({ ...firstToken, amount: 0, symbol: 'eVMPX' })
+    setSecondToken({ ...secondToken, amount: 0, symbol: 'bVMPX' })
   }
 
   useEffect(async () => {
+    await checkIfMetaMaskIsConnected()
     const feeResponse = await getVMPXPoolFee()
     await loadBalances()
     setFee(1 - feeResponse.fee / 100)
@@ -299,17 +426,25 @@ const SwapComponent = () => {
       >
         <Typography variant="h5">VMPX - ETH / BTC Swap</Typography>
         <Box>
+          <Tooltip title="Logout from Libre">
+            <Typography
+              color="white"
+              variant="body1"
+              onClick={logoutLibre}
+              className={classes.cursoStyle}
+            >
+              {state?.user?.actor}
+            </Typography>
+          </Tooltip>
           <Typography color="white" variant="body1">
-            {state?.user?.actor}
-          </Typography>
-          <Typography color="white" variant="body1">
-            {`${state?.ethAccountAddress?.substring(
-              0,
-              5
-            )}...${state?.ethAccountAddress?.substring(
-              state?.ethAccountAddress?.length - 4,
-              state?.ethAccountAddress?.length
-            )}`}
+            {state?.ethAccountAddress &&
+              `${state?.ethAccountAddress?.substring(
+                0,
+                5
+              )}...${state?.ethAccountAddress?.substring(
+                state?.ethAccountAddress?.length - 4,
+                state?.ethAccountAddress?.length
+              )}`}
           </Typography>
         </Box>
       </Box>
@@ -382,11 +517,6 @@ const SwapComponent = () => {
                 onClick={() => handleFlip()}
                 className={classes.flipStyle}
               />
-              {/* <ChangeCircleOutlinedIcon
-                fontSize="large"
-                onClick={() => handleFlip()}
-                className={classes.flipStyle}
-              /> */}
               <Box marginY={2} width="100%">
                 <Typography ml={1} variant="body1">
                   Swap to
@@ -431,29 +561,37 @@ const SwapComponent = () => {
           </Box>
           <Box mt={5} display="flex" justifyContent="space-between">
             <Box display="flex" flexDirection="column" mr={5}>
-              <OutlinedInput
-                className={classes.textFieldStyles}
-                id="outlined-adornment-weight"
-                value={amountReceiveEth}
-                type="number"
-                onChange={e => {
-                  let value = e.target.value
+              <Tooltip
+                title={`Limit by transfer ${blockchainConfig.vmpxTransferLimit}`}
+              >
+                <OutlinedInput
+                  className={classes.textFieldStyles}
+                  id="outlined-adornment-weight"
+                  value={amountReceiveEth}
+                  type="number"
+                  onChange={e => {
+                    let value = e.target.value
 
-                  if (value < 0) {
-                    value = 0
+                    if (value < 0) {
+                      value = 0
+                    }
+
+                    if (value > blockchainConfig.vmpxTransferLimit) {
+                      value = blockchainConfig.vmpxTransferLimit
+                    }
+
+                    setAmountReceiveEth(
+                      String(value).split('.')[1] &&
+                        String(value).split('.')[1].length > 9
+                        ? String(Number(value).toFixed(9))
+                        : value
+                    )
+                  }}
+                  endAdornment={
+                    <InputAdornment position="end">eVMPX</InputAdornment>
                   }
-
-                  setAmountReceiveEth(
-                    String(value).split('.')[1] &&
-                      String(value).split('.')[1].length > 9
-                      ? String(Number(value).toFixed(9))
-                      : value
-                  )
-                }}
-                endAdornment={
-                  <InputAdornment position="end">eVMPX</InputAdornment>
-                }
-              />
+                />
+              </Tooltip>
               <Button
                 variant="contained"
                 onClick={sendTransaction}
@@ -465,29 +603,37 @@ const SwapComponent = () => {
             </Box>
             <br />
             <Box display="flex" flexDirection="column">
-              <OutlinedInput
-                className={classes.textFieldStyles}
-                id="outlined-adornment-weight"
-                value={amountSendEth}
-                type="number"
-                onChange={e => {
-                  let value = e.target.value
+              <Tooltip
+                title={`Limit by transfer ${blockchainConfig.vmpxTransferLimit}`}
+              >
+                <OutlinedInput
+                  className={classes.textFieldStyles}
+                  id="outlined-adornment-weight"
+                  value={amountSendEth}
+                  type="number"
+                  onChange={e => {
+                    let value = e.target.value
 
-                  if (value < 0) {
-                    value = 0
+                    if (value < 0) {
+                      value = 0
+                    }
+
+                    if (value > blockchainConfig.vmpxTransferLimit) {
+                      value = blockchainConfig.vmpxTransferLimit
+                    }
+
+                    setAmountSendEth(
+                      String(value).split('.')[1] &&
+                        String(value).split('.')[1].length > 9
+                        ? String(Number(value).toFixed(9))
+                        : value
+                    )
+                  }}
+                  endAdornment={
+                    <InputAdornment position="end">eVMPX</InputAdornment>
                   }
-
-                  setAmountSendEth(
-                    String(value).split('.')[1] &&
-                      String(value).split('.')[1].length > 9
-                      ? String(Number(value).toFixed(9))
-                      : value
-                  )
-                }}
-                endAdornment={
-                  <InputAdornment position="end">eVMPX</InputAdornment>
-                }
-              />
+                />
+              </Tooltip>
               <Button
                 variant="contained"
                 onClick={sendTokensToEth}
@@ -497,6 +643,31 @@ const SwapComponent = () => {
               </Button>
             </Box>
           </Box>
+          {state?.ethAccountAddress &&
+          state?.user?.actor &&
+          !areAccountsLinked ? (
+            <Modal
+              open={open}
+              onClose={handleClose}
+              className={classes.modalStyles}
+            >
+              <Box padding={10}>
+                <Typography textAlign="center" variant="body1" mb={2}>
+                  Libre account and Ethereum account are not linked
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={linkAccounts}
+                >
+                  Link accounts
+                </Button>
+              </Box>
+            </Modal>
+          ) : (
+            <> </>
+          )}
         </Box>
       </Box>
     </Box>

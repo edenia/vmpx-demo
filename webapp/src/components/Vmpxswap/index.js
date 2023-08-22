@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Button, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
-import { ethers } from 'ethers'
 
 import { useSharedState } from '../../context/state.context'
-import { getEthAddressByAccount, sleep } from '../../utils'
-import {
-  linkAccounts as createLinkTrx,
-  logout as walletLogout
-} from '../../context/LibreClient'
+import { logout as walletLogout } from '../../context/LibreClient'
 
 import styles from './styles'
 
@@ -18,36 +13,6 @@ const useStyles = makeStyles(styles)
 const Vmpxswap = () => {
   const [state, { setState, login, logout, showMessage }] = useSharedState()
   const classes = useStyles()
-
-  const [accountAddress, setAccountAddress] = useState('')
-  const [areAccountsLinked, setAccountsLinked] = useState(true)
-
-  const checkIfWalletIsConnected = async () => {
-    try {
-      const { ethereum } = window
-      if (!ethereum) {
-        showMessage({
-          type: 'warning',
-          content: 'Make sure you have MetaMask installed!'
-        })
-        return
-      }
-      const provider = new ethers.BrowserProvider(ethereum)
-      const signer = await provider.getSigner()
-      const address = await signer.getAddress()
-
-      setState({ param: 'ethAccountAddress', ethAccountAddress: address })
-      setAccountAddress(address)
-    } catch (error) {
-      if (error.message.includes('User rejected the request')) {
-        console.log(
-          'Por favor, aprueba la solicitud de MetaMask para continuar.'
-        )
-      } else {
-        console.error(error)
-      }
-    }
-  }
 
   const connectMetaMask = async () => {
     try {
@@ -70,13 +35,41 @@ const Vmpxswap = () => {
         type: 'success',
         content: `Connected to address: ${accounts[0]}`
       })
-      setAccountAddress(accounts[0])
+      setState({ param: 'ethAccountAddress', ethAccountAddress: accounts[0] })
     } catch (error) {
-      showMessage({
-        type: 'error',
-        content: error
-      })
-      console.log({ error })
+      if (error.message.includes('User rejected the request')) {
+        console.log(
+          'Por favor, aprueba la solicitud de MetaMask para continuar.'
+        )
+      } else {
+        console.error(error)
+      }
+    }
+  }
+
+  const checkIfMetaMaskIsConnected = async () => {
+    try {
+      const ethereum = window.ethereum
+
+      if (ethereum) {
+        const accounts = await window.ethereum.enable()
+        const account = accounts[0]
+
+        setState({ param: 'ethAccountAddress', ethAccountAddress: account })
+      } else {
+        showMessage({
+          type: 'warning',
+          content: 'Make sure you have MetaMask installed!'
+        })
+      }
+    } catch (error) {
+      if (error.message.includes('User rejected the request')) {
+        console.log(
+          'Por favor, aprueba la solicitud de MetaMask para continuar.'
+        )
+      } else {
+        console.error(error)
+      }
     }
   }
 
@@ -89,41 +82,9 @@ const Vmpxswap = () => {
     }
   }
 
-  const checkMatch = async (account, addressEth) => {
-    const { account: accLibre, eth_address: accAddress } =
-      await getEthAddressByAccount(account)
-
-    const areLinked = accLibre === account && accAddress === addressEth
-
-    setAccountsLinked(areLinked)
-    setState({ param: 'accountMatch', accountMatch: areLinked })
-  }
-
-  const linkAccounts = async () => {
-    await createLinkTrx({
-      session: state?.user?.session,
-      libreAccount: state?.user?.actor,
-      address: accountAddress
-    })
-    showMessage({
-      type: 'success',
-      content: 'Accounts linked'
-    })
-    await sleep(2000) // wait for 2 seconds
-    await checkMatch(state?.user?.actor, accountAddress)
-  }
-
   useEffect(() => {
-    checkIfWalletIsConnected()
+    checkIfMetaMaskIsConnected()
   }, [])
-
-  useEffect(() => {
-    if (accountAddress && state?.user?.actor) {
-      setState({ param: 'connectMeta', connectMeta: true })
-      setState({ param: 'connectLibre', connectLibre: true })
-      checkMatch(state?.user?.actor, accountAddress)
-    }
-  }, [accountAddress, state?.user?.actor])
 
   return (
     <Box
@@ -145,14 +106,14 @@ const Vmpxswap = () => {
         mt={6}
         display="flex"
         flexDirection="column"
-        paddingX={accountAddress ? 4 : 18}
+        paddingX={state?.ethAccountAddress ? 4 : 18}
       >
         <Button
           onClick={() => connectMetaMask()}
           className={classes.buttonColor}
           variant="contained"
         >
-          {accountAddress || 'Connect Metamask'}
+          {state?.ethAccountAddress || 'Connect Metamask'}
         </Button>
         <br />
         <Button
@@ -163,23 +124,6 @@ const Vmpxswap = () => {
           {state?.user?.actor || 'Connect Libre'}
         </Button>
       </Box>
-      {accountAddress && state?.user?.actor && !areAccountsLinked ? (
-        <Box
-          mt={6}
-          display="flex"
-          flexDirection="column"
-          paddingX={accountAddress ? 4 : 18}
-        >
-          <Typography mt={6} textAlign="center" variant="body1" color="red">
-            Libre account and Ethereum account are not linked
-          </Typography>
-          <Button variant="outlined" onClick={linkAccounts}>
-            {'Link accounts'}
-          </Button>
-        </Box>
-      ) : (
-        <> </>
-      )}
     </Box>
   )
 }

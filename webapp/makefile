@@ -30,6 +30,7 @@ build-docker: ./Dockerfile
 		--build-arg react_app_swap_vmpx_contract="$(REACT_APP_SWAP_VMPX_CONTRACT)" \
 		--build-arg react_app_vmpx_pool_symbol="$(REACT_APP_VMPX_POOL_SYMBOL)" \
 		--build-arg react_app_bvmpx_contract="$(REACT_APP_BVMPX_CONTRACT)" \
+		--build-arg react_app_vmpx_transfer_limit="$(REACT_APP_VMPX_TRANSFER_LIMIT)" \
 		--build-arg react_app_libre_chain_id="$(REACT_APP_LIBRE_CHAIN_ID)" \
 		--build-arg react_app_libre_api_host="$(REACT_APP_LIBRE_API_HOST)" \
 		--build-arg react_app_eth_block_explorer="$(REACT_APP_ETH_BLOCK_EXPLORER)" \

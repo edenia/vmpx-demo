@@ -11,6 +11,7 @@ ARG react_app_swap_vmpx_contract
 ARG react_app_vmpx_pool_symbol
 ARG react_app_evmpx_contract
 ARG react_app_bvmpx_contract
+ARG react_app_vmpx_transfer_limit
 ARG react_app_libre_chain_id
 ARG react_app_libre_api_host
 ARG react_app_eth_block_explorer
@@ -36,6 +37,7 @@ ENV REACT_APP_SWAP_VMPX_CONTRACT $react_app_swap_vmpx_contract
 ENV REACT_APP_VMPX_POOL_SYMBOL $react_app_vmpx_pool_symbol
 ENV REACT_APP_EVMPX_CONTRACT $react_app_evmpx_contract
 ENV REACT_APP_BVMPX_CONTRACT $react_app_bvmpx_contract
+ENV REACT_APP_VMPX_TRANSFER_LIMIT $react_app_vmpx_transfer_limit
 ENV REACT_APP_LIBRE_CHAIN_ID $react_app_libre_chain_id
 ENV REACT_APP_LIBRE_API_HOST $react_app_libre_api_host
 ENV REACT_APP_ETH_BLOCK_EXPLORER $react_app_eth_block_explorer

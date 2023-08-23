@@ -101,7 +101,6 @@ const catchWorker = () => {
 
   return {
     name: 'SYNC ACTIONS',
-    // intervalSec: MIN_ELAPSED_SECONDS,
     action: prepareListener
   }
 }

@@ -58,6 +58,34 @@ const SwapComponent = () => {
     setSecondToken(tokenOne)
   }
 
+  const setSpecificChainMetaMask = async ethereum => {
+    const chainId = blockchainConfig.ethChainId
+
+    if (ethereum.chainId !== chainId) {
+      try {
+        await ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId }]
+        })
+      } catch (err) {
+        if (err.code === 4902) {
+          await ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainName: blockchainConfig.ethChainName,
+                chainId,
+                nativeCurrency: blockchainConfig.ethChainNativeCurrency,
+                rpcUrls: blockchainConfig.ethChainRpcUrls
+              }
+            ]
+          })
+        }
+        console.log({ err })
+      }
+    }
+  }
+
   const handleSetevmpx = value => {
     if (value?.split('.')[1] && value?.split('.')[1].length > 9)
       value = String(Number(value).toFixed(9))
@@ -129,6 +157,8 @@ const SwapComponent = () => {
         return
       }
 
+      await setSpecificChainMetaMask(ethereum)
+
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts'
       })
@@ -167,6 +197,9 @@ const SwapComponent = () => {
       if (!(await checkMatch(state?.user?.actor, accountAddressEth))) return
 
       const { ethereum } = window
+
+      await setSpecificChainMetaMask(ethereum)
+
       const provider = new ethers.BrowserProvider(ethereum)
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(
@@ -207,8 +240,8 @@ const SwapComponent = () => {
       }
 
       await sleep(2000) // wait for 3 seconds
-      clearFields()
       await loadBalances()
+      clearFields()
     } catch (error) {
       if (error.message.includes('User rejected the request')) {
         console.log(
@@ -253,8 +286,8 @@ const SwapComponent = () => {
           </Typography>
         )
       })
-      clearFields()
       await loadBalances()
+      clearFields()
     } catch (error) {
       if (
         error.message.includes(
@@ -308,8 +341,8 @@ const SwapComponent = () => {
           </Typography>
         )
       })
-      clearFields()
       await loadBalances()
+      clearFields()
     } catch (error) {
       showMessage({ type: 'error', content: error })
     }
@@ -327,7 +360,7 @@ const SwapComponent = () => {
         setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
       } else {
         setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
-        setSecondToken({ ...secondToken, balance: evmpxBalance.balance })
+        setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
       }
     } else if (bvmpxBalance.length > 0) {
       if (firstToken.symbol === 'eVMPX') {
@@ -335,15 +368,12 @@ const SwapComponent = () => {
       } else {
         setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
       }
-    }
-    // setBalances([...bvmpxBalance, { balance: '0 EVMPX' }])
-    else {
+    } else {
       if (firstToken.symbol === 'eVMPX') {
         setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
       } else {
         setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
       }
-      // setBalances([...evmpxBalance, { balance: '0 BVMPX' }])}
     }
   }
 
@@ -352,7 +382,9 @@ const SwapComponent = () => {
       const ethereum = window.ethereum
 
       if (ethereum) {
-        const accounts = await window.ethereum.enable()
+        await setSpecificChainMetaMask(ethereum)
+
+        const accounts = await ethereum.enable()
         const account = accounts[0]
 
         setState({ param: 'ethAccountAddress', ethAccountAddress: account })
@@ -393,11 +425,11 @@ const SwapComponent = () => {
     logout()
   }
 
-  const clearFields = async () => {
+  const clearFields = () => {
     setAmountSendEth(0)
     setAmountReceiveEth(0)
-    setFirstToken({ ...firstToken, amount: 0, symbol: 'eVMPX' })
-    setSecondToken({ ...secondToken, amount: 0, symbol: 'bVMPX' })
+    setFirstToken({ ...firstToken, amount: 0 })
+    setSecondToken({ ...secondToken, amount: 0 })
   }
 
   useEffect(async () => {
@@ -594,6 +626,7 @@ const SwapComponent = () => {
               </Tooltip>
               <Button
                 variant="contained"
+                disabled={loadingRecieve}
                 onClick={sendTransaction}
                 className={classes.buttonStyle}
               >

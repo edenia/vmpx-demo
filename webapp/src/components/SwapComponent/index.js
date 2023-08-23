@@ -207,8 +207,8 @@ const SwapComponent = () => {
       }
 
       await sleep(2000) // wait for 3 seconds
-      clearFields()
       await loadBalances()
+      clearFields()
     } catch (error) {
       if (error.message.includes('User rejected the request')) {
         console.log(
@@ -253,8 +253,8 @@ const SwapComponent = () => {
           </Typography>
         )
       })
-      clearFields()
       await loadBalances()
+      clearFields()
     } catch (error) {
       if (
         error.message.includes(
@@ -308,8 +308,8 @@ const SwapComponent = () => {
           </Typography>
         )
       })
-      clearFields()
       await loadBalances()
+      clearFields()
     } catch (error) {
       showMessage({ type: 'error', content: error })
     }
@@ -327,7 +327,7 @@ const SwapComponent = () => {
         setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
       } else {
         setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
-        setSecondToken({ ...secondToken, balance: evmpxBalance.balance })
+        setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
       }
     } else if (bvmpxBalance.length > 0) {
       if (firstToken.symbol === 'eVMPX') {
@@ -335,15 +335,12 @@ const SwapComponent = () => {
       } else {
         setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
       }
-    }
-    // setBalances([...bvmpxBalance, { balance: '0 EVMPX' }])
-    else {
+    } else {
       if (firstToken.symbol === 'eVMPX') {
         setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
       } else {
         setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
       }
-      // setBalances([...evmpxBalance, { balance: '0 BVMPX' }])}
     }
   }
 
@@ -393,11 +390,11 @@ const SwapComponent = () => {
     logout()
   }
 
-  const clearFields = async () => {
+  const clearFields = () => {
     setAmountSendEth(0)
     setAmountReceiveEth(0)
-    setFirstToken({ ...firstToken, amount: 0, symbol: 'eVMPX' })
-    setSecondToken({ ...secondToken, amount: 0, symbol: 'bVMPX' })
+    setFirstToken({ ...firstToken, amount: 0 })
+    setSecondToken({ ...secondToken, amount: 0 })
   }
 
   useEffect(async () => {
@@ -594,6 +591,7 @@ const SwapComponent = () => {
               </Tooltip>
               <Button
                 variant="contained"
+                disabled={loadingRecieve}
                 onClick={sendTransaction}
                 className={classes.buttonStyle}
               >

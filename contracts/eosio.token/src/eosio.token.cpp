@@ -73,9 +73,10 @@ void token::retire( const asset& quantity, const string& memo )
     sub_balance( st.issuer, quantity );
 }
 
-void token::burn( const asset& quantity, const string& memo )
-{
-   require_auth( get_self() );
+  void token::burn( const name   &account,
+                    const asset  &quantity,
+                    const string &memo ) {
+    require_auth( account );
 
     auto sym = quantity.symbol;
     check( sym.is_valid(), "invalid symbol name" );
@@ -86,7 +87,6 @@ void token::burn( const asset& quantity, const string& memo )
     check( existing != statstable.end(), "token with symbol does not exist" );
     const auto& st = *existing;
 
-    require_auth( st.issuer );
     check( quantity.is_valid(), "invalid quantity" );
     check( quantity.amount > 0, "must burn positive quantity" );
 
@@ -96,11 +96,9 @@ void token::burn( const asset& quantity, const string& memo )
        s.supply -= quantity;
     });
 
-    std::string account_string = memo.substr( 0, memo.find( ":" ) );
+    require_recipient( LINKER_CONTRACT );
 
-    check(account_string.size() > 0, "format must be <account>:<eth_address>");
-
-    sub_balance( name(account_string), quantity );
+    sub_balance( account, quantity );
 }
 
 void token::transfer( const name&    from,
@@ -135,8 +133,7 @@ void token::sub_balance( const name& owner, const asset& value ) {
    const auto& from = from_acnts.get( value.symbol.code().raw(), "no balance object found" );
    check( from.balance.amount >= value.amount, "overdrawn balance" );
 
-   // TODO: validate change of ram payer (owner -> get_self())
-   from_acnts.modify( from, get_self(), [&]( auto& a ) {
+   from_acnts.modify( from, owner, [&]( auto& a ) {
          a.balance -= value;
       });
 }

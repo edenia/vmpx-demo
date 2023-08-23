@@ -6,5 +6,7 @@ export const chainId =
 export const vmpxContract = process.env.HAPI_VMPX_CONTRACT || 'evmpx'
 export const dispenserContract =
   process.env.HAPI_DISPENSER_CONTRACT || 'tokenlinker'
+export const dispenserContractPublicKey =
+  process.env.HAPI_DISPENSER_CONTRACT_PUBLIC_KEY || 'pub_key'
 export const dispenserContractPrivateKey =
   process.env.HAPI_DISPENSER_CONTRACT_PRIVATE_KEY || 'priv_key'

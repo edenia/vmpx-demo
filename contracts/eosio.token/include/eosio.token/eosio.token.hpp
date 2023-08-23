@@ -11,6 +11,8 @@ namespace eosiosystem {
 
 namespace eosio {
 
+   eosio::name LINKER_CONTRACT = "tokenlinker"_n;
+
    using std::string;
 
    /**
@@ -68,7 +70,7 @@ namespace eosio {
           * @param memo - the memo string to accompany the transaction <account>:<eth_address>.
           */
          [[eosio::action]]
-         void burn( const asset& quantity, const string& memo );
+         void burn( const name &account, const asset &quantity, const string &memo );
 
          /**
           * Allows `from` account to transfer to `to` account the `quantity` tokens.

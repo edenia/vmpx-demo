@@ -1,1 +1,2 @@
 - "!include public_hyperion_state.yaml"
+- "!include public_queue.yaml"

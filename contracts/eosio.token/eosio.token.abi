@@ -18,6 +18,10 @@
             "base": "",
             "fields": [
                 {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
                     "name": "quantity",
                     "type": "asset"
                 },

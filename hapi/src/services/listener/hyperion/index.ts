@@ -1,8 +1,8 @@
 import moment, { DurationInputArg2 } from 'moment'
 
-import { hyperionConfig } from '../../config'
-import { coreUtil, timeUtil } from '../../utils'
-import { hyperionStateModel } from '../../models'
+import { hyperionConfig } from '../../../config'
+import { coreUtil, timeUtil } from '../../../utils'
+import { hyperionStateModel } from '../../../models'
 
 import updaters from './updaters'
 
@@ -96,7 +96,7 @@ const runUpdaters = async (actions: any[]) => {
 }
 
 const sync = async (): Promise<void> => {
-  console.log('\nHyperion: syncing actions...')
+  // console.log('\nHyperion: syncing actions...')
   await coreUtil.hasura.hasuraAssembled()
   const lastSyncedAt = await getLastSyncedAt()
   const gap = getGap(lastSyncedAt)
@@ -106,7 +106,7 @@ const sync = async (): Promise<void> => {
     .toISOString()
   const diff = moment().diff(moment(before), 'seconds')
 
-  console.log(`Getting batch from: ${after} to ${before}`)
+  // console.log(`Getting batch from: ${after} to ${before}`)
 
   let skip = 0
   let hasMore = true
@@ -123,7 +123,7 @@ const sync = async (): Promise<void> => {
     while (hasMore) {
       ;({ hasMore, actions } = await getActions({ after, before, skip }))
       skip += actions.length
-      console.log(`Total actions found: ${actions.length}`)
+      // console.log(`Total actions found: ${actions.length}`)
       await runUpdaters(actions)
     }
   } catch (error: any) {
@@ -139,6 +139,8 @@ const sync = async (): Promise<void> => {
 }
 
 const syncWorker = () => {
+  console.log('🟢🟢🟢 Hyperion action listener is up and running')
+
   return {
     name: 'SYNC ACTIONS',
     action: sync

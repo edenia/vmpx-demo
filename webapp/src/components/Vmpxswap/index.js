@@ -3,6 +3,7 @@ import { Button, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
 
+import { blockchainConfig } from '../../config'
 import { useSharedState } from '../../context/state.context'
 import { logout as walletLogout } from '../../context/LibreClient'
 
@@ -13,6 +14,34 @@ const useStyles = makeStyles(styles)
 const Vmpxswap = () => {
   const [state, { setState, login, logout, showMessage }] = useSharedState()
   const classes = useStyles()
+
+  const setSpecificChainMetaMask = async ethereum => {
+    const chainId = blockchainConfig.ethChainId
+
+    if (ethereum.chainId !== chainId) {
+      try {
+        await ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId }]
+        })
+      } catch (err) {
+        if (err.code === 4902) {
+          await ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainName: blockchainConfig.ethChainName,
+                chainId,
+                nativeCurrency: blockchainConfig.ethChainNativeCurrency,
+                rpcUrls: blockchainConfig.ethChainRpcUrls
+              }
+            ]
+          })
+        }
+        console.log({ err })
+      }
+    }
+  }
 
   const connectMetaMask = async () => {
     try {
@@ -26,6 +55,8 @@ const Vmpxswap = () => {
 
         return
       }
+
+      await setSpecificChainMetaMask(ethereum)
 
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts'
@@ -52,7 +83,9 @@ const Vmpxswap = () => {
       const ethereum = window.ethereum
 
       if (ethereum) {
-        const accounts = await window.ethereum.enable()
+        await setSpecificChainMetaMask(ethereum)
+
+        const accounts = await ethereum.enable()
         const account = accounts[0]
 
         setState({ param: 'ethAccountAddress', ethAccountAddress: account })

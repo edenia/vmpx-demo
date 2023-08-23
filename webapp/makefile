@@ -35,6 +35,10 @@ build-docker: ./Dockerfile
 		--build-arg react_app_libre_api_host="$(REACT_APP_LIBRE_API_HOST)" \
 		--build-arg react_app_eth_block_explorer="$(REACT_APP_ETH_BLOCK_EXPLORER)" \
 		--build-arg react_app_libre_block_explorer="$(REACT_APP_LIBRE_BLOCK_EXPLORER)" \
+		--build-arg react_app_chain_rpc_urls="$(REACT_APP_CHAIN_RPC_URLS)" \
+		--build-arg react_app_chain_native_currency="$(REACT_APP_CHAIN_NATIVE_CURRENCY)" \
+		--build-arg react_app_chain_id="$(REACT_APP_CHAIN_ID)" \
+		--build-arg react_app_chain_name="$(REACT_APP_CHAIN_NAME)" \
 		--build-arg react_app_evmpx_contract="$(REACT_APP_EVMPX_CONTRACT)" \
 		--build-arg react_app_target_eth_wallet_address="$(REACT_APP_TARGET_ETH_WALLET_ADDRESS)" \
 		--build-arg react_app_logo="$(REACT_APP_LOGO)" \

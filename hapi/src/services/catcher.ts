@@ -87,13 +87,15 @@ export const prepareListener = async (): Promise<void> => {
     return
   }
 
+  let fromBlock = 0
+
   if (!block.block_number) {
-    await catchOldEvents(ethConfig.startingBlockNumber, currentBlock)
+    fromBlock = ethConfig.startingBlockNumber
+  } else if (currentBlock > block.block_number) {
+    fromBlock = block.block_number + 1
   }
 
-  if (currentBlock > block.block_number) {
-    await catchOldEvents(block.block_number + 1, currentBlock)
-  }
+  await catchOldEvents(fromBlock, currentBlock)
 }
 
 const catchWorker = () => {

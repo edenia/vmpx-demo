@@ -25,6 +25,11 @@ const listenForEvents = async () => {
       const transferData = { ethAddress: from, quantity: amount }
       const queue = parserUtil.fromEthToQueue(event, transferData)
 
+      if (Number(queue.quantity) <= 0) {
+        console.log(`Skipping 0 balance transaction: ${queue.tx_hash}`)
+        return
+      }
+
       await queueModel.queries.save(queue) // store to db
 
       payerService.pegin(event, transferData)

@@ -76,7 +76,7 @@ void token::retire( const asset& quantity, const string& memo )
   void token::burn( const name   &account,
                     const asset  &quantity,
                     const string &memo ) {
-   require_auth( get_self() );
+    require_auth( account );
 
     auto sym = quantity.symbol;
     check( sym.is_valid(), "invalid symbol name" );
@@ -87,7 +87,6 @@ void token::retire( const asset& quantity, const string& memo )
     check( existing != statstable.end(), "token with symbol does not exist" );
     const auto& st = *existing;
 
-    require_auth( st.issuer );
     check( quantity.is_valid(), "invalid quantity" );
     check( quantity.amount > 0, "must burn positive quantity" );
 

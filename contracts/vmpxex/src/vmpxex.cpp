@@ -6,6 +6,9 @@ namespace exchange {
                            const std::string &eth_address ) {
     require_auth( account );
 
+    eosio::check( silkworm::is_valid_address( eth_address ),
+                  "invalid eth address" );
+
     auto account_itr = account_tb.find( account.value );
 
     auto eth_address_index = account_tb.get_index< "byethaddr"_n >();

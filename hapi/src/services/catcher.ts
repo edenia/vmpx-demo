@@ -28,7 +28,9 @@ const catchOldEvents = async (fromBlock: number, toBlock: number) => {
     )
 
     console.log(
-      `⛓️⛓️⛓️ Filtering events from block ${currentBlock} to ${currentBlock + steps}`
+      `⛓️⛓️⛓️ Filtering events from block ${currentBlock} to ${
+        currentBlock + steps
+      }`
     )
 
     const logs = await ethConfig.vmpxContract.queryFilter(

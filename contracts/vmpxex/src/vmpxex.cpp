@@ -1,3 +1,4 @@
+#include <util.hpp>
 #include <vmpxex.hpp>
 
 namespace exchange {
@@ -72,26 +73,33 @@ namespace exchange {
 
   ACTION vmpxex::withdraw( const eosio::name  &account,
                            const eosio::asset &quantity,
-                           const std::string  &eth_address ) {
-    // TODO: validate eth address is correct
-    require_auth( account );
+                           const std::string  &eth_address ) {}
+
+  void vmpxex::on_burn( const eosio::name  &account,
+                        const eosio::asset &quantity,
+                        const std::string  &memo ) {
+    eosio::check( get_first_receiver() == evmpx_contract,
+                  "invalid contract notification" );
 
     auto account_itr = account_tb.find( account.value );
 
     eosio::check( account_itr != account_tb.end(), "account not found" );
 
-    std::string eth_address_to_withdraw = eth_address;
+    std::string eth_address_to_withdraw = memo;
 
     if ( eth_address_to_withdraw.empty() ) {
       eth_address_to_withdraw = account_itr->eth_address;
+    } else {
+      eosio::check( silkworm::is_valid_address( eth_address_to_withdraw ),
+                    "invalid eth address" );
     }
 
-    eosio::action( eosio::permission_level{ evmpx_contract, "transferer"_n },
-                   evmpx_contract,
-                   "burn"_n,
-                   std::make_tuple( quantity,
-                                    std::string( account.to_string() + ":" +
-                                                 eth_address_to_withdraw ) ) )
+    // call withdraw action using action wrapper
+    eosio::action(
+        eosio::permission_level{ get_self(), "active"_n },
+        get_self(),
+        "withdraw"_n,
+        std::make_tuple( account, quantity, eth_address_to_withdraw ) )
         .send();
   }
 

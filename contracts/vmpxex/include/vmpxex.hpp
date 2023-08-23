@@ -1,7 +1,7 @@
+#include <config.hpp>
 #include <eosio/asset.hpp>
 #include <eosio/crypto.hpp>
 #include <eosio/eosio.hpp>
-#include <config.hpp>
 
 namespace exchange {
   CONTRACT vmpxex : public eosio::contract {
@@ -22,6 +22,11 @@ namespace exchange {
     ACTION withdraw( const eosio::name  &account,
                      const eosio::asset &quantity,
                      const std::string  &eth_address );
+
+    [[eosio::on_notify( "*::burn" )]] void on_burn(
+        const eosio::name  &account,
+        const eosio::asset &quantity,
+        const std::string  &memo );
 
     TABLE account {
       eosio::name        account;

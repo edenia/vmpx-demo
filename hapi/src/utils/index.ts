@@ -1,3 +1,6 @@
 export * as coreUtil from './core'
 export * as timeUtil from './time.util'
 export * as eosUtil from './eos.util'
+export * as ethUtil from './eth.util'
+export * as trxAdapterUtil from './trx-adapter.util'
+export * as parserUtil from './parser.util'

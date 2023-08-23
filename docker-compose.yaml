@@ -43,6 +43,7 @@ services:
       HAPI_ETH_WALLET_ADDRESS: "${HAPI_ETH_WALLET_ADDRESS}"
       HAPI_ETH_WALLET_KEY: "${HAPI_ETH_WALLET_KEY}"
       HAPI_ETH_START_BLOCK_NUMBER: "${HAPI_ETH_START_BLOCK_NUMBER}"
+      HAPI_ETH_MAX_RETRY_SEND_TX: "${HAPI_ETH_MAX_RETRY_SEND_TX}"
   hasura:
     container_name: "hasura"
     image: hasura/graphql-engine:v2.30.1.cli-migrations-v3

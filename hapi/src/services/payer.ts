@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-import { ethConfig } from '../config'
+import { ethConfig, serverConfig } from '../config'
 import { trxAdapterUtil, eosUtil, ethUtil, parserUtil } from '../utils'
 import { actionModel, transactionModel, queueModel } from '../models'
 import updaterService from './updater'
@@ -95,7 +95,8 @@ export const fetchPendingTransactions = async () => {
               "${queueModel.interfaces.Status.pending}",
               "${queueModel.interfaces.Status.failed}"
             ]
-          }
+          },
+          retry_times: { _lte: ${serverConfig.maxRetrySendTx} }
         }
       ) {
         tx_hash
@@ -106,6 +107,7 @@ export const fetchPendingTransactions = async () => {
         created_at
         updated_at
         block_number
+        retry_times
       }
     }
   `

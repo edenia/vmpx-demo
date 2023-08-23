@@ -49,10 +49,18 @@ export const save = async (tx: Queue) => {
   return data.insert_queue_one
 }
 
-export const update = async (tx_hash: string, newStatus: StatusType) => {
+export const update = async (
+  tx_hash: string,
+  newStatus: StatusType,
+  retryTimes = 0
+) => {
   const mutation = gql`
     mutation ($tx_hash: String!, $payload: queue_set_input) {
-      update_queue_by_pk(pk_columns: { tx_hash: $tx_hash }, _set: $payload) {
+      update_queue_by_pk(
+        pk_columns: { tx_hash: $tx_hash }
+        _set: $payload
+        _inc: { retry_times: ${retryTimes} }
+      ) {
         tx_hash
       }
     }

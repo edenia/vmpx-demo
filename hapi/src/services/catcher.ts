@@ -48,6 +48,11 @@ const catchOldEvents = async (fromBlock: number, toBlock: number) => {
         quantity: amount
       })
 
+      if (Number(queue.quantity) <= 0) {
+        console.log(`Skipping 0 balance transaction: ${queue.tx_hash}`)
+        return
+      }
+
       try {
         await queueModel.queries.save(queue) // store to db
       } catch (error) {

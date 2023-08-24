@@ -4,14 +4,14 @@ import { actionModel, queueModel } from '../../../../models'
 import { parserUtil } from '../../../../utils'
 
 export default {
-  type: `${eosConfig.vmpxContract}:burn`,
+  type: `${eosConfig.dispenserContract}:withdraw`,
   apply: async (action: actionModel.HyperionAction) => {
     try {
-      if (!action.data.memo) {
+      if (!action.data.eth_address) {
         return
       }
 
-      const destinataryAddress = action.data.memo.split(':')[1]
+      const destinataryAddress = action.data.eth_address
       const quantity = action.data.quantity.split(' ')[0]
 
       if (!destinataryAddress) {

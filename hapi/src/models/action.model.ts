@@ -7,8 +7,9 @@ export interface HyperionAction {
   notified: string
   transaction_id: string
   data: {
+    account: string
     quantity: string
-    memo: string
+    eth_address: string
   }
 }
 

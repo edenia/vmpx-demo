@@ -1,13 +1,4 @@
 import { actionModel, transactionModel, queueModel } from '../models'
-// export interface Queue {
-//   tx_hash: string
-//   operation: OperationType
-//   fromto: string
-//   quantity: string
-//   status: StatusType
-//   created_at: Date
-//   updated_at: Date
-// }
 
 export const fromEthToQueue = (
   event: actionModel.EthEvent,
@@ -63,8 +54,9 @@ export const fromQueueToLibre = (queue: queueModel.interfaces.Queue) => ({
     actors: '',
     notified: '',
     data: {
+      account: '',
       quantity: queue.quantity,
-      memo: ''
+      eth_address: ''
     }
   } as actionModel.HyperionAction,
   payload: {

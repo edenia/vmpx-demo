@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <util.hpp>
 #include <vmpxex.hpp>
 
@@ -9,11 +10,18 @@ namespace exchange {
     eosio::check( silkworm::is_valid_address( eth_address ),
                   "invalid eth address" );
 
+    std::string tolower_eth_address = eth_address;
+
+    std::transform( eth_address.begin(),
+                    eth_address.end(),
+                    tolower_eth_address.begin(),
+                    []( unsigned char c ) { return std::tolower( c ); } );
+
     auto account_itr = account_tb.find( account.value );
 
     auto eth_address_index = account_tb.get_index< "byethaddr"_n >();
     auto eth_address_itr = eth_address_index.find(
-        eosio::sha256( eth_address.c_str(), eth_address.size() ) );
+        eosio::sha256( tolower_eth_address.c_str(), tolower_eth_address.size() ) );
 
     eosio::check( eth_address_itr == eth_address_index.end(),
                   "eth address already linked" );
@@ -21,11 +29,11 @@ namespace exchange {
     if ( account_itr == account_tb.end() ) {
       account_tb.emplace( account, [&]( auto &row ) {
         row.account = account;
-        row.eth_address = eth_address;
+        row.eth_address = tolower_eth_address;
       } );
     } else {
       account_tb.modify( account_itr, account, [&]( auto &row ) {
-        row.eth_address = eth_address;
+        row.eth_address = tolower_eth_address;
       } );
     }
   }
@@ -76,7 +84,9 @@ namespace exchange {
 
   ACTION vmpxex::withdraw( const eosio::name  &account,
                            const eosio::asset &quantity,
-                           const std::string  &eth_address ) {}
+                           const std::string  &eth_address ) {
+    require_auth( get_self() );
+  }
 
   void vmpxex::on_burn( const eosio::name  &account,
                         const eosio::asset &quantity,

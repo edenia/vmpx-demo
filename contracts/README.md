@@ -26,6 +26,8 @@ give_contract_resources() {
     cleos.sh push action eosio setalimits '{"authorizer": "eosio", "account": "tokenlinker", "ram": -1, "net": -1, "cpu": -1}' -p eosio@active
 }
 
+./deploy-contracts.sh
+
 setup_permission() {
     cleos.sh set account permission evmpx transferer '{"threshold": 1, "keys": [], "accounts":[{"permission":{"actor": "tokenlinker", "permission":"active"}, "weight": 1}], "waits": [] }' active -p evmpx@active
 

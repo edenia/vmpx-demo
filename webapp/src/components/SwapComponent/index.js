@@ -192,6 +192,15 @@ const SwapComponent = () => {
 
   const sendTransaction = async () => {
     try {
+      if (amountReceiveEth <= 0) {
+        showMessage({
+          type: 'warning',
+          content: 'Amount must be greater than 0'
+        })
+
+        return
+      }
+
       const accountAddressEth = await connectMetaMask()
 
       if (!(await checkMatch(state?.user?.actor, accountAddressEth))) return
@@ -240,8 +249,8 @@ const SwapComponent = () => {
       }
 
       await sleep(2000) // wait for 3 seconds
-      await loadBalances()
       clearFields()
+      await loadBalances()
     } catch (error) {
       if (error.message.includes('User rejected the request')) {
         console.log(
@@ -286,8 +295,8 @@ const SwapComponent = () => {
           </Typography>
         )
       })
-      await loadBalances()
       clearFields()
+      await loadBalances()
     } catch (error) {
       if (
         error.message.includes(
@@ -341,38 +350,72 @@ const SwapComponent = () => {
           </Typography>
         )
       })
-      await loadBalances()
       clearFields()
+      await loadBalances()
     } catch (error) {
       showMessage({ type: 'error', content: error })
     }
   }
 
   const loadBalances = async () => {
-    const evmpxBalance = await getBalance(state.user.actor, 'EVMPX')
-    const bvmpxBalance = await getBalance(state.user.actor, 'BVMPX')
+    const [evmpxBalance, bvmpxBalance] = await Promise.all([
+      getBalance(state.user.actor, 'EVMPX'),
+      getBalance(state.user.actor, 'BVMPX')
+    ])
 
     if (evmpxBalance.length === 0 && bvmpxBalance.length === 0) return
 
     if (evmpxBalance.length > 0 && bvmpxBalance.length > 0) {
       if (firstToken.symbol === 'eVMPX') {
-        setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
-        setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
+        setFirstToken({
+          ...firstToken,
+          balance: evmpxBalance[0].balance,
+          amount: 0
+        })
+        setSecondToken({
+          ...secondToken,
+          balance: bvmpxBalance[0].balance,
+          amount: 0
+        })
       } else {
-        setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
-        setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
+        setFirstToken({
+          ...firstToken,
+          balance: bvmpxBalance[0].balance,
+          amount: 0
+        })
+        setSecondToken({
+          ...secondToken,
+          balance: evmpxBalance[0].balance,
+          amount: 0
+        })
       }
     } else if (bvmpxBalance.length > 0) {
       if (firstToken.symbol === 'eVMPX') {
-        setSecondToken({ ...secondToken, balance: bvmpxBalance[0].balance })
+        setSecondToken({
+          ...secondToken,
+          balance: bvmpxBalance[0].balance,
+          amount: 0
+        })
       } else {
-        setFirstToken({ ...firstToken, balance: bvmpxBalance[0].balance })
+        setFirstToken({
+          ...firstToken,
+          balance: bvmpxBalance[0].balance,
+          amount: 0
+        })
       }
     } else {
       if (firstToken.symbol === 'eVMPX') {
-        setFirstToken({ ...firstToken, balance: evmpxBalance[0].balance })
+        setFirstToken({
+          ...firstToken,
+          balance: evmpxBalance[0].balance,
+          amount: 0
+        })
       } else {
-        setSecondToken({ ...secondToken, balance: evmpxBalance[0].balance })
+        setSecondToken({
+          ...secondToken,
+          balance: evmpxBalance[0].balance,
+          amount: 0
+        })
       }
     }
   }

@@ -253,9 +253,12 @@ const SwapComponent = () => {
       await loadBalances()
     } catch (error) {
       if (error.message.includes('User rejected the request')) {
-        console.log(
-          'Por favor, aprueba la solicitud de MetaMask para continuar.'
-        )
+        console.log('Please approve MetaMask´s request to continue.')
+      } else if (error.message.includes('transfer amount exceeds balance')) {
+        showMessage({
+          type: 'error',
+          content: 'Transfer amount exceeds available balance'
+        })
       } else {
         console.error(error)
       }
@@ -303,13 +306,10 @@ const SwapComponent = () => {
           'eosio_assert_message assertion failure at /v1/chain/push_transaction'
         )
       ) {
-        console.log(
-          'eosio_assert_message assertion failure at /v1/chain/push_transaction'
-        )
+        console.log(error.message)
       } else {
-        console.error(error)
+        console.log(error.message)
       }
-      showMessage({ type: 'error', content: error })
     }
   }
 
@@ -459,6 +459,7 @@ const SwapComponent = () => {
       content: 'Accounts linked'
     })
     await sleep(2000) // wait for 2 seconds
+
     if (await checkMatch(state?.user?.actor, state.ethAccountAddress))
       await sendTransaction()
   }
@@ -477,7 +478,9 @@ const SwapComponent = () => {
 
   useEffect(async () => {
     await checkIfMetaMaskIsConnected()
+
     const feeResponse = await getVMPXPoolFee()
+
     await loadBalances()
     setFee(1 - feeResponse.fee / 100)
   }, [state.user.actor])

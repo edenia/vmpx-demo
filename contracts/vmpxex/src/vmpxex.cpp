@@ -10,7 +10,7 @@ namespace exchange {
     eosio::check( silkworm::is_valid_address( eth_address ),
                   "invalid eth address" );
 
-    std::string tolower_eth_address = eth_address;
+    std::string tolower_eth_address;
 
     std::transform( eth_address.begin(),
                     eth_address.end(),
@@ -20,8 +20,9 @@ namespace exchange {
     auto account_itr = account_tb.find( account.value );
 
     auto eth_address_index = account_tb.get_index< "byethaddr"_n >();
-    auto eth_address_itr = eth_address_index.find(
-        eosio::sha256( tolower_eth_address.c_str(), tolower_eth_address.size() ) );
+    auto eth_address_itr =
+        eth_address_index.find( eosio::sha256( tolower_eth_address.c_str(),
+                                               tolower_eth_address.size() ) );
 
     eosio::check( eth_address_itr == eth_address_index.end(),
                   "eth address already linked" );
@@ -52,9 +53,17 @@ namespace exchange {
                             const eosio::asset &quantity ) {
     require_auth( get_self() );
 
+    std::string tolower_eth_address;
+
+    std::transform( sender.begin(),
+                    sender.end(),
+                    tolower_eth_address.begin(),
+                    []( unsigned char c ) { return std::tolower( c ); } );
+
     auto eth_address_index = account_tb.get_index< "byethaddr"_n >();
-    auto eth_address_itr = eth_address_index.find(
-        eosio::sha256( sender.c_str(), sender.size() ) );
+    auto eth_address_itr =
+        eth_address_index.find( eosio::sha256( tolower_eth_address.c_str(),
+                                               tolower_eth_address.size() ) );
 
     eosio::check( eth_address_itr != eth_address_index.end(),
                   "eth address has no Libre account linked" );

@@ -10,12 +10,9 @@ export const libreChainId = process.env.REACT_APP_LIBRE_CHAIN_ID
 export const libreApiHost = process.env.REACT_APP_LIBRE_API_HOST
 export const ethChainName = process.env.REACT_APP_CHAIN_NAME
 export const ethChainId = process.env.REACT_APP_CHAIN_ID
-export const ethChainNativeCurrency = JSON.parse(
-  process.env.REACT_APP_CHAIN_NATIVE_CURRENCY || '{}'
-)
-export const ethChainRpcUrls = JSON.parse(
-  process.env.REACT_APP_CHAIN_RPC_URLS || '[]'
-)
+export const ethChainNativeCurrency =
+  process.env.REACT_APP_CHAIN_NATIVE_CURRENCY
+export const ethChainRpcUrls = process.env.REACT_APP_CHAIN_RPC_URLS
 export const targetWalletAddress =
   process.env.REACT_APP_TARGET_ETH_WALLET_ADDRESS
 export const vmpxTransferLimit = parseInt(

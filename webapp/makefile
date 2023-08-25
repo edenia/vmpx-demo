@@ -43,6 +43,9 @@ build-docker: ./Dockerfile
 		--build-arg react_app_target_eth_wallet_address="$(REACT_APP_TARGET_ETH_WALLET_ADDRESS)" \
 		--build-arg react_app_logo="$(REACT_APP_LOGO)" \
 		--build-arg react_app_footer_links="$(REACT_APP_FOOTER_LINKS)" \
+		--build-arg react_app_libre_app_name="$(REACT_APP_LIBRE_APP_NAME)" \
+		--build-arg react_app_libre_api_protocol="$(REACT_APP_LIBRE_API_PROTOCOL)" \
+		--build-arg react_app_libre_api_port="$(REACT_APP_LIBRE_API_PORT)" \
 		--build-arg react_app_wax_app_name="$(REACT_APP_WAX_APP_NAME)" \
 		--build-arg react_app_wax_api_protocol="$(REACT_APP_WAX_API_PROTOCOL)" \
 		--build-arg react_app_wax_api_host="$(REACT_APP_WAX_API_HOST)" \

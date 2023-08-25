@@ -27,6 +27,9 @@ ARG react_app_wax_api_host
 ARG react_app_wax_api_port
 ARG react_app_wax_chain_id
 ARG react_app_hasura_url
+ARG react_app_libre_app_name
+ARG react_app_libre_api_protocol
+ARG react_app_libre_api_port
 
 ENV WORK_DIR /usr/src/app
 ENV PATH $WORK_DIR/node_modules/.bin:$PATH
@@ -59,6 +62,9 @@ ENV REACT_APP_WAX_API_HOST $react_app_wax_api_host
 ENV REACT_APP_WAX_API_PORT $react_app_wax_api_port
 ENV REACT_APP_WAX_CHAIN_ID $react_app_wax_chain_id
 ENV REACT_APP_HASURA_URL $react_app_hasura_url
+ENV REACT_APP_LIBRE_APP_NAME $react_app_libre_app_name
+ENV REACT_APP_LIBRE_API_PROTOCOL $react_app_libre_api_protocol
+ENV REACT_APP_LIBRE_API_PORT $react_app_libre_api_port
 ENV TOOL_NODE_FLAGS --max_old_space_size=4096
 
 RUN mkdir -p $WORK_DIR

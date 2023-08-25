@@ -10,7 +10,7 @@ namespace exchange {
     eosio::check( silkworm::is_valid_address( eth_address ),
                   "invalid eth address" );
 
-    std::string tolower_eth_address;
+    std::string tolower_eth_address = eth_address;
 
     std::transform( eth_address.begin(),
                     eth_address.end(),
@@ -53,7 +53,7 @@ namespace exchange {
                             const eosio::asset &quantity ) {
     require_auth( get_self() );
 
-    std::string tolower_eth_address;
+    std::string tolower_eth_address = sender;
 
     std::transform( sender.begin(),
                     sender.end(),

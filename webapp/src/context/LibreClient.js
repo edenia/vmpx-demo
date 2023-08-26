@@ -6,7 +6,8 @@ import {
   libreChainId,
   libreApiHost,
   swapVmpxContract,
-  tokenLikerContract
+  tokenLikerContract,
+  evmpxContract
 } from '../config/blockchain.config'
 
 const link = new AnchorLink({
@@ -156,12 +157,12 @@ export const pegoutEth = async ({ session, account, quantity }) => {
   const actions = [
     {
       authorization,
-      account: tokenLikerContract,
-      name: 'withdraw',
+      account: evmpxContract,
+      name: 'burn',
       data: {
         account,
         quantity,
-        eth_address: '' // empty field = DEFAULT, handled by the Smart Contract
+        memo: '' // empty field = DEFAULT, handled by the ${tokenLikerContract} Smart Contract
       }
     }
   ]

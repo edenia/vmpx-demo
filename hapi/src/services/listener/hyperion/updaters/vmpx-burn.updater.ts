@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers'
+
 import { eosConfig } from '../../../../config'
 import payerService from '../../../payer'
 import { actionModel, queueModel } from '../../../../models'
@@ -12,17 +14,20 @@ export default {
       }
 
       const destinataryAddress = action.data.eth_address
-      const quantity = action.data.quantity.split(' ')[0]
+      const quantity = action.data.quantity.split(' ')[0].replace('.', '')
 
       if (!destinataryAddress) {
         console.log('No destinatary address found')
         return
       }
 
-      const transferData = { ethAddress: destinataryAddress, quantity }
+      const transferData = {
+        ethAddress: destinataryAddress,
+        quantity: BigNumber.from(quantity)
+      }
       const queue = parserUtil.fromLibreToQueue(action, transferData)
 
-      if (Number(queue.quantity) <= 0) {
+      if (BigNumber.from(quantity) <= BigNumber.from(0)) {
         console.log(`Skipping 0 balance transaction: ${queue.tx_hash}`)
         return
       }

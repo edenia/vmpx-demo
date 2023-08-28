@@ -12,7 +12,7 @@ export const formatEthAction = async (
   }
 
   const address = payload.ethAddress
-  const quantity = ethers.utils.parseUnits(payload.quantity, 18).toString()
+  const quantity = payload.quantity.toString()
 
   const nonce = await ethConfig.providerRpc.getTransactionCount(
     ethConfig.wallet.address,
@@ -50,9 +50,14 @@ export const formatAntelopeAction = async (
   }
 
   const address = payload.ethAddress
-  const quantity = Number(
-    ethers.utils.formatUnits(payload.quantity, 18)
-  ).toFixed(9)
+  const quantity = ethers.utils.formatUnits(
+    payload.quantity.toString().slice(0, 13),
+    9
+  )
+  // const quantityPadded = 
+
+  console.log(`Sending before ${payload.quantity.toString()}`)
+  console.log(`Sending ${quantity} EVMPX to ${address}`)
 
   const authorization = [
     {

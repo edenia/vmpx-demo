@@ -17,6 +17,7 @@ interface GetActionsResponse {
   actions: any[]
 }
 
+// TODO: move to config (.env)
 const TIME_TO_FETCH = 10
 
 const getLastSyncedAt = async () => {

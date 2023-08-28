@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { ethers, BigNumber } from 'ethers'
 
 import { ethConfig } from '../../config'
 import artifact from '../../artifact'
@@ -21,11 +21,11 @@ const listenForEvents = async () => {
 
   vmpxContract.on(
     filter,
-    async (from, to, amount, event: actionModel.EthEvent) => {
+    async (from, _, amount: BigNumber, event: actionModel.EthEvent) => {
       const transferData = { ethAddress: from, quantity: amount }
       const queue = parserUtil.fromEthToQueue(event, transferData)
 
-      if (Number(queue.quantity) <= 0) {
+      if (amount <= BigNumber.from(0)) {
         console.log(`Skipping 0 balance transaction: ${queue.tx_hash}`)
         return
       }
@@ -37,6 +37,6 @@ const listenForEvents = async () => {
   )
 }
 
-// call this event until catcher has finished the starting sync
+// call this event until catcher has finished the starting sync - IT MAY NOT BE NEEDED BECAUSE OF THE 'Create syncing queues'
 
 export default { listenForEvents }

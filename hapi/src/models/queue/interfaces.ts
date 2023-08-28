@@ -3,7 +3,7 @@ export const Operation = {
   pegout: 'peg-out'
 } as const
 
-export type OperationType = 'peg-in' | 'peg-out'
+export type OperationType = (typeof Operation)[keyof typeof Operation]
 
 export const Status = {
   pending: 'pending',

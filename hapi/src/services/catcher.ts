@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { gql } from 'graphql-request'
 
 import { ethConfig } from '../config'
@@ -30,7 +31,7 @@ const catchOldEvents = async (fromBlock: number, toBlock: number) => {
     console.log(
       `⛓️⛓️⛓️ Filtering events from block ${currentBlock} to ${
         currentBlock + steps
-      }`
+      }, pending: ${toBlock - currentBlock} blocks`
     )
 
     const logs = await ethConfig.vmpxContract.queryFilter(
@@ -48,7 +49,7 @@ const catchOldEvents = async (fromBlock: number, toBlock: number) => {
         quantity: amount
       })
 
-      if (Number(queue.quantity) <= 0) {
+      if (amount <= BigNumber.from(0)) {
         console.log(`Skipping 0 balance transaction: ${queue.tx_hash}`)
         return
       }

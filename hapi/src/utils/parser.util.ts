@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers'
+
 import { actionModel, transactionModel, queueModel } from '../models'
 
 export const fromEthToQueue = (
@@ -17,7 +19,7 @@ export const fromEthToQueue = (
 
 export const fromLibreToQueue = (
   action: actionModel.HyperionAction,
-  payload: transactionModel.EthTrxPayload,
+  payload: transactionModel.LibreTrxPayload,
   status: queueModel.interfaces.StatusType = queueModel.interfaces.Status
     .pending
 ) =>
@@ -25,7 +27,7 @@ export const fromLibreToQueue = (
     tx_hash: action.transaction_id,
     operation: queueModel.interfaces.Operation.pegout,
     fromto: payload.ethAddress,
-    quantity: payload.quantity,
+    quantity: payload.quantity.toString(),
     status,
     block_number: action.block
   } as queueModel.interfaces.Queue)
@@ -40,7 +42,7 @@ export const fromQueueToEth = (queue: queueModel.interfaces.Queue) => ({
   } as actionModel.EthEvent,
   payload: {
     ethAddress: queue.fromto,
-    quantity: queue.quantity
+    quantity: BigNumber.from(queue.quantity)
   }
 })
 
@@ -61,7 +63,7 @@ export const fromQueueToLibre = (queue: queueModel.interfaces.Queue) => ({
   } as actionModel.HyperionAction,
   payload: {
     ethAddress: queue.fromto,
-    quantity: queue.quantity
+    quantity: BigNumber.from(queue.quantity)
   }
 })
 

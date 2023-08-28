@@ -14,7 +14,7 @@ export const formatEthAction = async (
   }
 
   const address = payload.ethAddress
-  const quantity = ethers.utils.parseUnits(payload.quantity, 18).toString()
+  const quantity = ethers.utils.parseUnits(payload.quantity.toString(), 18)
 
   const nonce = await ethConfig.providerRpc.getTransactionCount(
     ethConfig.wallet.address,
@@ -24,7 +24,7 @@ export const formatEthAction = async (
   const gasPrice = await ethConfig.providerRpc.getGasPrice()
   const unsignedTx = await ethConfig.vmpxContract.populateTransaction.transfer(
     address,
-    quantity,
+    quantity.toString(),
     {
       gasLimit: 1000000, // TODO: make this dynamic
       gasPrice,
@@ -51,10 +51,9 @@ export const formatAntelopeAction = async (
     throw new Error('Invalid Ethereum address')
   }
 
+  // TODO: load 9 from .env
   const address = payload.ethAddress
-  const quantity = Number(
-    ethers.utils.formatUnits(payload.quantity, 18)
-  ).toFixed(9)
+  const quantity = ethers.utils.formatUnits(payload.quantity, 9).split('.')[0]
 
   const authorization = [
     {

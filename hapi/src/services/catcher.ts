@@ -51,7 +51,7 @@ const catchOldEvents = async (fromBlock: number, toBlock: number) => {
 
       if (amount <= BigNumber.from(0)) {
         console.log(`Skipping 0 balance transaction: ${queue.tx_hash}`)
-        return
+        continue
       }
 
       try {

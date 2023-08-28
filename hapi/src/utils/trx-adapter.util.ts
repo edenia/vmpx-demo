@@ -50,14 +50,10 @@ export const formatAntelopeAction = async (
   }
 
   const address = payload.ethAddress
-  const quantity = ethers.utils.formatUnits(
-    payload.quantity.toString().slice(0, 13),
-    9
-  )
-  // const quantityPadded = 
-
-  console.log(`Sending before ${payload.quantity.toString()}`)
-  console.log(`Sending ${quantity} EVMPX to ${address}`)
+  const quantity = ethers.utils.formatUnits(payload.quantity, 18)
+  const formattedQuantity = quantity
+    .padEnd(quantity.indexOf('.') + 10, '0')
+    .substring(0, quantity.indexOf('.') + 10)
 
   const authorization = [
     {
@@ -72,12 +68,13 @@ export const formatAntelopeAction = async (
       name: 'sendfunds',
       data: {
         sender: address,
-        quantity: `${quantity} EVMPX`
+        quantity: `${formattedQuantity} EVMPX`
       }
     }
   ]
   const serializedActions = await eosUtil.default.serializeActions(actions)
   const info = await eosUtil.rpc.get_info()
+
   return eosUtil.default.serializeTransaction({
     actions: serializedActions,
     expiration: new Date(Date.now() + 30000).toISOString().split('.')[0],

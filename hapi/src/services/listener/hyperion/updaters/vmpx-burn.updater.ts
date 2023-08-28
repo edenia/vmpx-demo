@@ -14,7 +14,11 @@ export default {
       }
 
       const destinataryAddress = action.data.eth_address
-      const quantity = action.data.quantity.split(' ')[0].replace('.', '')
+      const strQuantity = action.data.quantity
+      const quantity = strQuantity
+        .split(' ')[0]
+        .padEnd(strQuantity.indexOf('.') + 1 + 18, '0')
+        .replace('.', '')
 
       if (!destinataryAddress) {
         console.log('No destinatary address found')

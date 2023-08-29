@@ -20,12 +20,17 @@ export const formatEthAction = async (
   )
 
   const gasPrice = await ethConfig.providerRpc.getGasPrice()
+  const gasLimit = await ethConfig.vmpxContract.estimateGas.transfer(
+    address,
+    quantity
+  )
+  const adjustedGasPrice = gasPrice.mul(ethers.BigNumber.from(120)).div(100)
   const unsignedTx = await ethConfig.vmpxContract.populateTransaction.transfer(
     address,
     quantity,
     {
-      gasLimit: 1000000, // TODO: make this dynamic
-      gasPrice,
+      gasLimit,
+      gasPrice: adjustedGasPrice,
       nonce
     }
   )

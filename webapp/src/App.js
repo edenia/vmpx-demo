@@ -1,20 +1,20 @@
 import React, { Suspense, useMemo } from 'react'
+import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider } from '@mui/material/styles'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { StylesProvider, createGenerateClassName } from '@mui/styles'
-import { ThemeProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
+import './i18n'
 import routes from './routes'
+import getTheme from './theme'
 import Loader from './components/Loader'
 import DashboardLayout from './layouts/Dashboard'
 import { useSharedState } from './context/state.context'
-import getTheme from './theme'
-import './i18n'
 
 const generateClassName = createGenerateClassName({
-  productionPrefix: 'waxFullStack' // Change this name for project prefix
+  productionPrefix: 'vmpxwebapp'
 })
 
 const App = () => {

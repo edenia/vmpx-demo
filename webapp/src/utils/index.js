@@ -1,5 +1,6 @@
 export * from './eosio'
+export * from './sleep'
 export * from './eosapi'
+export * from './LibreClient'
 export * from './on-img-error'
 export * from './format-with-thousand-separator'
-export * from './sleep'

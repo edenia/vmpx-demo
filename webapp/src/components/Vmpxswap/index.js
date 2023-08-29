@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
-import { Button, Typography } from '@mui/material'
-import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
+import { makeStyles } from '@mui/styles'
+import { Button, Typography } from '@mui/material'
 
 import { blockchainConfig } from '../../config'
 import { useSharedState } from '../../context/state.context'
-import { logout as walletLogout } from '../../context/LibreClient'
+import { logout as walletLogout } from '../../utils/LibreClient'
 
 import styles from './styles'
 
@@ -121,12 +121,12 @@ const Vmpxswap = () => {
 
   return (
     <Box
+      className={classes.centerContainer}
       bgcolor="secondary.main"
       border="1px solid #000"
       borderRadius={2}
       maxWidth="552px"
       width="100%"
-      padding={3}
     >
       <Typography textAlign="center" variant="h5" color="white">
         VMPXswap.com
@@ -139,7 +139,7 @@ const Vmpxswap = () => {
         mt={6}
         display="flex"
         flexDirection="column"
-        paddingX={state?.ethAccountAddress ? 4 : 18}
+        paddingX={state?.ethAccountAddress ? 0 : 18}
       >
         <Button
           onClick={() => connectMetaMask()}

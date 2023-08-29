@@ -7,15 +7,15 @@ import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
 import { Button, Typography, OutlinedInput, Link, Tooltip } from '@mui/material'
 
-import { useSharedState } from '../../context/state.context'
-import { artifacContract } from '../../artifact'
 import { blockchainConfig } from '../../config'
+import { artifacContract } from '../../artifact'
+import { useSharedState } from '../../context/state.context'
 import {
   trade,
   pegoutEth,
   logout as walletLogout,
   linkAccounts as createLinkTrx
-} from '../../context/LibreClient'
+} from '../../utils/LibreClient'
 import {
   sleep,
   getBalance,
@@ -248,7 +248,7 @@ const SwapComponent = () => {
         })
       }
 
-      await sleep(2000) // wait for 3 seconds
+      await sleep(2000)
       clearFields()
       await loadBalances()
     } catch (error) {
@@ -282,7 +282,7 @@ const SwapComponent = () => {
         quantity: `${Number(amountSendEth).toFixed(9)} EVMPX`
       })
 
-      await sleep(1000) // wait for 3 seconds
+      await sleep(1000)
       showMessage({
         type: 'success',
         content: (
@@ -331,7 +331,7 @@ const SwapComponent = () => {
         )} ${tokenFrom.toUpperCase()}`
       })
 
-      await sleep(1000) // wait for 3 seconds
+      await sleep(1000)
 
       if (!response?.transactionId) return
 
@@ -458,7 +458,7 @@ const SwapComponent = () => {
       type: 'success',
       content: 'Accounts linked'
     })
-    await sleep(2000) // wait for 2 seconds
+    await sleep(2000)
 
     if (await checkMatch(state?.user?.actor, state.ethAccountAddress))
       await sendTransaction()
@@ -497,12 +497,15 @@ const SwapComponent = () => {
         width="100%"
         height="96px"
         display="flex"
-        padding="0 104px"
         alignItems="center"
         bgcolor="secondary.main"
         justifyContent="space-between"
+        className={classes.boxHeaderStyle}
       >
-        <Typography variant="h5">VMPX - ETH / BTC Swap</Typography>
+        <Box className={classes.titleHeader}>
+          <Typography variant="h5">VMPX - ETH /</Typography>
+          <Typography variant="h5">BTC Swap</Typography>
+        </Box>
         <Box>
           <Tooltip title="Logout from Libre">
             <Typography
@@ -528,13 +531,13 @@ const SwapComponent = () => {
       </Box>
       <Box height="100%" display="flex" alignItems="center">
         <Box
-          bgcolor="secondary.main"
-          border="1px solid #000"
-          borderRadius={2}
-          maxWidth="536px"
-          width="100%"
-          height={570}
           padding={3}
+          width="100%"
+          maxWidth="536px"
+          borderRadius={2}
+          border="1px solid #000"
+          bgcolor="secondary.main"
+          className={classes.swapContainer}
         >
           <Box textAlign="center">
             <Typography variant="h4" mb={1}>
@@ -545,18 +548,18 @@ const SwapComponent = () => {
             </Typography>
           </Box>
           <Box
-            justifyContent="center"
-            flexDirection="column"
-            display="flex"
             mt={2}
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
           >
             <Box
               mb={1}
               width="100%"
               display="flex"
               alignItems="end"
-              justifyContent="center"
               flexDirection="column"
+              justifyContent="center"
             >
               <Box width="100%" mb={2}>
                 <Typography ml={1} variant="body1">
@@ -730,7 +733,7 @@ const SwapComponent = () => {
               onClose={handleClose}
               className={classes.modalStyles}
             >
-              <Box padding={10}>
+              <div className={classes.linkerBox}>
                 <Typography textAlign="center" variant="body1" mb={2}>
                   Libre account and Ethereum account are not linked
                 </Typography>
@@ -742,7 +745,7 @@ const SwapComponent = () => {
                 >
                   Link accounts
                 </Button>
-              </Box>
+              </div>
             </Modal>
           ) : (
             <> </>

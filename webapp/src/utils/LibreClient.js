@@ -2,12 +2,12 @@ import AnchorLink from 'anchor-link'
 import AnchorLinkBrowserTransport from 'anchor-link-browser-transport'
 
 import {
-  vmpxContract,
-  libreChainId,
   libreApiHost,
+  libreChainId,
+  evmpxContract,
+  vmpxPoolContract,
   swapVmpxContract,
-  tokenLikerContract,
-  evmpxContract
+  tokenLikerContract
 } from '../config/blockchain.config'
 
 const link = new AnchorLink({
@@ -100,7 +100,7 @@ export const trade = async ({
           from: account,
           to: swapVmpxContract,
           quantity: quantity,
-          memo: `exchange:${vmpxContract},${minExpectedAmount}, Trading ${
+          memo: `exchange:${vmpxPoolContract},${minExpectedAmount}, Trading ${
             quantity.split(' ')[1]
           } for ${minExpectedAmount.split(' ')[1]}`
         }

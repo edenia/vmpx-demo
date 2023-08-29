@@ -24,13 +24,45 @@ export default theme => ({
   modalStyles: {
     backgroundColor: theme.palette.common.white,
     position: 'absolute !important',
-    width: 600,
-    height: 250,
     border: '2px solid #000',
+    left: '30% !important',
     top: '30% !important',
-    left: '30% !important'
+    height: 250,
+    width: 600,
+    [theme.breakpoints.down('md')]: {
+      left: '12% !important',
+      top: '36% !important'
+    },
+    [theme.breakpoints.down('sm')]: {
+      left: '0px !important',
+      width: '100%'
+    }
   },
   cursoStyle: {
     cursor: 'pointer'
+  },
+  boxHeaderStyle: {
+    padding: theme.spacing(0, 13),
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(0, 2)
+    }
+  },
+  titleHeader: {
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
+  },
+  swapContainer: {
+    height: 570,
+    [theme.breakpoints.down('sm')]: {
+      height: 625
+    }
+  },
+  linkerBox: {
+    padding: theme.spacing(10),
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(10, 2)
+    }
   }
 })

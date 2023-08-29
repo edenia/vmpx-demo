@@ -5,6 +5,7 @@ import artifact from '../../artifact'
 import payerService from '../payer'
 import { actionModel, queueModel } from '../../models'
 import { parserUtil } from '../../utils'
+import queueSyncService from '../queue-sync'
 
 const listenForEvents = async () => {
   console.log('🟢🟢🟢 Ethereum event listener is up and running')
@@ -18,6 +19,9 @@ const listenForEvents = async () => {
     provider
   )
   const filter = vmpxContract.filters.Transfer(null, ethConfig.walletAddress)
+  const currentBlock = await provider.getBlockNumber()
+
+  queueSyncService.addNewQueueSync(currentBlock)
 
   vmpxContract.on(
     filter,

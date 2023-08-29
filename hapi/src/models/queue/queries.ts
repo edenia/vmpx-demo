@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 
 import { coreUtil } from '../../utils'
-import { Queue, StatusType } from './interfaces'
+import { Queue, Operation, OperationType, StatusType } from './interfaces'
 
 interface QueueResponse {
   queue: Queue[]
@@ -79,9 +79,33 @@ export const update = async (
 }
 
 export const getCustom = async <T = QueueResponse>(
-  query: string
+  query: string,
+  filter: any = {}
 ): Promise<T> => {
-  return await coreUtil.hasura.default.request<T>(query)
+  return await coreUtil.hasura.default.request<T>(query, filter)
+}
+
+export const getLastBlockNumber = async (
+  blockType: OperationType = Operation.pegin
+) => {
+  const query = gql`
+    query ($block_type: String!)) {
+      queue_aggregate(where: { operation: { _eq: $block_type } }) {
+        aggregate {
+          max {
+            block_number
+          }
+        }
+      }
+    }
+  `
+  const {
+    queue_aggregate: {
+      aggregate: { max: block }
+    }
+  } = await getCustom<QueueAggregateResponse>(query, { block_type: blockType })
+
+  return block.block_number || 0
 }
 
 export default {}

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { loginLibre, restoreSession } from './LibreClient'
+import { loginLibre, restoreSession } from '../utils/LibreClient'
 
 const SharedStateContext = React.createContext()
 const initialValue = {

@@ -49,6 +49,7 @@ export const formatAntelopeAction = async (
     throw new Error('Invalid Ethereum address')
   }
 
+  // TODO: load 9 from .env
   const address = payload.ethAddress
   const quantity = ethers.utils.formatUnits(payload.quantity, 18)
   const formattedQuantity = quantity

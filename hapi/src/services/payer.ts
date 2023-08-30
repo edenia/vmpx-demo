@@ -96,7 +96,7 @@ export const fetchPendingTransactions = async () => {
               "${queueModel.interfaces.Status.failed}"
             ]
           },
-          retry_times: { _lte: ${serverConfig.maxRetrySendTx} }
+          retry_times: { _lt: ${serverConfig.maxRetrySendTx} }
         }
       ) {
         tx_hash

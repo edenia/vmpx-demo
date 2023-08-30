@@ -5,7 +5,13 @@ import { queueModel, queueSyncModel } from '../models'
 import { queueSyncService } from '../services'
 import { parserUtil } from '../utils'
 
+// TODO: move to config (.env)
 const BLOCKS_TO_FETCH = 100
+
+const calcNextBlockBatch = (currentBlock: number, toBlock: number) =>
+  toBlock - currentBlock >= BLOCKS_TO_FETCH
+    ? BLOCKS_TO_FETCH
+    : toBlock - currentBlock
 
 const catchOldEvents = async (
   queueSync: queueSyncModel.interfaces.QueueSync
@@ -21,11 +27,6 @@ const catchOldEvents = async (
       queueSync.to_block
     } with gap of ${queueSync.to_block - queueSync.from_block} blocks`
   )
-
-  const calcNextBlockBatch = (currentBlock: number, toBlock: number) =>
-    toBlock - currentBlock >= BLOCKS_TO_FETCH
-      ? BLOCKS_TO_FETCH
-      : toBlock - currentBlock
 
   for (
     let steps = calcNextBlockBatch(currentBlock, queueSync.to_block);

@@ -5,7 +5,6 @@ import { trxAdapterUtil, eosUtil, ethUtil, parserUtil } from '../utils'
 import { actionModel, transactionModel, queueModel } from '../models'
 import updaterService from './updater'
 
-// move funds from ethereum to libre
 export const pegin = async (
   event: actionModel.EthEvent,
   payload: transactionModel.EthTrxPayload
@@ -47,7 +46,6 @@ export const pegin = async (
   }
 }
 
-// move funds from libre to ethereum
 export const pegout = async (
   action: actionModel.HyperionAction,
   payload: transactionModel.EthTrxPayload
@@ -131,6 +129,7 @@ export const workerFetcher = () => {
 
   return {
     name: 'TRANSACTION FETCHER',
+    // TODO: use .env variable for fetcher interval
     intervalSec: 60,
     action: fetchPendingTransactions
   }

@@ -16,5 +16,11 @@ export default theme => ({
     [theme.breakpoints.down('sm')]: {
       padding: theme.spacing(3, 2)
     }
+  },
+  boxButtonPadding: {
+    padding: theme.spacing(0, 16),
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(0)
+    }
   }
 })

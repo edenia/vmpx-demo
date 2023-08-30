@@ -181,8 +181,8 @@ const SwapComponent = () => {
     const { account: accLibre, eth_address: accAddress } =
       await getEthAddressByAccount(account)
     const areLinked =
-      accLibre.toLowerCase() === account.toLowerCase() &&
-      accAddress.toLowerCase() === addressEth.toLowerCase()
+      accLibre?.toLowerCase() === account?.toLowerCase() &&
+      accAddress?.toLowerCase() === addressEth?.toLowerCase()
 
     setAccountsLinked(areLinked)
     setState({ param: 'accountMatch', accountMatch: areLinked })

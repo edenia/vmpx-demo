@@ -1,27 +1,37 @@
 import { BigNumber } from 'ethers'
-import { gql } from 'graphql-request'
 
 import { ethConfig } from '../config'
-import { queueModel } from '../models'
+import { queueModel, queueSyncModel } from '../models'
+import { queueSyncService } from '../services'
 import { parserUtil } from '../utils'
 
-const BLOCKS_TO_FETCH = 10
+// TODO: move to config (.env)
+const BLOCKS_TO_FETCH = 100
 
-const catchOldEvents = async (fromBlock: number, toBlock: number) => {
-  let currentBlock = fromBlock
+const calcNextBlockBatch = (currentBlock: number, toBlock: number) =>
+  toBlock - currentBlock >= BLOCKS_TO_FETCH
+    ? BLOCKS_TO_FETCH
+    : toBlock - currentBlock
 
-  console.log(`Catching up blocks from: ${fromBlock} to: ${toBlock}`)
-  console.log(`🔥🔥🔥 Catching gap of ${toBlock - fromBlock} blocks`)
+const catchOldEvents = async (
+  queueSync: queueSyncModel.interfaces.QueueSync
+) => {
+  if (!queueSync.id) {
+    throw new Error('Queue sync id is missing')
+  }
 
-  const calcNextBlockBatch = (currentBlock: number, toBlock: number) =>
-    toBlock - currentBlock >= BLOCKS_TO_FETCH
-      ? BLOCKS_TO_FETCH
-      : toBlock - currentBlock
+  let currentBlock = queueSync.from_block + queueSync.total_synced
+
+  console.log(
+    `🔥🔥🔥 Catching up blocks from: ${queueSync.from_block} to: ${
+      queueSync.to_block
+    } with gap of ${queueSync.to_block - queueSync.from_block} blocks`
+  )
 
   for (
-    let steps = calcNextBlockBatch(currentBlock, toBlock);
+    let steps = calcNextBlockBatch(currentBlock, queueSync.to_block);
     steps > 0;
-    steps = calcNextBlockBatch(currentBlock, toBlock)
+    steps = calcNextBlockBatch(currentBlock, queueSync.to_block)
   ) {
     const filter = ethConfig.vmpxContract.filters.Transfer(
       null,
@@ -31,7 +41,7 @@ const catchOldEvents = async (fromBlock: number, toBlock: number) => {
     console.log(
       `⛓️⛓️⛓️ Filtering events from block ${currentBlock} to ${
         currentBlock + steps
-      }, pending: ${toBlock - currentBlock} blocks`
+      }, pending: ${queueSync.to_block - currentBlock} blocks`
     )
 
     const logs = await ethConfig.vmpxContract.queryFilter(
@@ -55,53 +65,43 @@ const catchOldEvents = async (fromBlock: number, toBlock: number) => {
       }
 
       try {
-        await queueModel.queries.save(queue) // store to db
+        await queueModel.queries.save(queue)
       } catch (error) {
         console.log(`Failed to save event: ${error}`)
       }
     }
 
+    await queueSyncModel.queries.update(
+      queueSync.id,
+      currentBlock + steps - queueSync.from_block
+    )
+
     currentBlock += steps + 1
   }
 
-  console.log('🧾🧾🧾 Old events were saved')
+  await queueSyncService.markCompleted(
+    queueSync.id,
+    currentBlock - 1 - queueSync.from_block
+  )
+
+  console.log(`🧾🧾🧾 Queue sync ${queueSync.id} is completed`)
 }
 
-export const prepareListener = async (): Promise<void> => {
-  const query = gql`
-    query {
-      queue_aggregate(where: { operation: { _eq: "${queueModel.interfaces.Operation.pegin}" } }) {
-        aggregate {
-          max {
-            block_number
-          }
-        }
-      }
-    }
-  `
-  const {
-    queue_aggregate: {
-      aggregate: { max: block }
-    }
-  } =
-    await queueModel.queries.getCustom<queueModel.queries.QueueAggregateResponse>(
-      query
-    )
-  const currentBlock = await ethConfig.providerRpc.getBlockNumber()
+export const startCatcher = async (): Promise<void> => {
+  const nextQueueSync = await queueSyncModel.queries.getNextQueueSync()
 
-  if (currentBlock < ethConfig.startingBlockNumber) {
+  if (!nextQueueSync) {
+    console.log('🏁🏁🏁 No pending queue syncs found, catcher is up-to-date')
+
     return
   }
 
-  let fromBlock = 0
+  try {
+    await catchOldEvents(nextQueueSync)
+    // eslint-disable-next-line no-empty
+  } catch (error) {}
 
-  if (!block.block_number) {
-    fromBlock = ethConfig.startingBlockNumber
-  } else if (currentBlock > block.block_number) {
-    fromBlock = block.block_number + 1
-  }
-
-  await catchOldEvents(fromBlock, currentBlock)
+  startCatcher()
 }
 
 const catchWorker = () => {
@@ -109,7 +109,7 @@ const catchWorker = () => {
 
   return {
     name: 'SYNC ACTIONS',
-    action: prepareListener
+    action: startCatcher
   }
 }
 

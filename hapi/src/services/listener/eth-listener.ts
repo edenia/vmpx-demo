@@ -34,13 +34,11 @@ const listenForEvents = async () => {
         return
       }
 
-      await queueModel.queries.save(queue) // store to db
+      await queueModel.queries.save(queue)
 
       payerService.pegin(event, transferData)
     }
   )
 }
-
-// call this event until catcher has finished the starting sync - IT MAY NOT BE NEEDED BECAUSE OF THE 'Create syncing queues'
 
 export default { listenForEvents }

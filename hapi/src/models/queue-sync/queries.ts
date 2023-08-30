@@ -7,6 +7,16 @@ interface QueueSyncResponse {
   queue_sync: QueueSync[]
 }
 
+export interface QueueSyncAggregateResponse {
+  queue_sync_aggregate: {
+    aggregate: {
+      max: {
+        to_block: number
+      }
+    }
+  }
+}
+
 interface QueueSyncInsertOneResponse {
   insert_queue_sync_one: {
     id: string
@@ -67,25 +77,46 @@ export const getCustom = async <T = QueueSyncResponse>(
 
 export const getNextQueueSync = async (): Promise<QueueSync | null> => {
   const query = gql`
-        query {
-            queue_sync(
-                where: { status: { _eq: "${Status.pending}" } }
-                order_by: { created_at: asc }
-                limit: 1
-            ) {
-                id
-                from_block
-                to_block
-                total_synced
-                status
-            }
-        }
-    `
+    query {
+      queue_sync(
+        where: { status: { _eq: "${Status.pending}" } }
+        order_by: { created_at: asc }
+        limit: 1
+      ) {
+        id
+        from_block
+        to_block
+        total_synced
+        status
+      }
+    }
+  `
   const {
     queue_sync: [queueSync]
   } = await getCustom(query)
 
   return queueSync || null
+}
+
+export const getMaxToBlock = async (): Promise<number> => {
+  const query = gql`
+    query {
+      queue_sync_aggregate {
+        aggregate {
+          max {
+            to_block
+          }
+        }
+      }
+    }
+  `
+  const {
+    queue_sync_aggregate: {
+      aggregate: { max }
+    }
+  } = await getCustom<QueueSyncAggregateResponse>(query)
+
+  return max.to_block || 0
 }
 
 export default {}

@@ -1,7 +1,6 @@
 import { GraphQLClient } from 'graphql-request'
 
 import { hasuraConfig } from '../../config'
-
 import { sleep } from '../time.util'
 
 import axiosUtil from './axios.core'

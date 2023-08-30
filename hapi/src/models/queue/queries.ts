@@ -89,8 +89,8 @@ export const getLastBlockNumber = async (
   blockType: OperationType = Operation.pegin
 ) => {
   const query = gql`
-    query ($block_type: String!)) {
-      queue_aggregate(where: { operation: { _eq: $block_type } }) {
+    query ($operation: String!) {
+      queue_aggregate(where: { operation: { _eq: $operation } }) {
         aggregate {
           max {
             block_number
@@ -103,7 +103,7 @@ export const getLastBlockNumber = async (
     queue_aggregate: {
       aggregate: { max: block }
     }
-  } = await getCustom<QueueAggregateResponse>(query, { block_type: blockType })
+  } = await getCustom<QueueAggregateResponse>(query, { operation: blockType })
 
   return block.block_number || 0
 }

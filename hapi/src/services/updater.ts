@@ -12,7 +12,7 @@ export const isTransactionPendingOrFailed = async (tx_hash: string) => {
                 where: {
                     tx_hash: { _eq: "${tx_hash}" },
                     status: { _in: [ "${queueModel.interfaces.Status.pending}", "${queueModel.interfaces.Status.failed}" ] },
-                    retry_times: { _lte: ${serverConfig.maxRetrySendTx} }
+                    retry_times: { _lt: ${serverConfig.maxRetrySendTx} }
                 }
             ){
                 tx_hash

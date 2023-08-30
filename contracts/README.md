@@ -33,7 +33,6 @@ setup_permission() {
 
     cleos.sh set action permission evmpx evmpx issue transferer -p evmpx@active
     cleos.sh set action permission evmpx evmpx transfer transferer -p evmpx@active
-    cleos.sh set action permission evmpx evmpx burn transferer -p evmpx@active
 
     # set eosio.code permission for tokenlinker
     cleos.sh set account permission tokenlinker active --add-code -p tokenlinker@active

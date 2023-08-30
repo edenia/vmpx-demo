@@ -10,7 +10,8 @@ namespace exchange {
     eosio::check( silkworm::is_valid_address( eth_address ),
                   "invalid eth address" );
 
-    std::string tolower_eth_address = eth_address;
+    std::string tolower_eth_address;
+    tolower_eth_address.resize( eth_address.size() );
 
     std::transform( eth_address.begin(),
                     eth_address.end(),
@@ -53,7 +54,8 @@ namespace exchange {
                             const eosio::asset &quantity ) {
     require_auth( get_self() );
 
-    std::string tolower_eth_address = sender;
+    std::string tolower_eth_address;
+    tolower_eth_address.resize( sender.size() );
 
     std::transform( sender.begin(),
                     sender.end(),
@@ -69,8 +71,6 @@ namespace exchange {
                   "eth address has no Libre account linked" );
 
     eosio::name send_to = eth_address_itr->account;
-
-    // TODO: load address from account (address -> account)
 
     eosio::action( eosio::permission_level{ evmpx_contract, "transferer"_n },
                    evmpx_contract,
@@ -116,7 +116,6 @@ namespace exchange {
                     "invalid eth address" );
     }
 
-    // call withdraw action using action wrapper
     eosio::action(
         eosio::permission_level{ get_self(), "active"_n },
         get_self(),

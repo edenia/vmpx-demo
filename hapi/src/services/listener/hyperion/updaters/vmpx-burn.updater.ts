@@ -37,7 +37,6 @@ export default {
       }
 
       await queueModel.queries.save(queue)
-
       await payerService.pegout(action, transferData)
     } catch (error: any) {
       console.error(`error to sync ${action.action}: ${error.message}`)

@@ -24,7 +24,7 @@ export const addNewQueueSync = async (currentBlock: number) => {
     fromBlock = maxStoredToBlock + 1
   }
 
-  if (fromBlock == toBlock) {
+  if (fromBlock >= toBlock) {
     console.log('Skipping sync queue, no blocks to sync...')
 
     return

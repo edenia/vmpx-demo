@@ -139,20 +139,20 @@ const Vmpxswap = () => {
         mt={6}
         display="flex"
         flexDirection="column"
-        paddingX={state?.ethAccountAddress ? 0 : 18}
+        className={classes.boxButtonPadding}
       >
         <Button
-          onClick={() => connectMetaMask()}
-          className={classes.buttonColor}
           variant="contained"
+          className={classes.buttonColor}
+          onClick={() => connectMetaMask()}
         >
           {state?.ethAccountAddress || 'Connect Metamask'}
         </Button>
         <br />
         <Button
-          className={classes.buttonColor}
-          onClick={() => connectLibre()}
           variant="contained"
+          onClick={() => connectLibre()}
+          className={classes.buttonColor}
         >
           {state?.user?.actor || 'Connect Libre'}
         </Button>

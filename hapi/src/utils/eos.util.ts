@@ -60,6 +60,7 @@ const pushSignedTx = async (signedTx: any) => {
 }
 
 export default {
+  rpc,
   getAbi,
   transact,
   serializeActions,

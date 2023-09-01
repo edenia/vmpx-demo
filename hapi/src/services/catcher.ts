@@ -5,12 +5,9 @@ import { queueModel, queueSyncModel } from '../models'
 import { queueSyncService } from '../services'
 import { parserUtil } from '../utils'
 
-// TODO: move to config (.env)
-const BLOCKS_TO_FETCH = 100
-
 const calcNextBlockBatch = (currentBlock: number, toBlock: number) =>
-  toBlock - currentBlock >= BLOCKS_TO_FETCH
-    ? BLOCKS_TO_FETCH
+  toBlock - currentBlock >= ethConfig.blocksToFetchByCatcher
+    ? ethConfig.blocksToFetchByCatcher
     : toBlock - currentBlock
 
 const catchOldEvents = async (

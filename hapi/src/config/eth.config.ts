@@ -1,4 +1,3 @@
-
 import { ethers } from 'ethers'
 import artifact from '../artifact'
 
@@ -14,6 +13,16 @@ export const walletKey = process.env.HAPI_ETH_WALLET_KEY || 'priv_key'
 export const startingBlockNumber = Number(
   process.env.HAPI_ETH_START_BLOCK_NUMBER || 17608103
 )
+export const blocksToFetchByCatcher = Number(
+  process.env.HAPI_ETH_BLOCKS_TO_FETCH_BY_CATCHER || 100
+)
+export const intervalFetcherSec = Number(
+  process.env.HAPI_ETH_INTERVAL_FETCHER_SEC || 60
+)
+
+if (intervalFetcherSec < 60) {
+  throw new Error('Less than 60 seconds is not safe to fetch passed events')
+}
 
 export const providerRpc = new ethers.providers.JsonRpcProvider(
   `${httpEndpoint}/${alchemyApiKey}`

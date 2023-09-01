@@ -130,8 +130,7 @@ export const workerFetcher = () => {
 
   return {
     name: 'TRANSACTION FETCHER',
-    // TODO: use .env variable for fetcher interval
-    intervalSec: 60,
+    intervalSec: ethConfig.intervalFetcherSec,
     action: fetchPendingTransactions
   }
 }

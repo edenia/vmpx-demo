@@ -17,9 +17,6 @@ interface GetActionsResponse {
   actions: any[]
 }
 
-// TODO: move to config (.env)
-const TIME_TO_FETCH = 10
-
 const getLastSyncedAt = async () => {
   const state = await hyperionStateModel.queries.getState()
 
@@ -33,9 +30,12 @@ const getLastSyncedAt = async () => {
 }
 
 const getGap = (lastSyncedAt: string) => {
-  if (moment().diff(moment(lastSyncedAt), 'seconds') >= TIME_TO_FETCH) {
+  if (
+    moment().diff(moment(lastSyncedAt), 'seconds') >=
+    hyperionConfig.maxTimeHyperionActionSec
+  ) {
     return {
-      amount: TIME_TO_FETCH,
+      amount: hyperionConfig.maxTimeHyperionActionSec,
       unit: 'seconds'
     }
   }
@@ -113,9 +113,13 @@ const sync = async (): Promise<void> => {
   let hasMore = true
   let actions = []
 
-  if (diff < TIME_TO_FETCH) {
-    console.log(`Waiting for next check: ${TIME_TO_FETCH - diff} seconds left`)
-    await timeUtil.sleep(TIME_TO_FETCH - diff)
+  if (diff < hyperionConfig.maxTimeHyperionActionSec) {
+    console.log(
+      `Waiting for next check: ${
+        hyperionConfig.maxTimeHyperionActionSec - diff
+      } seconds left`
+    )
+    await timeUtil.sleep(hyperionConfig.maxTimeHyperionActionSec - diff)
 
     return sync()
   }

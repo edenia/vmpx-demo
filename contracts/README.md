@@ -103,7 +103,7 @@ setup_swap_contract() {
     $CLEOS push action $B_CONTRACT transfer '["'"$YOUR_ACCOUNT_BOB"'", "'"$SWAPCONTRACT"'", "100.000000000 '"$B_SYMBOL"'", "memo"]' -p $YOUR_ACCOUNT_BOB
 
     # (ALICE/BOB) - Initialize token
-    $CLEOS push action $SWAPCONTRACT inittoken '["'"$YOUR_ACCOUNT_ALICE"'", "'$BE_PRECISION','"$BE_SYMBOL"'", {"contract":"'"$B_CONTRACT"'", "quantity":"10.000000000 '"$B_SYMBOL"'"}, {"contract":"'"$E_CONTRACT"'", "quantity":"10.000000000 '"$E_SYMBOL"'"}, 10, "'"$FEECONTRACT"'"]' -p $YOUR_ACCOUNT_ALICE -p $SWAPCONTRACT
+    $CLEOS push action $SWAPCONTRACT inittoken '["'"$YOUR_ACCOUNT_ALICE"'", "'$BE_PRECISION','"$BE_SYMBOL"'", {"contract":"'"$B_CONTRACT"'", "quantity":"10.000000000 '"$B_SYMBOL"'"}, {"contract":"'"$E_CONTRACT"'", "quantity":"10.000000000 '"$E_SYMBOL"'"}, 1, "'"$FEECONTRACT"'"]' -p $YOUR_ACCOUNT_ALICE -p $SWAPCONTRACT
 
     # BOB - Add liquidity
     $CLEOS push action $SWAPCONTRACT addliquidity '["'"$YOUR_ACCOUNT_BOB"'", "10.000000000 '$BE_SYMBOL'", "10.000000000 '$B_SYMBOL'", "10.000000000 '$E_SYMBOL'"]' -p $YOUR_ACCOUNT_BOB

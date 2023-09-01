@@ -52,7 +52,8 @@ namespace libreswaps {
 
     if ( from == get_self() )
       return;
-    check( to == get_self(), "This transfer is not for swapvmpx" + get_self().to_string() );
+    check( to == get_self(),
+           "This transfer is not for swapvmpx" + get_self().to_string() );
     check( quantity.amount >= 0, "quantity must be positive" );
 
     auto        incoming = extended_asset{ quantity, get_first_receiver() };
@@ -222,7 +223,8 @@ namespace libreswaps {
     auto A_in = ext_asset_in.quantity.amount;
     // int64_t A_out = compute( -A_in, P_out, P_in + A_in, token->fee );
     int64_t A_out = -A_in * ( 1 - ( token->fee / 100.0 ) );
-    check( min_expected.amount <= -A_out, "available is less than expected" );
+    check( min_expected.amount <= -A_out && P_out + A_out > 0,
+           "available is less than expected" );
     extended_asset ext_asset1, ext_asset2, ext_asset_out;
     if ( in_first ) {
       ext_asset1 = ext_asset_in;
@@ -240,9 +242,6 @@ namespace libreswaps {
     return ext_asset_out;
   }
 
-  // incoming: 2.000000000 BVMPX
-  // BEVMPX,2.000000000 VMPX,trade
-  // result = 2.000000000 VMPX * .99 = 1.980000000 VMPX
   void libreswap::memoexchange( name           user,
                                 extended_asset ext_asset_in,
                                 string_view    details ) {

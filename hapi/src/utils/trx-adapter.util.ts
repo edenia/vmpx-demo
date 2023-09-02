@@ -14,69 +14,49 @@ export const formatEthAction = async (
     throw new Error('Invalid Ethereum address')
   }
 
-  // TODO: apply fee reduction (get the costs of gas and then take that out of the eVMPX)
-  // - get price of ETH
-  // - get cost of tx on ETH
-  // - get price of VMPX from swap (BVMPX / PBTC)
-  // - convert that price to USD (should be done from the API already)
-  // - calculate how much EVMPX should be taken to make up for the gas fee on ETH + 1%
-
   const ethPriceUsd = await coingeckoUtil.getEthPrice()
   const vmpxPriceUsd = await coingeckoUtil.getVmpxPrice()
-
-  console.log(`ethPriceUsd: ${ethPriceUsd}`)
-  console.log(`vmpxPriceUsd: ${vmpxPriceUsd}`)
 
   const address = payload.ethAddress
   const quantity = payload.quantity.toString()
 
-  const nonce = await ethConfig.providerRpc.getTransactionCount(
-    ethConfig.wallet.address,
-    'latest'
-  )
-
   const weiGasPrice = await ethConfig.providerRpc.getGasPrice()
-  console.log(`gasPrice: ${weiGasPrice.toString()}`)
   const gasLimit = await ethConfig.vmpxContract.estimateGas.transfer(
     address,
     quantity
   )
 
   const weiTxGasCost = gasLimit.mul(weiGasPrice)
-
-  console.log(`weiTxGasCost: ${weiTxGasCost.toString()}`)
-  const dollarTxGasCost = financeUtil.convertWeiToDollar(
-    weiTxGasCost,
-    ethPriceUsd
-  )
-  console.log(`dollarTxGasCost: ${dollarTxGasCost.toString()}`)
-  const dollarVmpxTransferAmount = financeUtil.convertVmpxToDollar(
+  const usdTxGasCost = financeUtil.convertWeiToUsd(weiTxGasCost, ethPriceUsd)
+  const usdVmpxTransferAmount = financeUtil.convertVmpxToUsd(
     payload.quantity,
     vmpxPriceUsd
   )
-  console.log(
-    `dollarVmpxTransferAmount: ${dollarVmpxTransferAmount.toString()}`
-  )
-  // TODO: validate dollarTxGasCost is less than dollarVmpxTransferAmount
-  const dollarTransferAmount = dollarVmpxTransferAmount.minus(dollarTxGasCost)
-  console.log(`dollarTransferAmount: ${dollarTransferAmount.toString()}`)
 
-  const vmpxQuantityTransfer = financeUtil.convertDollarToVmpx(
-    dollarTransferAmount,
+  if (usdTxGasCost.isGreaterThanOrEqualTo(usdVmpxTransferAmount)) {
+    throw new Error('Amount is too small to cover gas costs')
+  }
+
+  const usdTransferAmount = usdVmpxTransferAmount
+    .minus(usdTxGasCost)
+    .multipliedBy(1 - 0.01) // -1% fixed fee
+  const vmpxQuantityTransfer = financeUtil.convertUsdToVmpx(
+    usdTransferAmount,
     vmpxPriceUsd
   )
-  console.log(`vmpxQuantityTransfer: ${vmpxQuantityTransfer.toString()}`)
-
-  console.log(`gasLimit: ${gasLimit.toString()}`)
   const adjustedWeiGasPrice = weiGasPrice
     .mul(ethers.BigNumber.from(120))
     .div(100)
-  console.log(`adjustedWeiGasPrice: ${adjustedWeiGasPrice.toString()}`)
+
+  const nonce = await ethConfig.providerRpc.getTransactionCount(
+    ethConfig.wallet.address,
+    'latest'
+  )
   const unsignedTx = await ethConfig.vmpxContract.populateTransaction.transfer(
     address,
     vmpxQuantityTransfer.toString(),
     {
-      gasLimit: gasLimit.mul(ethers.BigNumber.from(120)).div(100),
+      gasLimit: gasLimit.mul(ethers.BigNumber.from(105)).div(100),
       gasPrice: adjustedWeiGasPrice,
       nonce
     }

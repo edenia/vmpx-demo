@@ -1,17 +1,14 @@
 import BigNumberJs from 'bignumber.js'
 import { ethers } from 'ethers'
 
-export const convertWeiToDollar = (
-  wei: ethers.BigNumber,
-  ethPriceUsd: string
-) => {
+export const convertWeiToUsd = (wei: ethers.BigNumber, ethPriceUsd: string) => {
   const weiBigNumber = new BigNumberJs(ethers.utils.formatEther(wei))
   const ethPriceUsdBigNumber = new BigNumberJs(ethPriceUsd)
 
   return weiBigNumber.multipliedBy(ethPriceUsdBigNumber)
 }
 
-export const convertVmpxToDollar = (
+export const convertVmpxToUsd = (
   vmpx: ethers.BigNumber,
   vmpxPriceUsd: string
 ) => {
@@ -21,19 +18,14 @@ export const convertVmpxToDollar = (
   return vmpxBigNumber.multipliedBy(vmpxPriceUsdBigNumber)
 }
 
-export const convertDollarToVmpx = (
-  dollarAmount: BigNumberJs,
+export const convertUsdToVmpx = (
+  usdAmount: BigNumberJs,
   vmpxPriceUsd: string
 ) => {
-  console.log(`dollarAmount: ${dollarAmount.toString()}`)
-  console.log(`vmpxPriceUsd: ${vmpxPriceUsd.toString()}`)
-
   const vmpxPriceUsdBigNumber = new BigNumberJs(vmpxPriceUsd)
-  const vmpx = dollarAmount.dividedBy(vmpxPriceUsdBigNumber).toFixed(18)
-
-  console.log(`vmpx: ${vmpx.toString()}`)
+  const vmpx = usdAmount.dividedBy(vmpxPriceUsdBigNumber).toFixed(18)
 
   return new BigNumberJs(vmpx).multipliedBy(1e18)
 }
 
-export default { convertWeiToDollar, convertVmpxToDollar, convertDollarToVmpx }
+export default { convertWeiToUsd, convertVmpxToUsd, convertUsdToVmpx }

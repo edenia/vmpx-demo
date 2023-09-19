@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers'
 import { eosConfig } from '../../../../config'
 import payerService from '../../../payer'
 import { actionModel, queueModel } from '../../../../models'
-import { parserUtil } from '../../../../utils'
+import { parserUtil, formatterUtil } from '../../../../utils'
 
 export default {
   type: `${eosConfig.dispenserContract}:withdraw`,
@@ -14,11 +14,9 @@ export default {
       }
 
       const destinataryAddress = action.data.eth_address
-      const strQuantity = action.data.quantity
-      const quantity = strQuantity
-        .split(' ')[0]
-        .padEnd(strQuantity.indexOf('.') + 1 + 18, '0')
-        .replace('.', '')
+      const quantity = formatterUtil.formatLibreVmpxToEthVmpx(
+        action.data.quantity
+      )
 
       if (!destinataryAddress) {
         console.log('No destinatary address found')

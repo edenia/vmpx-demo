@@ -1,6 +1,26 @@
-actions: []
+actions:
+  - name: estimate_tx
+    definition:
+      kind: ""
+      handler: '{{HASURA_GRAPHQL_ACTION_BASE_URL}}/api/v1/estimate-tx'
+      request_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "input": {
+                "ethAddress": {{$body.input.input.eth_address}},
+                "quantity": {{$body.input.input.quantity}}
+              }
+            }
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: guest
 custom_types:
   enums: []
-  input_objects: []
-  objects: []
+  input_objects:
+    - name: tx_input
+  objects:
+    - name: success_output
   scalars: []

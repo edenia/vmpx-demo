@@ -276,8 +276,10 @@ const SwapComponent = () => {
         return
       }
 
+      const defaultEthAddress = await getEthAddressByAccount(state?.user?.actor)
       const response = await pegoutEth({
         account: state.user.actor,
+        ethAddress: defaultEthAddress.eth_address,
         session: state.user.session,
         quantity: `${Number(amountSendEth).toFixed(9)} EVMPX`
       })

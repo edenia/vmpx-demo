@@ -7,7 +7,7 @@ import eosUtil from './eos.util'
 import coingeckoUtil from './coingecko.util'
 import financeUtil from './finance.util'
 
-export const formatEthAction = async (
+export const estimateTrxCost = async (
   payload: transactionModel.EthTrxPayload
 ) => {
   if (!ethers.utils.isAddress(payload.ethAddress)) {
@@ -48,21 +48,37 @@ export const formatEthAction = async (
     .mul(ethers.BigNumber.from(120))
     .div(100)
 
+  return {
+    ethPriceUsd,
+    vmpxPriceUsd,
+    usdTxGasCost,
+    fixedFee: 1,
+    vmpxTrxCost: payload.quantity.sub(vmpxQuantityTransfer.toString()),
+    gasLimit,
+    weiGasPrice,
+    vmpxQuantityTransfer,
+    adjustedWeiGasPrice
+  }
+}
+
+export const formatEthAction = async (
+  payload: transactionModel.EthTrxPayload
+) => {
+  const txData = await estimateTrxCost(payload)
   const nonce = await ethConfig.providerRpc.getTransactionCount(
     ethConfig.wallet.address,
     'latest'
   )
-  const unsignedTx = await ethConfig.vmpxContract.populateTransaction.transfer(
-    address,
-    vmpxQuantityTransfer.toString(),
+
+  return await ethConfig.vmpxContract.populateTransaction.transfer(
+    payload.ethAddress,
+    txData.vmpxQuantityTransfer.toString(),
     {
-      gasLimit: gasLimit.mul(ethers.BigNumber.from(105)).div(100),
-      gasPrice: adjustedWeiGasPrice,
+      gasLimit: txData.gasLimit.mul(ethers.BigNumber.from(105)).div(100),
+      gasPrice: txData.adjustedWeiGasPrice,
       nonce
     }
   )
-
-  return unsignedTx
 }
 
 const reverseHex = (hexStr: string) => {

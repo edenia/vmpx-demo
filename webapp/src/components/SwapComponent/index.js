@@ -505,6 +505,30 @@ const SwapComponent = () => {
         <Box className={classes.titleHeader}>
           <Typography variant="h5">VMPX - ETH /</Typography>
           <Typography variant="h5">BTC Swap</Typography>
+          <Box display="flex" ml={17}>
+            <Typography variant="h6">
+              {' '}
+              <Link
+                color="white"
+                target="_blank"
+                underline="none"
+                href="https://gist.github.com/leisterfrancisco/307a93fcb3eb10c6dc24e62c42c33aae"
+              >
+                First Steps
+              </Link>
+            </Typography>
+            <Typography variant="h6" ml={6}>
+              {' '}
+              <Link
+                color="white"
+                href="/about"
+                target="_blank"
+                underline="none"
+              >
+                About
+              </Link>
+            </Typography>
+          </Box>
         </Box>
         <Box>
           <Tooltip title="Logout from Libre">
@@ -673,15 +697,17 @@ const SwapComponent = () => {
                   }
                 />
               </Tooltip>
-              <Button
-                variant="contained"
-                disabled={loadingRecieve}
-                onClick={sendTransaction}
-                className={classes.buttonStyle}
-              >
-                Receive from ETH{' '}
-                {loadingRecieve && <CircularProgress size={18} />}
-              </Button>
+              <Tooltip title="Peg-in: Bring funds from Ethereum to Libre.">
+                <Button
+                  variant="contained"
+                  disabled={loadingRecieve}
+                  onClick={sendTransaction}
+                  className={classes.buttonStyle}
+                >
+                  Receive from ETH{' '}
+                  {loadingRecieve && <CircularProgress size={18} />}
+                </Button>
+              </Tooltip>
             </Box>
             <br />
             <Box display="flex" flexDirection="column">
@@ -716,13 +742,15 @@ const SwapComponent = () => {
                   }
                 />
               </Tooltip>
-              <Button
-                variant="contained"
-                onClick={sendTokensToEth}
-                className={classes.buttonStyle}
-              >
-                Send to ETH
-              </Button>
+              <Tooltip title="Peg-out: Send funds back to Ethereum from Libre.">
+                <Button
+                  variant="contained"
+                  onClick={sendTokensToEth}
+                  className={classes.buttonStyle}
+                >
+                  Send to ETH
+                </Button>
+              </Tooltip>
             </Box>
           </Box>
           {state?.ethAccountAddress &&

@@ -146,7 +146,7 @@ export const linkAccounts = async ({ session, libreAccount, address }) => {
   }
 }
 
-export const pegoutEth = async ({ session, account, quantity }) => {
+export const pegoutEth = async ({ session, ethAddress, account, quantity }) => {
   const authorization = [
     {
       actor: account,
@@ -162,7 +162,7 @@ export const pegoutEth = async ({ session, account, quantity }) => {
       data: {
         account,
         quantity,
-        memo: '' // empty field = DEFAULT, handled by the ${tokenLikerContract} Smart Contract
+        memo: ethAddress // empty field = DEFAULT, handled by the ${tokenLikerContract} Smart Contract
       }
     }
   ]

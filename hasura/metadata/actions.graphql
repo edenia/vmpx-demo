@@ -1,0 +1,16 @@
+type Query {
+  estimate_tx(
+    input: tx_input!
+  ): success_output
+}
+
+input tx_input {
+  eth_address: String!
+  quantity: String!
+}
+
+type success_output {
+  res: Boolean!
+  data: jsonb!
+}
+

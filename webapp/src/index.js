@@ -2,12 +2,16 @@ import React from 'react'
 import { render } from 'react-dom'
 
 import App from './App'
+import { client } from './graphql'
 import * as serviceWorker from './serviceWorker'
+import { ApolloProvider } from '@apollo/client'
 import { SharedStateProvider } from './context/state.context'
 
 render(
   <SharedStateProvider>
-    <App />
+    <ApolloProvider client={client}>
+      <App />
+    </ApolloProvider>
   </SharedStateProvider>,
   document.getElementById('root')
 )

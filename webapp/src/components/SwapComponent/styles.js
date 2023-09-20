@@ -27,7 +27,8 @@ export default theme => ({
     border: '2px solid #000',
     left: '30% !important',
     top: '30% !important',
-    height: 250,
+    bottom: 'auto !important',
+    height: 'auto',
     width: 600,
     [theme.breakpoints.down('md')]: {
       left: '12% !important',
@@ -60,9 +61,20 @@ export default theme => ({
     }
   },
   linkerBox: {
-    padding: theme.spacing(10),
+    padding: theme.spacing(4),
     [theme.breakpoints.down('sm')]: {
       padding: theme.spacing(10, 2)
+    }
+  },
+  menuButtonContainer: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
+  },
+  showDesktop: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
     }
   }
 })

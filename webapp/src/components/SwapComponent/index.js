@@ -3,25 +3,30 @@ import { ethers } from 'ethers'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
 import { makeStyles } from '@mui/styles'
+import { useLazyQuery } from '@apollo/client'
+import MenuIcon from '@mui/icons-material/Menu'
+import { BigNumber } from '@ethersproject/bignumber'
 import InputAdornment from '@mui/material/InputAdornment'
 import CircularProgress from '@mui/material/CircularProgress'
 import { Button, Typography, OutlinedInput, Link, Tooltip } from '@mui/material'
 
-import { blockchainConfig } from '../../config'
-import { artifacContract } from '../../artifact'
-import { useSharedState } from '../../context/state.context'
-import {
-  trade,
-  pegoutEth,
-  logout as walletLogout,
-  linkAccounts as createLinkTrx
-} from '../../utils/LibreClient'
 import {
   sleep,
   getBalance,
   getVMPXPoolFee,
   getEthAddressByAccount
 } from '../../utils'
+import {
+  trade,
+  pegoutEth,
+  logout as walletLogout,
+  linkAccounts as createLinkTrx
+} from '../../utils/LibreClient'
+import MobileMenu from '../MobileMenu'
+import { GET_ESTIMATE_TX } from '../../gql'
+import { blockchainConfig } from '../../config'
+import { artifacContract } from '../../artifact'
+import { useSharedState } from '../../context/state.context'
 
 import styles from './styles'
 
@@ -32,11 +37,14 @@ const SwapComponent = () => {
   const [fee, setFee] = useState()
   const handleClose = () => setOpen(false)
   const [areAccountsLinked, setAccountsLinked] = useState(true)
+  const [estimateTX, setEstimateTX] = useState()
   const [state, { setState, showMessage, logout }] = useSharedState()
   const [amountSendEth, setAmountSendEth] = useState(0)
+  const [loadingSend, setLoadingSend] = useState(false)
   const [loadingRecieve, setLoadingRecieve] = useState(false)
   const [amountReceiveEth, setAmountReceiveEth] = useState(0)
   const [open, setOpen] = useState(true)
+  const [openMobileMenu, setOpenMobileMenu] = useState()
   const [firstToken, setFirstToken] = useState({
     amount: 0,
     symbol: 'eVMPX',
@@ -48,6 +56,10 @@ const SwapComponent = () => {
     symbol: 'bVMPX',
     balance: '0 BVMPX',
     icon: '/icons/bitcoin-icon.svg'
+  })
+
+  const [getEstimateTX] = useLazyQuery(GET_ESTIMATE_TX, {
+    fetchPolicy: 'network-only'
   })
 
   const handleFlip = () => {
@@ -265,6 +277,38 @@ const SwapComponent = () => {
     }
   }
 
+  const calculateEstimate = async () => {
+    setLoadingSend(true)
+    try {
+      const defaultEthAddress = await getEthAddressByAccount(state?.user?.actor)
+      const { data, error } = await getEstimateTX({
+        variables: {
+          input: {
+            eth_address: defaultEthAddress.eth_address,
+            quantity: Number(amountSendEth).toFixed(9)
+          }
+        }
+      })
+
+      if (error) {
+        showMessage({
+          type: 'warning',
+          content:
+            'Error when trying to estime tx cost: The cost of feed gas is greater than the amount you wish to transfer, please enter a greater amount'
+        })
+        setLoadingSend(false)
+
+        return
+      }
+
+      setEstimateTX(data?.estimate_tx?.data)
+      setOpen(true)
+      setLoadingSend(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const sendTokensToEth = async () => {
     try {
       if (amountSendEth <= 0) {
@@ -478,6 +522,19 @@ const SwapComponent = () => {
     setSecondToken({ ...secondToken, amount: 0 })
   }
 
+  const getFixedFee = (gasCost, totalCost) => {
+    const nGasCost = BigNumber.from(gasCost)
+    const nTotalCost = BigNumber.from(totalCost)
+
+    return formatText(ethers.formatEther(nTotalCost.sub(nGasCost).toString()))
+  }
+
+  const formatText = text => {
+    const splitText = text.split('.')
+
+    return `${splitText[0]}.${splitText[1].slice(0, 4)}`
+  }
+
   useEffect(async () => {
     await checkIfMetaMaskIsConnected()
 
@@ -505,34 +562,34 @@ const SwapComponent = () => {
         className={classes.boxHeaderStyle}
       >
         <Box className={classes.titleHeader}>
-          <Typography variant="h5">VMPX - ETH /</Typography>
-          <Typography variant="h5">BTC Swap</Typography>
-          <Box display="flex" ml={17}>
-            <Typography variant="h6">
-              {' '}
-              <Link
-                color="white"
-                target="_blank"
-                underline="none"
-                href="https://gist.github.com/leisterfrancisco/307a93fcb3eb10c6dc24e62c42c33aae"
-              >
-                First Steps
-              </Link>
-            </Typography>
-            <Typography variant="h6" ml={6}>
-              {' '}
-              <Link
-                color="white"
-                href="/about"
-                target="_blank"
-                underline="none"
-              >
-                About
-              </Link>
-            </Typography>
-          </Box>
+          <Typography variant="h5">VMPX - ETH / BTC Swap</Typography>
+          <div className={classes.showDesktop}>
+            <Box display="flex" ml={16}>
+              <Typography variant="h6">
+                <Link
+                  color="white"
+                  target="_blank"
+                  underline="none"
+                  href="https://gist.github.com/leisterfrancisco/307a93fcb3eb10c6dc24e62c42c33aae"
+                >
+                  First Steps
+                </Link>
+              </Typography>
+              <Typography variant="h6" ml={6}>
+                {' '}
+                <Link
+                  color="white"
+                  href="/about"
+                  target="_blank"
+                  underline="none"
+                >
+                  About
+                </Link>
+              </Typography>
+            </Box>
+          </div>
         </Box>
-        <Box>
+        <div className={classes.showDesktop}>
           <Tooltip title="Logout from Libre">
             <Typography
               color="white"
@@ -553,7 +610,14 @@ const SwapComponent = () => {
                 state?.ethAccountAddress?.length
               )}`}
           </Typography>
-        </Box>
+        </div>
+        <div className={classes.menuButtonContainer}>
+          <MenuIcon onClick={() => setOpenMobileMenu(true)} />
+          <MobileMenu
+            openMobileMenu={openMobileMenu}
+            setOpenMobileMenu={setOpenMobileMenu}
+          />
+        </div>
       </Box>
       <Box height="100%" display="flex" alignItems="center">
         <Box
@@ -746,15 +810,85 @@ const SwapComponent = () => {
               </Tooltip>
               <Tooltip title="Peg-out: Send funds back to Ethereum from Libre.">
                 <Button
-                  variant="contained"
-                  onClick={sendTokensToEth}
                   className={classes.buttonStyle}
+                  onClick={calculateEstimate}
+                  variant="contained"
                 >
                   Send to ETH
+                  {loadingSend && <CircularProgress size={18} />}
                 </Button>
               </Tooltip>
             </Box>
           </Box>
+          {estimateTX && (
+            <Modal
+              open={open}
+              onClose={handleClose}
+              className={classes.modalStyles}
+            >
+              <div className={classes.linkerBox}>
+                <Typography
+                  variant="subtitle1"
+                  alignItems="center"
+                  fontWeight="bold"
+                  display="flex"
+                  mb={2}
+                >
+                  Fixed Fee ({`${estimateTX?.fixedFee}%`}) :{' '}
+                  <Typography variant="body1" ml={1}>
+                    {`${getFixedFee(
+                      estimateTX?.vmpxTxGasCost,
+                      estimateTX?.vmpxTotalTxCost
+                    )} VMPX`}
+                  </Typography>
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  alignItems="center"
+                  fontWeight="bold"
+                  display="flex"
+                  mb={2}
+                >
+                  Transaction Cost (fee + gas) :{' '}
+                  <Typography variant="body1" ml={1}>
+                    {`${formatText(
+                      ethers.formatEther(estimateTX?.vmpxTotalTxCost)
+                    )} VMPX`}
+                  </Typography>
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  alignItems="center"
+                  fontWeight="bold"
+                  display="flex"
+                  mb={2}
+                >
+                  Amount To Transfer :{' '}
+                  <Typography variant="body1" ml={1}>
+                    {`${formatText(
+                      ethers.formatEther(estimateTX?.vmpxQuantityTransfer)
+                    )} VMPX`}
+                  </Typography>
+                </Typography>
+                <Box display="flex" justifyContent="space-evenly" mt={5}>
+                  <Button
+                    className={classes.buttonStyle}
+                    onClick={handleClose}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className={classes.buttonColor}
+                    onClick={sendTokensToEth}
+                    variant="contained"
+                  >
+                    Confirm
+                  </Button>
+                </Box>
+              </div>
+            </Modal>
+          )}
           {state?.ethAccountAddress &&
           state?.user?.actor &&
           !areAccountsLinked ? (

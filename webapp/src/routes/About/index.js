@@ -1,16 +1,23 @@
 import React, { memo } from 'react'
 import Box from '@mui/material/Box'
+import { makeStyles } from '@mui/styles'
 import { Typography } from '@mui/material'
 
+import styles from './styles'
+
+const useStyles = makeStyles(styles)
+
 const About = () => {
+  const classes = useStyles()
+
   return (
-    <Box height="100%" padding="72px 56px">
+    <div className={classes.container}>
       <Box
         bgcolor="secondary.main"
         border="1px solid #000"
+        padding="56px 32px"
         borderRadius={2}
         width="100%"
-        padding="56px 32px"
       >
         <Typography variant="h5" mb={2}>
           About
@@ -31,7 +38,7 @@ const About = () => {
           measures, so users can trade VMPX tokens with confidence.
         </Typography>
       </Box>
-    </Box>
+    </div>
   )
 }
 

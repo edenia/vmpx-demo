@@ -14,18 +14,14 @@ export const estimateTrxCost = async (
     throw new Error('Invalid Ethereum address')
   }
 
-  const ethPriceUsd = await coingeckoUtil.getEthPrice()
-  const vmpxPriceUsd = await coingeckoUtil.getVmpxPrice()
-
   const address = payload.ethAddress
   const quantity = payload.quantity.toString()
-
-  const weiGasPrice = await ethConfig.providerRpc.getGasPrice()
-  const gasLimit = await ethConfig.vmpxContract.estimateGas.transfer(
-    address,
-    quantity
-  )
-
+  const [ethPriceUsd, vmpxPriceUsd, weiGasPrice, gasLimit] = await Promise.all([
+    coingeckoUtil.getEthPrice(),
+    coingeckoUtil.getVmpxPrice(),
+    ethConfig.providerRpc.getGasPrice(),
+    ethConfig.vmpxContract.estimateGas.transfer(address, quantity)
+  ])
   const weiTxGasCost = gasLimit.mul(weiGasPrice)
   const usdTxGasCost = financeUtil.convertWeiToUsd(weiTxGasCost, ethPriceUsd)
   const usdVmpxTransferAmount = financeUtil.convertVmpxToUsd(

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import Box from '@mui/material/Box'
 import { makeStyles } from '@mui/styles'
-import { Button, Typography } from '@mui/material'
+import { Button, Link, Typography } from '@mui/material'
 
 import { blockchainConfig } from '../../config'
 import { useSharedState } from '../../context/state.context'
@@ -134,6 +134,17 @@ const Vmpxswap = () => {
       <Typography mt={6} textAlign="center" variant="body1" color="white">
         This app allows bridging to Libre and swappin to bVMPX (wrapped VMPX on
         bitcoin). You can use libredex.org to move bVMPX to unisat (and back).
+      </Typography>
+      <Typography mt={3} textAlign="center" variant="body1" color="white">
+        Before starting you must know this{' '}
+        <Link
+          href="https://gist.github.com/leisterfrancisco/307a93fcb3eb10c6dc24e62c42c33aae"
+          underline="none"
+          target="_blank"
+        >
+          information
+        </Link>
+        .
       </Typography>
       <Box
         mt={6}

@@ -2,6 +2,7 @@ import React, { lazy } from 'react'
 import { Grid as GridIcon } from 'react-feather'
 
 const Home = lazy(() => import('./Home'))
+const About = lazy(() => import('./About'))
 const Page404 = lazy(() => import('./Route404'))
 
 const routes = [
@@ -10,6 +11,13 @@ const routes = [
     icon: <GridIcon />,
     component: Home,
     path: '/',
+    exact: true
+  },
+  {
+    name: 'About',
+    icon: <GridIcon />,
+    component: About,
+    path: '/about',
     exact: true
   },
   {

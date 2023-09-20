@@ -34,14 +34,16 @@ export const routes = (server: Server, parentRoute: string) => {
         const {
           gasLimit,
           adjustedWeiGasPrice,
-          vmpxTrxCost,
+          vmpxTotalTxCost,
           weiGasPrice,
+          vmpxTxGasCost,
           ...rest
         } = await trxAdapterUtil.estimateTrxCost(ethTx)
         const response = {
           gasLimit: gasLimit.toString(),
+          vmpxTxGasCost: vmpxTxGasCost.toString(),
           adjustedWeiGasPrice: adjustedWeiGasPrice.toString(),
-          vmpxTrxCost: vmpxTrxCost.toString(),
+          vmpxTotalTxCost: vmpxTotalTxCost.toString(),
           weiGasPrice: weiGasPrice.toString(),
           ...rest
         }

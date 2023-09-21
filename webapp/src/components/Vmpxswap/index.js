@@ -132,7 +132,7 @@ const Vmpxswap = () => {
         VMPXswap.com
       </Typography>
       <Typography mt={6} textAlign="center" variant="body1" color="white">
-        This app allows bridging to Libre and swappin to bVMPX (wrapped VMPX on
+        This app allows bridging to Libre and swapping to bVMPX (wrapped VMPX on
         bitcoin). You can use libredex.org to move bVMPX to unisat (and back).
       </Typography>
       <Typography mt={3} textAlign="center" variant="body1" color="white">

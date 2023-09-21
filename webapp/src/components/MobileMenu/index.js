@@ -95,7 +95,7 @@ const MobileMenu = ({ openMobileMenu, setOpenMobileMenu }) => {
                     underline="none"
                     href="https://gist.github.com/leisterfrancisco/307a93fcb3eb10c6dc24e62c42c33aae"
                   >
-                    First Steps
+                    Getting Started
                   </Link>
                 </Typography>
               </Box>

@@ -834,7 +834,7 @@ const SwapComponent = () => {
                   display="flex"
                   mb={2}
                 >
-                  Fixed Fee ({`${estimateTX?.fixedFee}%`}) :{' '}
+                  Liquidity Fee ({`${estimateTX?.fixedFee}%`}) :{' '}
                   <Typography variant="body1" ml={1}>
                     {`${getFixedFee(
                       estimateTX?.vmpxTxGasCost,

@@ -20,9 +20,6 @@ spec:
         - image: ${DOCKER_REGISTRY}/${IMAGE_NAME_WEBAPP}:${VERSION}
           imagePullPolicy: 'Always'
           name: webapp
-          envFrom:
-            - configMapRef:
-                name: webapp-config
           ports:
             - containerPort: 80
       restartPolicy: Always

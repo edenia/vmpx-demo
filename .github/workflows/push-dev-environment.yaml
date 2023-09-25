@@ -50,7 +50,7 @@ jobs:
           REACT_APP_FOOTER_LINKS: ${{ secrets.REACT_APP_FOOTER_LINKS }}
           REACT_APP_LIBRE_APP_NAME: ${{ secrets.REACT_APP_LIBRE_APP_NAME }}
           REACT_APP_LIBRE_API_PROTOCOL: https
-          REACT_APP_LIBRE_API_HOST: https://testnet.libre.org
+          REACT_APP_LIBRE_API_HOST: https://api.testnet.libre.cryptobloks.io
           REACT_APP_LIBRE_API_PORT: 443
           REACT_APP_LIBRE_CHAIN_ID: b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee
           REACT_APP_HASURA_URL: https://graphql-vmpx-demo-libre.edenia.cloud/v1/graphql

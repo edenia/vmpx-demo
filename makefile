@@ -72,6 +72,15 @@ docker-clean:
 	@docker rm postgres hasura hapi
 	@docker volume rm backend-boilerplate_postgres_data
 
+build-kubernetes: ##@devops Generate proper k8s files based on the templates
+build-kubernetes: ./kubernetes
+	@echo "Build kubernetes files..."
+	@rm -Rf $(K8S_BUILD_DIR) && mkdir -p $(K8S_BUILD_DIR)
+	@for file in $(K8S_FILES); do \
+		mkdir -p `dirname "$(K8S_BUILD_DIR)/$$file"`; \
+		$(SHELL_EXPORT) envsubst <./kubernetes/$$file >$(K8S_BUILD_DIR)/$$file; \
+	done
+
 deploy-kubernetes: ##@devops Publish the build k8s files
 deploy-kubernetes: $(K8S_BUILD_DIR)
 	@kubectl create ns $(NAMESPACE) || echo "Namespace '$(NAMESPACE)' already exists.";

@@ -62,7 +62,6 @@ jobs:
             build-kubernetes
         env:
           # general
-          NAMESPACE: vmpx-demo-libre
           INGRESS_HOST: vmpx-demo-libre.edenia.cloud
           INGRESS_GRAPHQL_HOST: graphql-vmpx-demo-libre.edenia.cloud
           # Postgres
@@ -106,7 +105,7 @@ jobs:
         uses: steebchen/kubectl@v1.1.0
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-          NAMESPACE: naavi
+          NAMESPACE: vmpx-demo-libre
           K8S_BUILD_DIR: build_k8s
         with:
           args: version && make deploy-kubernetes

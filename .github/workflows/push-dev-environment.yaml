@@ -1,0 +1,103 @@
+name: Build images from latest dev branch
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  publish:
+    name: build and deploy
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build new images and push
+        run: |
+          make \
+            build-docker-images \
+            push-docker-images
+        env:
+          # webapp
+          REACT_APP_TAG: $npm_package_version
+          REACT_APP_NAME: $npm_package_name
+          REACT_APP_TITLE: {{ secrets.REACT_APP_TITLE }}
+          REACT_APP_CONTRACT_ADDRESS_ETH: {{ secrets.REACT_APP_CONTRACT_ADDRESS_ETH }}
+          REACT_APP_TOKEN_LINKER_CONTRACT: {{ secrets.REACT_APP_TOKEN_LINKER_CONTRACT }}
+          REACT_APP_SWAP_VMPX_CONTRACT: {{ secrets.REACT_APP_SWAP_VMPX_CONTRACT }}
+          REACT_APP_VMPX_POOL_SYMBOL: {{ secrets.REACT_APP_VMPX_POOL_SYMBOL }}
+          REACT_APP_EVMPX_CONTRACT: {{ secrets.REACT_APP_EVMPX_CONTRACT }}
+          REACT_APP_BVMPX_CONTRACT: {{ secrets.REACT_APP_BVMPX_CONTRACT }}
+          REACT_APP_VMPX_TRANSFER_LIMIT: {{ secrets.REACT_APP_VMPX_TRANSFER_LIMIT }}
+          REACT_APP_ETH_BLOCK_EXPLORER: {{ secrets.REACT_APP_ETH_BLOCK_EXPLORER }}
+          REACT_APP_LIBRE_BLOCK_EXPLORER: {{ secrets.REACT_APP_LIBRE_BLOCK_EXPLORER }}
+          REACT_APP_CHAIN_NAME: {{ secrets.REACT_APP_CHAIN_NAME }}
+          REACT_APP_CHAIN_ID: {{ secrets.REACT_APP_CHAIN_ID }}
+          REACT_APP_CHAIN_NATIVE_CURRENCY: {{ secrets.REACT_APP_CHAIN_NATIVE_CURRENCY }}
+          REACT_APP_CHAIN_RPC_URLS: {{ secrets.REACT_APP_CHAIN_RPC_URLS }}
+          REACT_APP_TARGET_ETH_WALLET_ADDRESS: {{ secrets.REACT_APP_TARGET_ETH_WALLET_ADDRESS }}
+          REACT_APP_LOGO: {{ secrets.REACT_APP_LOGO }}
+          REACT_APP_FOOTER_LINKS: {{ secrets.REACT_APP_FOOTER_LINKS }}
+          REACT_APP_LIBRE_APP_NAME: {{ secrets.REACT_APP_LIBRE_APP_NAME }}
+          REACT_APP_LIBRE_API_PROTOCOL: https
+          REACT_APP_LIBRE_API_HOST: https://testnet.libre.org
+          REACT_APP_LIBRE_API_PORT: 443
+          REACT_APP_LIBRE_CHAIN_ID: b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee
+          REACT_APP_HASURA_URL: https://graphql-vmpx-demo-libre.edenia.cloud/v1/graphql
+
+      - name: Build kubernetes files
+        id: build_kubernetes_files
+        run: |
+          make \
+            build-kubernetes
+        env:
+          # general
+          NAMESPACE: vmpx-demo-libre
+          INGRESS_HOST: vmpx-demo-libre.edenia.cloud
+          INGRESS_GRAPHQL_HOST: graphql-vmpx-demo-libre.edenia.cloud
+          # Postgres
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_DATA: ${{ secrets.POSTGRES_DATA }}
+          # hapi
+          HAPI_SERVER_PORT: 9090
+          HAPI_SERVER_ADDRESS: hapi
+          HAPI_NETWORK_CHAIN_ID: b64646740308df2ee06c6b72f34c0f7fa066d940e831f752db2006fcc2b78dee
+          HAPI_NETWORK_API: {{ secrets.HAPI_NETWORK_API }}
+          HAPI_HASURA_URL: {{ secrets.HAPI_HASURA_URL}}
+          HAPI_HASURA_ADMIN_SECRET: {{ secrets.HAPI_HASURA_ADMIN_SECRET }}
+          HAPI_HYPERION_API: {{ secrets.HAPI_HYPERION_API }}
+          HAPI_HYPERION_START_AT: {{ secrets.HAPI_HYPERION_START_AT }}
+          HAPI_VMPX_CONTRACT: {{ secrets.HAPI_VMPX_CONTRACT }}
+          HAPI_DISPENSER_CONTRACT: {{ secrets.HAPI_DISPENSER_CONTRACT }}
+          HAPI_DISPENSER_CONTRACT_PUBLIC_KEY: {{ secrets.HAPI_DISPENSER_CONTRACT_PUBLIC_KEY }}
+          HAPI_DISPENSER_CONTRACT_PRIVATE_KEY: {{ secrets.HAPI_DISPENSER_CONTRACT_PRIVATE_KEY }}
+          HAPI_ETH_HTTP_ENDPOINT: {{ secrets.HAPI_ETH_HTTP_ENDPOINT }}
+          HAPI_ETH_WSS_ENDPOINT: {{ secrets.HAPI_ETH_WSS_ENDPOINT }}
+          HAPI_ETH_ALCHEMY_KEY: {{ secrets.HAPI_ETH_ALCHEMY_KEY }}
+          HAPI_ETH_WALLET_TOKEN_ADDRESS: {{ secrets.HAPI_ETH_WALLET_TOKEN_ADDRESS }}
+          HAPI_ETH_WALLET_ADDRESS: {{ secrets.HAPI_ETH_WALLET_ADDRESS }}
+          HAPI_ETH_WALLET_KEY: {{ secrets.HAPI_ETH_WALLET_KEY }}
+          HAPI_ETH_START_BLOCK_NUMBER: {{ secrets.HAPI_ETH_START_BLOCK_NUMBER }}
+          HAPI_ETH_MAX_RETRY_SEND_TX: 5
+          HAPI_ETH_BLOCKS_TO_FETCH_BY_CATCHER: 100
+          HAPI_ETH_INTERVAL_FETCHER_SEC: 60
+          HAPI_ETH_MAX_TIME_HYPERION_ACTION_SEC: 10
+          HAPI_COINGECKO_API_URL: {{ secrets.HAPI_COINGECKO_API_URL }}
+          # hasura
+          HASURA_GRAPHQL_ENABLE_CONSOLE: true
+          HASURA_GRAPHQL_DATABASE_URL: ${{ secrets.HASURA_GRAPHQL_DATABASE_URL }}
+          HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_GRAPHQL_ADMIN_SECRET }}
+          HASURA_GRAPHQL_UNAUTHORIZED_ROLE: ${{ secrets.HASURA_GRAPHQL_UNAUTHORIZED_ROLE }}
+          HASURA_GRAPHQL_ACTION_BASE_URL: ${{ secrets.HASURA_GRAPHQL_ACTION_BASE_URL }}

@@ -72,6 +72,18 @@ docker-clean:
 	@docker rm postgres hasura hapi
 	@docker volume rm backend-boilerplate_postgres_data
 
+deploy-kubernetes: ##@devops Publish the build k8s files
+deploy-kubernetes: $(K8S_BUILD_DIR)
+	@kubectl create ns $(NAMESPACE) || echo "Namespace '$(NAMESPACE)' already exists.";
+	@echo "Creating configmaps..."
+	@kubectl create configmap -n $(NAMESPACE) \
+	wallet-config \
+	--from-file wallet/config/ || echo "Wallet configuration already created.";
+	@echo "Applying kubernetes files..."
+	@for file in $(shell find $(K8S_BUILD_DIR) -name '*.yaml' | sed 's:$(K8S_BUILD_DIR)/::g'); do \
+		kubectl apply -f $(K8S_BUILD_DIR)/$$file -n $(NAMESPACE) || echo "${file} Cannot be updated."; \
+	done
+
 build-docker-images: ##@devops Build docker images
 build-docker-images:
 	@echo "Building docker containers..."

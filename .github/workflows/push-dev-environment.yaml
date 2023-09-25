@@ -61,7 +61,7 @@ jobs:
           make \
             build-kubernetes
         env:
-          # general
+          # general_vmpx
           INGRESS_HOST: vmpx-demo-libre.edenia.cloud
           INGRESS_GRAPHQL_HOST: graphql-vmpx-demo-libre.edenia.cloud
           # Postgres

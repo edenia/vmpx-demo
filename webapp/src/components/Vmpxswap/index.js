@@ -50,25 +50,17 @@ const Vmpxswap = () => {
       // Verificar si es un dispositivo móvil y MetaMask no está detectado
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
       if (isMobile && !ethereum) {
+        // Intentar redirigir si es un dispositivo móvil
+        window.location.href = 'metamask:'
+        return
+      }
+
+      if (!ethereum) {
         showMessage({
           type: 'warning',
           content: 'Make sure you have MetaMask installed!'
         })
         return
-      }
-
-      if (!ethereum) {
-        // Intentar usar MetaMask URI en dispositivos móviles
-        if (isMobile) {
-          window.location.href = 'metamask:'
-          return
-        } else {
-          showMessage({
-            type: 'warning',
-            content: 'Make sure you have MetaMask installed!'
-          })
-          return
-        }
       }
 
       // Continuar con la conexión si ethereum está disponible

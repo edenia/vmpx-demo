@@ -56,17 +56,26 @@ const Vmpxswap = () => {
         return
       }
 
-      await setSpecificChainMetaMask(ethereum)
+      // Detecta si el usuario está en un dispositivo móvil
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-      const accounts = await ethereum.request({
-        method: 'eth_requestAccounts'
-      })
+      if (isMobile) {
+        // Si el usuario está en un dispositivo móvil, abre la aplicación Metamask
+        window.location.href = 'metamask:'
+      } else {
+        // Si el usuario no está en un dispositivo móvil, procede como antes
+        await setSpecificChainMetaMask(ethereum)
 
-      showMessage({
-        type: 'success',
-        content: `Connected to address: ${accounts[0]}`
-      })
-      setState({ param: 'ethAccountAddress', ethAccountAddress: accounts[0] })
+        const accounts = await ethereum.request({
+          method: 'eth_requestAccounts'
+        })
+
+        showMessage({
+          type: 'success',
+          content: `Connected to address: ${accounts[0]}`
+        })
+        setState({ param: 'ethAccountAddress', ethAccountAddress: accounts[0] })
+      }
     } catch (error) {
       if (error.message.includes('User rejected the request')) {
         console.log(
@@ -83,12 +92,21 @@ const Vmpxswap = () => {
       const ethereum = window.ethereum
 
       if (ethereum) {
-        await setSpecificChainMetaMask(ethereum)
+        // Detecta si el usuario está en un dispositivo móvil
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-        const accounts = await ethereum.enable()
-        const account = accounts[0]
+        if (isMobile) {
+          // Si el usuario está en un dispositivo móvil, abre la aplicación Metamask
+          window.location.href = 'metamask:'
+        } else {
+          // Si el usuario no está en un dispositivo móvil, procede como antes
+          await setSpecificChainMetaMask(ethereum)
 
-        setState({ param: 'ethAccountAddress', ethAccountAddress: account })
+          const accounts = await ethereum.enable()
+          const account = accounts[0]
+
+          setState({ param: 'ethAccountAddress', ethAccountAddress: account })
+        }
       } else {
         showMessage({
           type: 'warning',

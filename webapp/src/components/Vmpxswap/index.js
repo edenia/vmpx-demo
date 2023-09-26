@@ -45,38 +45,30 @@ const Vmpxswap = () => {
 
   const connectMetaMask = async () => {
     try {
-      const ethereum = window.ethereum || window.web3.currentProvider
-
-      // Verificar si es un dispositivo móvil y MetaMask no está detectado
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-      if (isMobile && !ethereum) {
-        // Intentar redirigir si es un dispositivo móvil
-        window.location.href = 'metamask:'
-        return
-      }
+      const { ethereum } = window
 
       if (!ethereum) {
         showMessage({
           type: 'warning',
-          content: 'Make sure you have MetaMask installed!'
+          content: 'Asegúrate de tener MetaMask instalado.'
         })
         return
       }
 
-      // Continuar con la conexión si ethereum está disponible
-      await setSpecificChainMetaMask(ethereum)
-
-      const accounts = await ethereum.request({
-        method: 'eth_requestAccounts'
-      })
+      await ethereum.request({ method: 'eth_requestAccounts' })
 
       showMessage({
         type: 'success',
-        content: `Connected to address: ${accounts[0]}`
+        content: 'Conectado correctamente a MetaMask.'
       })
-      setState({ param: 'ethAccountAddress', ethAccountAddress: accounts[0] })
+
+      const accounts = await ethereum.request({ method: 'eth_accounts' })
+      setState({
+        param: 'ethAccountAddress',
+        ethAccountAddress: accounts[0] || null
+      })
     } catch (error) {
-      if (error.message.includes('User rejected the request')) {
+      if (error.code === 4001) {
         console.log(
           'Por favor, aprueba la solicitud de MetaMask para continuar.'
         )
@@ -88,38 +80,21 @@ const Vmpxswap = () => {
 
   const checkIfMetaMaskIsConnected = async () => {
     try {
-      const ethereum = window.ethereum || window.web3.currentProvider
+      const ethereum = window.ethereum
 
-      // Verificar si es un dispositivo móvil y MetaMask no está detectado
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-      if (isMobile && !ethereum) {
+      if (ethereum) {
+        await setSpecificChainMetaMask(ethereum)
+
+        const accounts = await ethereum.enable()
+        const account = accounts[0]
+
+        setState({ param: 'ethAccountAddress', ethAccountAddress: account })
+      } else {
         showMessage({
           type: 'warning',
           content: 'Make sure you have MetaMask installed!'
         })
-        return
       }
-
-      if (!ethereum) {
-        // Intentar usar MetaMask URI en dispositivos móviles
-        if (isMobile) {
-          window.location.href = 'metamask:'
-          return
-        } else {
-          showMessage({
-            type: 'warning',
-            content: 'Make sure you have MetaMask installed!'
-          })
-          return
-        }
-      }
-
-      await setSpecificChainMetaMask(ethereum)
-
-      const accounts = await ethereum.enable()
-      const account = accounts[0]
-
-      setState({ param: 'ethAccountAddress', ethAccountAddress: account })
     } catch (error) {
       if (error.message.includes('User rejected the request')) {
         console.log(

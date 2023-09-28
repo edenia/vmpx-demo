@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import Box from '@mui/material/Box'
 import { makeStyles } from '@mui/styles'
-import { useWeb3React } from '@web3-react/core'
+import { MetaMaskSDK } from '@metamask/sdk'
 import { Button, Link, Typography } from '@mui/material'
-import { InjectedConnector } from '@web3-react/injected-connector'
 
+import { sleep } from '../../utils'
 import { blockchainConfig } from '../../config'
 import { useSharedState } from '../../context/state.context'
 import { logout as walletLogout } from '../../utils/LibreClient'
@@ -13,21 +13,9 @@ import styles from './styles'
 
 const useStyles = makeStyles(styles)
 
-const injectedConnector = new InjectedConnector({
-  supportedChainIds: [
-    1, // Mainet
-    3, // Ropsten
-    4, // Rinkeby
-    5, // Goerli
-    42 // Kovan
-  ]
-})
-
 const Vmpxswap = () => {
   const [state, { setState, login, logout, showMessage }] = useSharedState()
   const classes = useStyles()
-
-  const { activate, deactivate, active, error } = useWeb3React()
 
   const setSpecificChainMetaMask = async ethereum => {
     const chainId = blockchainConfig.ethChainId
@@ -59,44 +47,38 @@ const Vmpxswap = () => {
 
   const connectMetaMask = async () => {
     try {
-      const { ethereum } = window
+      let ethereum = window.ethereum
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
       if (!ethereum) {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-
         if (isMobile) {
-          injectedConnector.isAuthorized().then(isAuthorized => {
-            if (isAuthorized) {
-              activate(injectedConnector, undefined, true).catch(error => {
-                console.log(error)
-              })
-            }
+          try {
+            const MMSDK = new MetaMaskSDK({
+              useDeeplink: false,
+              communicationLayerPreference: 'socket'
+            })
+
+            await sleep(1000)
+            ethereum = MMSDK.getProvider()
+          } catch (error) {
+            console.error(error)
+          }
+        } else {
+          showMessage({
+            type: 'warning',
+            content: 'Make sure you have MetaMask installed!'
           })
-
-          return
         }
-
-        showMessage({
-          type: 'warning',
-          content: 'Asegúrate de tener MetaMask instalado.'
-        })
-
-        return
       }
 
-      await ethereum.request({ method: 'eth_requestAccounts' })
+      if (!isMobile) await setSpecificChainMetaMask(ethereum)
 
-      showMessage({
-        type: 'success',
-        content: 'Conectado correctamente a MetaMask.'
+      const accounts = await ethereum.request({
+        method: 'eth_requestAccounts',
+        params: []
       })
 
-      const accounts = await ethereum.request({ method: 'eth_accounts' })
-
-      setState({
-        param: 'ethAccountAddress',
-        ethAccountAddress: accounts[0] || null
-      })
+      setState({ param: 'ethAccountAddress', ethAccountAddress: accounts[0] })
     } catch (error) {
       if (error.code === 4001) {
         console.log(
@@ -110,29 +92,22 @@ const Vmpxswap = () => {
 
   const checkIfMetaMaskIsConnected = async () => {
     try {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+      if (isMobile) return
+
       const ethereum = window.ethereum
 
       if (ethereum) {
         await setSpecificChainMetaMask(ethereum)
 
-        const accounts = await ethereum.enable()
+        const accounts = await ethereum.request({
+          method: 'eth_requestAccounts'
+        })
         const account = accounts[0]
 
         setState({ param: 'ethAccountAddress', ethAccountAddress: account })
       } else {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-
-        if (isMobile) {
-          injectedConnector.isAuthorized().then(isAuthorized => {
-            if (isAuthorized) {
-              activate(injectedConnector, undefined, true).catch(error => {
-                console.log(error)
-              })
-            }
-          })
-
-          return
-        }
         showMessage({
           type: 'warning',
           content: 'Make sure you have MetaMask installed!'
@@ -162,16 +137,6 @@ const Vmpxswap = () => {
     checkIfMetaMaskIsConnected()
   }, [])
 
-  // useEffect(() => {
-  //   injectedConnector.isAuthorized().then(isAuthorized => {
-  //     if (isAuthorized) {
-  //       activate(injectedConnector, undefined, true).catch(error => {
-  //         console.log(error)
-  //       })
-  //     }
-  //   })
-  // }, [activate, active, deactivate])
-  console.log({ activate, deactivate, active, error })
   return (
     <Box
       className={classes.centerContainer}

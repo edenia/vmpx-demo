@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
 import { makeStyles } from '@mui/styles'
+import { MetaMaskSDK } from '@metamask/sdk'
 import { useLazyQuery } from '@apollo/client'
 import MenuIcon from '@mui/icons-material/Menu'
 import { BigNumber } from '@ethersproject/bignumber'
@@ -158,26 +159,38 @@ const SwapComponent = () => {
 
   const connectMetaMask = async () => {
     try {
-      const { ethereum } = window
+      let ethereum = window.ethereum
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
       if (!ethereum) {
-        showMessage({
-          type: 'warning',
-          content: 'Make sure you have MetaMask installed!'
-        })
+        if (isMobile) {
+          try {
+            const MMSDK = new MetaMaskSDK({
+              useDeeplink: false,
+              communicationLayerPreference: 'socket'
+            })
 
-        return
+            await sleep(1000)
+            ethereum = MMSDK.getProvider()
+          } catch (error) {
+            console.error(error)
+          }
+        } else {
+          showMessage({
+            type: 'warning',
+            content: 'Make sure you have MetaMask installed!'
+          })
+        }
       }
 
-      await setSpecificChainMetaMask(ethereum)
+      if (!isMobile) await setSpecificChainMetaMask(ethereum)
 
       const accounts = await ethereum.request({
-        method: 'eth_requestAccounts'
+        method: 'eth_requestAccounts',
+        params: []
       })
 
       setState({ param: 'ethAccountAddress', ethAccountAddress: accounts[0] })
-
-      return accounts[0]
     } catch (error) {
       if (error.message.includes('User rejected the request')) {
         console.log(
